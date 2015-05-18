@@ -1,4 +1,4 @@
-package com.mnt.authentication.model;
+package com.mnt.entities.authentication;
 
 import java.util.List;
 

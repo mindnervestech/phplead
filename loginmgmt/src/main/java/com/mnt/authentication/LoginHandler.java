@@ -2,7 +2,7 @@ package com.mnt.authentication;
 
 import org.springframework.security.authentication.AuthenticationServiceException;
 
-import com.mnt.authentication.model.AuthUser;
+import com.mnt.entities.authentication.AuthUser;
 
 public interface LoginHandler {
 	

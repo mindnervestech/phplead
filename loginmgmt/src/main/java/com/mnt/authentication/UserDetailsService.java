@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mnt.authentication.model.AuthUser;
+import com.mnt.entities.authentication.AuthUser;
 
 
 @Transactional

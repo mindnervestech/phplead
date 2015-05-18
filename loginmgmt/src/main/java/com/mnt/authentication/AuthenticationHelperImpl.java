@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import com.mnt.authentication.model.AuthUser;
+import com.mnt.entities.authentication.AuthUser;
 
 public class AuthenticationHelperImpl implements AuthenticationHelper {
 

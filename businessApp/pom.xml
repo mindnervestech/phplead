@@ -7,12 +7,11 @@
     <artifactId>leadmgmt</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <groupId>com.mnt</groupId>
-  <artifactId>loginmgmt</artifactId>
+  <groupId>com.mnt.bsh</groupId>
+  <artifactId>businessApp</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>loginmgmt</name>
-  <packaging>jar</packaging>
-  <url>http://maven.apache.org</url>
+  <name>businessApp</name>
+  
   <properties>
 		<java-version>1.7</java-version>
 		<org.springframework-version>3.2.3.RELEASE</org.springframework-version>
@@ -95,7 +94,7 @@
 			<version>5.1.6</version>
 		</dependency>
 		
-  		
+		
   </dependencies>
   
 </project>

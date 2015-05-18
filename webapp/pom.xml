@@ -76,8 +76,13 @@
 				  <groupId>com.mnt</groupId>
 				  <artifactId>loginmgmt</artifactId>
 				  <version>0.0.1-SNAPSHOT</version>
-		</dependency>	
+		</dependency>
 		
+		<dependency>
+			<groupId>com.mnt.bsh</groupId>
+  			<artifactId>businessApp</artifactId>
+  			<version>0.0.1-SNAPSHOT</version>	
+		</dependency>
 		
   </dependencies>
   <build>

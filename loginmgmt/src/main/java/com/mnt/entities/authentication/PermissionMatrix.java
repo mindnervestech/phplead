@@ -1,4 +1,4 @@
-package com.mnt.authentication.model;
+package com.mnt.entities.authentication;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

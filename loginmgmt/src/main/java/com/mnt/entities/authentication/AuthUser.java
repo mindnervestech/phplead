@@ -1,4 +1,4 @@
-package com.mnt.authentication.model;
+package com.mnt.entities.authentication;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +17,7 @@ import javax.persistence.Transient;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
+//import org.springframework.transaction.annotation.Transactional;
 @Entity
 @Table(name="authusers")
 public class AuthUser implements UserDetails {
@@ -35,7 +35,7 @@ public class AuthUser implements UserDetails {
     
     
     @Transient
-    @Transactional
+    //@Transactional
     public Collection<GrantedAuthority> getAuthorities() {
     	List<GrantedAuthority> roles =  new ArrayList<GrantedAuthority>();
 		roles.addAll(getRoles());

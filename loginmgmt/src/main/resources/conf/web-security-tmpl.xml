@@ -73,3 +73,4 @@
   <beans:bean id="userDetailsService" class="com.mnt.authentication.UserDetailsService"></beans:bean>
   <beans:bean id="permissionEvaluator" class="com.mnt.authentication.PermissionEvaluatorImpl"></beans:bean>
 </beans:beans>
+

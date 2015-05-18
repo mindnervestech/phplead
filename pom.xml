@@ -18,7 +18,11 @@
 
   </dependencies>
   <modules>
+    
     <module>loginmgmt</module>
+    <module>businessApp</module>
     <module>webapp</module>
+
+    
   </modules>
 </project>

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mnt.authentication.LoginHandler;
-import com.mnt.authentication.model.AuthUser;
+import com.mnt.entities.authentication.AuthUser;
 
 @Controller
 @RequestMapping("/api/login")

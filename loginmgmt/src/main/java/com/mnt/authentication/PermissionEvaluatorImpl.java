@@ -8,9 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.mnt.authentication.model.Actions;
-import com.mnt.authentication.model.AuthUser;
-import com.mnt.authentication.model.Role;
+import com.mnt.entities.authentication.Actions;
+import com.mnt.entities.authentication.AuthUser;
+import com.mnt.entities.authentication.Role;
 
 
 @Component("permissionEvaluator")

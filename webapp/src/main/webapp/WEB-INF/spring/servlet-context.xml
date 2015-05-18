@@ -14,6 +14,8 @@
 		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 	<beans:import resource="classpath:conf/web-security.xml"/>
 	<beans:import resource="classpath:conf/hibernate-context.xml"/>
+	<beans:import resource="classpath:spring/business-app-spring-context.xml"/>
+	
 	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
 	
 	<!-- Enables the Spring MVC @Controller programming model -->

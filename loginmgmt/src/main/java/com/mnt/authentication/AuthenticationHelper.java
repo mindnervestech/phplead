@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import com.mnt.authentication.model.AuthUser;
+import com.mnt.entities.authentication.AuthUser;
 
 public interface AuthenticationHelper {
 	Collection<GrantedAuthority> getRoles(AuthUser user) ;
