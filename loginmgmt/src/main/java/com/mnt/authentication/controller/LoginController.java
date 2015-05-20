@@ -51,7 +51,7 @@ public class LoginController {
 	@Autowired
 	AuthenticationProvider authenticationProvider;  
 	 
-  @RequestMapping(method = RequestMethod.GET)
+  @RequestMapping(method = RequestMethod.GET,headers={"Accept=text/xml, application/json"})
   @ResponseBody
   public Object getStatus() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
