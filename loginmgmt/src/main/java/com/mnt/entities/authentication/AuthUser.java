@@ -3,6 +3,7 @@ package com.mnt.entities.authentication;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +18,7 @@ import javax.persistence.Transient;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 //import org.springframework.transaction.annotation.Transactional;
 @Entity
 @Table(name="authusers")
@@ -32,10 +34,15 @@ public class AuthUser implements UserDetails {
     public List<Group> groups = new ArrayList<Group>();
     
     public List<PermissionMatrix> permissionMatrix = new ArrayList<PermissionMatrix>();
+	
+    @Transient
+    public Map<String, Integer> privResourceMap;
+    
+    
     
     
     @Transient
-    //@Transactional
+    @Transactional
     public Collection<GrantedAuthority> getAuthorities() {
     	List<GrantedAuthority> roles =  new ArrayList<GrantedAuthority>();
 		roles.addAll(getRoles());
@@ -73,7 +80,7 @@ public class AuthUser implements UserDetails {
         this.username = username;
     }
 
-    //@Override
+    @Override
     public String getPassword() { return password; }
     
     public void setPassword(String password) {
@@ -86,42 +93,6 @@ public class AuthUser implements UserDetails {
     public void setEmail(String email) {
         this.email = email;
     }
-    
-    
-
-    
-   
-    /*
-     * Below code is Written for ACL , Not in Scope for now (08-2014).
-     * 
-    public List<UserPermissionAction> allowedpermisions;
-	public List<UserPermissionAction> hiddenpermisions; 
-    
-    @OneToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
-    @JoinColumn(name="user_id")
-    @Where(clause="state='S'")
-    @Fetch(value = FetchMode.SUBSELECT)
-	public List<UserPermissionAction> getAllowedpermisions() {
-		return allowedpermisions;
-	}
-    
-    @OneToMany(cascade=CascadeType.ALL,fetch=FetchType.EAGER)
-    @JoinColumn(name="user_id")
-    @Where(clause="state='H'")
-    @Fetch(value = FetchMode.SUBSELECT)//http://stackoverflow.com/questions/4334970/hibernate-cannot-simultaneously-fetch-multiple-bags
-    public List<UserPermissionAction> getHiddenpermisions() {
-		return hiddenpermisions;
-	}
-
-	public void setAllowedpermisions(List<UserPermissionAction> allowedpermisions) {
-		this.allowedpermisions = allowedpermisions;
-	}
-
-	public void setHiddenpermisions(List<UserPermissionAction
-			
-			> hiddenpermisions) {
-		this.hiddenpermisions = hiddenpermisions;
-	}*/
     
     @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(name="userrole",

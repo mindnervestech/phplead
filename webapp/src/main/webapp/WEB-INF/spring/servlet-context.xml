@@ -12,9 +12,32 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd 
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
 		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	
 	<beans:import resource="classpath:conf/web-security.xml"/>
 	<beans:import resource="classpath:conf/hibernate-context.xml"/>
 	<beans:import resource="classpath:spring/business-app-spring-context.xml"/>
+	
+	  <context:component-scan base-package="com.mnt.authentication.controller" />	  
+  		<context:annotation-config />
+  	<tx:annotation-driven  transaction-manager="transactionManager"/>
+    <beans:bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+    <beans:property name="dataSource" ref="dataSource"/>
+    <beans:property name="hibernateProperties">
+      <beans:props>
+        <beans:prop key="hibernate.dialect">${hibernate.dialect}</beans:prop>
+        <beans:prop key="hibernate.hbm2ddl.auto">update</beans:prop>
+        <beans:prop key="hibernate.show_sql">true</beans:prop>
+      </beans:props>
+    </beans:property>
+    <beans:property name="packagesToScan" value="com.mnt.entities.authentication"/>
+    
+  </beans:bean>
+ 	 		 		
+  <beans:bean id="transactionManager"
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+    <beans:property name="sessionFactory" ref="sessionFactory"/>
+  </beans:bean>
+  
 	
 	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
 	

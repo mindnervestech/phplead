@@ -23,14 +23,20 @@
     <sec:http pattern="/**/*.js" security="none"/>
     <sec:http pattern="/**/*.png" security="none"/>
     <sec:http pattern="/**/*.gif" security="none"/>
+    <sec:http pattern="/**/login.html" security="none"/>
     
     <sec:http auto-config="true" use-expressions="true">
+    
+    <sec:access-denied-handler ref="accessDeniedHandler"/>
    
     <sec:form-login login-page="/"
 		    default-target-url="/welcome.html"
 		    always-use-default-target="false"/>
-    <sec:logout logout-url="/logout"
-		logout-success-url="/login.html" />
+    <sec:logout 
+        logout-success-url="/"
+		delete-cookies="JSESSIONID" 
+		logout-url="/j_spring_security_logout" 
+		invalidate-session="true" />
 	<sec:expression-handler ref="webExpressionHandler"/>	
   </sec:http>
 
@@ -55,6 +61,7 @@
    
   <sec:global-method-security pre-post-annotations="enabled" >
         <sec:expression-handler ref="expressionHandler"/>
+        
   </sec:global-method-security>
 
   <beans:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
