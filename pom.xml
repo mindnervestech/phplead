@@ -21,6 +21,7 @@
     
     <module>loginmgmt</module>
     <module>businessApp</module>
+    <module>reporting</module>
     <module>webapp</module>
 
     
