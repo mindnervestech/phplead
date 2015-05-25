@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -24,10 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Table(name="authusers")
 public class AuthUser implements UserDetails {
 	
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Long id;
     public String username;
     public String password;
     public String email;
+    public Long entityId;
     
     public List<Role> roles = new ArrayList<Role>();
     
@@ -129,5 +134,14 @@ public class AuthUser implements UserDetails {
 		return true;
 	}
 
+	public Long getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(Long entityId) {
+		this.entityId = entityId;
+	}
+    
+    
 	
 }
