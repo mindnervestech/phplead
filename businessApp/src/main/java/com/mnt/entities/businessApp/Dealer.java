@@ -1,13 +1,23 @@
 package com.mnt.entities.businessApp;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
+import com.mnt.businessApp.viewmodel.PinsVM;
 
 @Entity
-public class Dealers {
+public class Dealer {
+
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -20,14 +30,14 @@ public class Dealers {
 	public String zone;
 	public String territory;
 	public String rsm;
-	public String pins;
 	public String address;
 	public String state;
 	public String district;
 	public String subDistrict;
-	public String zipCode;
 	
-	
+	@OneToMany
+	public List<Lead> leads;
+
 	public Long getId() {
 		return id;
 	}
@@ -82,12 +92,6 @@ public class Dealers {
 	public void setRsm(String rsm) {
 		this.rsm = rsm;
 	}
-	public String getPins() {
-		return pins;
-	}
-	public void setPins(String pins) {
-		this.pins = pins;
-	}
 	public String getAddress() {
 		return address;
 	}
@@ -112,12 +116,10 @@ public class Dealers {
 	public void setSubDistrict(String subDistrict) {
 		this.subDistrict = subDistrict;
 	}
-	public String getZipCode() {
-		return zipCode;
+	public List<Lead> getLeads() {
+		return leads;
 	}
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
+	public void setLeads(List<Lead> leads) {
+		this.leads = leads;
 	}
-	
-	
 }

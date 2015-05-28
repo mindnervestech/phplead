@@ -2,13 +2,20 @@ package com.mnt.businessApp.viewmodel;
 
 public class PinsVM {
 
-	public String pin;
+	public Long pin;
+	
+	public PinsVM() {
+	}
 
-	public String getPin() {
+	public PinsVM(Long pin) {
+		this.pin = pin;
+	}
+
+	public Long getPin() {
 		return pin;
 	}
 
-	public void setPin(String pin) {
+	public void setPin(Long pin) {
 		this.pin = pin;
 	}
 	

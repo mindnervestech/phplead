@@ -4,6 +4,7 @@ public class ProductVM {
 
 	public Long id;
 	public String name;
+	public Boolean selected = false;
 	
 	public Long getId() {
 		return id;
@@ -16,6 +17,12 @@ public class ProductVM {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public Boolean getSelected() {
+		return selected;
+	}
+	public void setSelected(Boolean selected) {
+		this.selected = selected;
 	}
 	
 }

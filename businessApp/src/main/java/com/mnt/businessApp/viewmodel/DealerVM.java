@@ -2,6 +2,8 @@ package com.mnt.businessApp.viewmodel;
 
 import java.util.List;
 
+import com.mnt.entities.businessApp.Dealer;
+
 public class DealerVM {
 
 	public Long id;
@@ -18,9 +20,26 @@ public class DealerVM {
 	public String state;
 	public String district;
 	public String subdist;
-	public String zipCode;
-	public List<String> pinsList;
 	
+	
+	public DealerVM() {
+	}
+	
+	public DealerVM(Dealer dealer) {
+		this.id = dealer.getId();
+		this.name = dealer.getDealerName();
+		this.address = dealer.getAddress();
+		this.customerGroup = dealer.getCustomerGroup();
+		this.code = dealer.getDealerCode();
+		this.district = dealer.getDistrict();
+		this.email = dealer.getEmail();
+		this.phone =dealer.getPhone();
+		this.rsm = dealer.getRsm();
+		this.state = dealer.getState();
+		this.subdist = dealer.getSubDistrict();
+		this.territory = dealer.getTerritory();
+		this.zone = dealer.getZone();
+	}
 	public Long getId() {
 		return id;
 	}
@@ -105,17 +124,4 @@ public class DealerVM {
 	public void setSubdist(String subdist) {
 		this.subdist = subdist;
 	}
-	public String getZipCode() {
-		return zipCode;
-	}
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
-	}
-	public List<String> getPinsList() {
-		return pinsList;
-	}
-	public void setPinsList(List<String> pinsList) {
-		this.pinsList = pinsList;
-	}
-	
 }

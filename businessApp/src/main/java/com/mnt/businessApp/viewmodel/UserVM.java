@@ -19,7 +19,8 @@ public class UserVM {
 	public String postCode;
 	public String roleName;
 	public String zoneName;
-	public List<ProductVM> productList;
+	public List<ProductVM> products;
+	private List<String> productlist;
 	
 	public Long getId() {
 		return id;
@@ -105,11 +106,17 @@ public class UserVM {
 	public void setZoneName(String zoneName) {
 		this.zoneName = zoneName;
 	}
-	public List<ProductVM> getProductList() {
-		return productList;
+	public List<ProductVM> getProducts() {
+		return products;
 	}
-	public void setProductList(List<ProductVM> productList) {
-		this.productList = productList;
+	public void setProducts(List<ProductVM> productList) {
+		this.products = productList;
+	}
+	public List<String> getProductList() {
+		return productlist;
+	}
+	public void setProductList(List<String> productList) {
+		this.productlist = productList;
 	}
 	
 	
