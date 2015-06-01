@@ -25,10 +25,10 @@ public class Lead {
 	
 	public Long leadNumber;
 	
-	@OneToOne
+	@OneToOne(fetch=FetchType.EAGER)
 	public LeadDetails leadDetails;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.ALL,fetch=FetchType.EAGER)
 	public Dealer dealer;
 	
 	public String disposition1;
@@ -41,7 +41,7 @@ public class Lead {
 	
 	public Date escalatedDate;
 	
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	public User escalatedTo;
 	
 	

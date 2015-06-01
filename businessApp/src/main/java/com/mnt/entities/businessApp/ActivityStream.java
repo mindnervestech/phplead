@@ -28,7 +28,7 @@ public class ActivityStream {
 	
 	public String reason;
 	
-	public Date followUpDate;
+	public Date createdDate;
 	
 	@ManyToOne
 	public Lead lead;
@@ -89,12 +89,12 @@ public class ActivityStream {
 		this.lead = lead;
 	}
 
-	public Date getFollowUpDate() {
-		return followUpDate;
+	public Date getCreatedDate() {
+		return createdDate;
 	}
 
-	public void setFollowUpDate(Date followUpDate) {
-		this.followUpDate = followUpDate;
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
 	}
 	
 	

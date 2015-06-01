@@ -2,8 +2,10 @@ package com.mnt.businessApp.service;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -21,6 +23,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mnt.businessApp.viewmodel.LeadDetailsVM;
+import com.mnt.businessApp.viewmodel.UserInfoVM;
 import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Lead;
@@ -34,6 +38,18 @@ public class SchedularService {
 	
 	@Autowired
     private JdbcTemplate jt;
+	
+	public UserInfoVM getUserInfo() {
+		UserInfoVM infoVM = new UserInfoVM();
+		infoVM.setFollowUpCount(sessionFactory.getCurrentSession().createQuery("FROM Lead where disposition1 = 'Escalated' and DATE(followUpDate) = CURRENT_DATE()").list().size());
+		return infoVM;
+	}
+	
+	public UserInfoVM followUpSchedular() {
+		UserInfoVM infoVM = new UserInfoVM();
+		infoVM.setFollowUpCount(sessionFactory.getCurrentSession().createQuery("FROM Lead where disposition1 = 'Escalated' and DATE(followUpDate) = CURRENT_DATE()").list().size());
+		return infoVM;
+	}
 	
 	public void escalationScheduler() {
 		GeneralConfig generalConfig = (GeneralConfig) sessionFactory.getCurrentSession().get(GeneralConfig.class, 1l);

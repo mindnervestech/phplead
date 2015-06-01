@@ -13,7 +13,7 @@ public class LeadHistoryVM {
 	public LeadHistoryVM(ActivityStream activityStream) {
 		this.number = activityStream.getId();
 		this.reason = activityStream.getReason();
-		this.date = activityStream.getFollowUpDate();
+		this.date = activityStream.getCreatedDate();
 		
 	}
 

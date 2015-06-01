@@ -2,17 +2,7 @@ package com.mnt.businessApp.viewmodel;
 
 import java.util.Date;
 
-import javax.persistence.CascadeType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-
-import com.mnt.entities.businessApp.ActivityStream;
-import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.Lead;
-import com.mnt.entities.businessApp.LeadDetails;
 
 public class LeadVM {
 
@@ -59,7 +49,7 @@ public class LeadVM {
 		this.areaofInterest1 = lead.getLeadDetails().getAreaofInterest1();
 		this.areaofInterest2 = lead.getLeadDetails().getAreaofInterest2();
 		this.remarks1 = lead.getLeadDetails().getRemarks1();
-		//this.followUpDate = lead.getFollowUpDate();
+		this.followUpDate = lead.getFollowUpDate();
 		this.reason = lead.getReason();
 	}
 
