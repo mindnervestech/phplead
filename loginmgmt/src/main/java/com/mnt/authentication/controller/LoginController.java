@@ -119,6 +119,7 @@ public class LoginController {
 			  privResourceMap.put(resource,accessLevelFromDB);
 		  } 
 	  }
+	  privResourceMap.put("role",u.getRoles().get(0).getId());
 	  u.privResourceMap = privResourceMap;
 	  
 	  /*"select * from permissionmatrix pm

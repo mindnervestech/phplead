@@ -1,6 +1,5 @@
 package com.mnt.entities.businessApp;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -8,12 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Transient;
-
-import com.mnt.businessApp.viewmodel.PinsVM;
 
 @Entity
 public class Dealer {
@@ -29,11 +24,14 @@ public class Dealer {
 	public String email;
 	public String zone;
 	public String territory;
-	public String rsm;
 	public String address;
 	public String state;
 	public String district;
 	public String subDistrict;
+	public String zipCode;
+	
+	@ManyToOne(cascade = CascadeType.ALL)
+	public User rsm;
 	
 	@OneToMany
 	public List<Lead> leads;
@@ -74,22 +72,16 @@ public class Dealer {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getZone() {
-		return zone;
-	}
-	public void setZone(String zone) {
-		this.zone = zone;
-	}
 	public String getTerritory() {
 		return territory;
 	}
 	public void setTerritory(String territory) {
 		this.territory = territory;
 	}
-	public String getRsm() {
+	public User getRsm() {
 		return rsm;
 	}
-	public void setRsm(String rsm) {
+	public void setRsm(User rsm) {
 		this.rsm = rsm;
 	}
 	public String getAddress() {
@@ -121,5 +113,17 @@ public class Dealer {
 	}
 	public void setLeads(List<Lead> leads) {
 		this.leads = leads;
+	}
+	public String getZipCode() {
+		return zipCode;
+	}
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+	public String getZone() {
+		return zone;
+	}
+	public void setZone(String zone) {
+		this.zone = zone;
 	}
 }

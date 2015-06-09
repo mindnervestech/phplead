@@ -12,14 +12,15 @@ public class DealerVM {
 	public String customerGroup;
 	public String phone;
 	public String email;
-	public String zone;
-	public String territory;
+	public ZoneVM zone;
+	public ZoneVM territory;
 	public String rsm;
 	public List<PinsVM> pins;
 	public String address;
 	public String state;
 	public String district;
 	public String subdist;
+	public String zipCode;
 	
 	
 	public DealerVM() {
@@ -34,11 +35,12 @@ public class DealerVM {
 		this.district = dealer.getDistrict();
 		this.email = dealer.getEmail();
 		this.phone =dealer.getPhone();
-		this.rsm = dealer.getRsm();
+		this.rsm = dealer.getRsm().getName();
 		this.state = dealer.getState();
 		this.subdist = dealer.getSubDistrict();
-		this.territory = dealer.getTerritory();
-		this.zone = dealer.getZone();
+		//this.territory = dealer.getTerritory();
+		//this.zone = dealer.getZone();
+		this.zipCode = dealer.getZipCode();
 	}
 	public Long getId() {
 		return id;
@@ -76,16 +78,16 @@ public class DealerVM {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getZone() {
+	public ZoneVM getZone() {
 		return zone;
 	}
-	public void setZone(String zone) {
+	public void setZone(ZoneVM zone) {
 		this.zone = zone;
 	}
-	public String getTerritory() {
+	public ZoneVM getTerritory() {
 		return territory;
 	}
-	public void setTerritory(String territory) {
+	public void setTerritory(ZoneVM territory) {
 		this.territory = territory;
 	}
 	public String getRsm() {
@@ -123,5 +125,13 @@ public class DealerVM {
 	}
 	public void setSubdist(String subdist) {
 		this.subdist = subdist;
+	}
+
+	public String getZipCode() {
+		return zipCode;
+	}
+
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
 	}
 }

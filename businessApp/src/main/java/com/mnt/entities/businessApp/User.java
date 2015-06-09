@@ -3,11 +3,18 @@ package com.mnt.entities.businessApp;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import com.mnt.entities.authentication.District;
+import com.mnt.entities.authentication.State;
+import com.mnt.entities.authentication.Zone;
 
 @Entity
 public class User {
@@ -15,17 +22,25 @@ public class User {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Long id;
-	public String name;
+	public String address;
+	public Date birthday;
 	public String email;
 	public String gender;
-	public Date birthday;
+	public String name;
 	public String phone;
-	public String role;
-	public String zone;
-	public String address;
-	public String state;
-	public String district;
 	public String postCode;
+	
+	@ManyToOne
+	public Zone zone;
+	
+	@ManyToOne
+	public State state;
+	
+	@ManyToOne
+	public District district;
+	
+	@OneToMany(cascade = CascadeType.ALL)
+	public List<Dealer> dealers;
 	
 	@ManyToMany
 	public List<Product> products;
@@ -66,23 +81,35 @@ public class User {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	public String getRole() {
-		return role;
-	}
-	public void setRole(String role) {
-		this.role = role;
-	}
 	public String getAddress() {
 		return address;
 	}
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	public String getState() {
+	public List<Product> getProducts() {
+		return products;
+	}
+	public void setProducts(List<Product> products) {
+		this.products = products;
+	}
+	public Zone getZone() {
+		return zone;
+	}
+	public void setZone(Zone zone) {
+		this.zone = zone;
+	}
+	public State getState() {
 		return state;
 	}
-	public void setState(String state) {
+	public void setState(State state) {
 		this.state = state;
+	}
+	public District getDistrict() {
+		return district;
+	}
+	public void setDistrict(District district) {
+		this.district = district;
 	}
 	public String getPostCode() {
 		return postCode;
@@ -90,23 +117,11 @@ public class User {
 	public void setPostCode(String postCode) {
 		this.postCode = postCode;
 	}
-	public String getZone() {
-		return zone;
+	public List<Dealer> getDealers() {
+		return dealers;
 	}
-	public void setZone(String zone) {
-		this.zone = zone;
-	}
-	public String getDistrict() {
-		return district;
-	}
-	public void setDistrict(String district) {
-		this.district = district;
-	}
-	public List<Product> getProducts() {
-		return products;
-	}
-	public void setProducts(List<Product> products) {
-		this.products = products;
+	public void setDealers(List<Dealer> dealers) {
+		this.dealers = dealers;
 	}
 	
 }

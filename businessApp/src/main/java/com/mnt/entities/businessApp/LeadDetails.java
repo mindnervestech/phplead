@@ -1,12 +1,12 @@
 package com.mnt.entities.businessApp;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.Id;		
+import javax.persistence.ManyToOne;
 
 @Entity
 public class LeadDetails {
@@ -28,7 +28,10 @@ public class LeadDetails {
     public String	state;
     public String	city;
     public Long		pinCode;
-    public String	product;
+    
+    @ManyToOne
+    public Product	product;
+    
     public String	type;
     public String	contactMe;
     public String	campaignName;
@@ -86,9 +89,6 @@ public class LeadDetails {
 	}
 	public Long getPinCode() {
 		return pinCode;
-	}
-	public String getProduct() {
-		return product;
 	}
 	public String getType() {
 		return type;
@@ -183,9 +183,6 @@ public class LeadDetails {
 	public void setPinCode(Long pinCode) {
 		this.pinCode = pinCode;
 	}
-	public void setProduct(String product) {
-		this.product = product;
-	}
 	public void setType(String type) {
 		this.type = type;
 	}
@@ -239,5 +236,11 @@ public class LeadDetails {
 	}
 	public void setRemarks2(String remarks2) {
 		this.remarks2 = remarks2;
+	}
+	public Product getProduct() {
+		return product;
+	}
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 }

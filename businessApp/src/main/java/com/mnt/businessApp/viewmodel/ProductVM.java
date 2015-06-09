@@ -1,5 +1,8 @@
 package com.mnt.businessApp.viewmodel;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductVM {
 
 	public Long id;

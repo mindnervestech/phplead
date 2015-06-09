@@ -9,13 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.mnt.businessApp.viewmodel.DealerConfigurationVM;
@@ -26,9 +25,15 @@ import com.mnt.businessApp.viewmodel.ProductVM;
 import com.mnt.businessApp.viewmodel.SaveUserVM;
 import com.mnt.businessApp.viewmodel.UserVM;
 import com.mnt.businessApp.viewmodel.ZoneVM;
+import com.mnt.entities.authentication.AuthUser;
+import com.mnt.entities.authentication.District;
+import com.mnt.entities.authentication.Role;
+import com.mnt.entities.authentication.State;
+import com.mnt.entities.authentication.Zone;
 import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.DealerConfiguration;
 import com.mnt.entities.businessApp.GeneralConfig;
+import com.mnt.entities.businessApp.Lead;
 import com.mnt.entities.businessApp.User;
 import com.mnt.entities.businessApp.ZipCode;
 
@@ -43,6 +48,8 @@ public class DealerService {
 
 
 	public Map getZones() {
+		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		
 		String sql = "select * from zone";
 
 		List<Map<String, Object>> rows = jt.queryForList(sql);
@@ -88,29 +95,38 @@ public class DealerService {
 		}
 		dataList.put("districtList", districtList);
 
-		Session session = sessionFactory.openSession();
-		Transaction tx = null;
+		Session session = sessionFactory.getCurrentSession();
+		if(user.getEntityName().equals("Dealer")){
+			sql = "FROM Dealer ";
+		}
+		if(user.getEntityName().equals("RSM")){
+			sql = "FROM Dealer where rsm_id = "+user.getEntityId();
+		}
+		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
+			User user2 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
+			sql = "FROM Dealer where zone = "+user2.getZone().getId();
+		}
 		List<DealerVM> vms = new ArrayList<DealerVM>();
-		try{
-			tx = session.beginTransaction();
-			Query query = session.createQuery("FROM Dealer"); 
-			List<Dealer> dealers = query.list();  
-			for (Dealer dealer : dealers){
-				DealerVM vm = new DealerVM(dealer);
-				vm.setPins(getAllDealerConfig(dealer.getId()));
-				vms.add(vm);
+		Query query = session.createQuery(sql);
+		List<Dealer> dealers = query.list();  
+		for (Dealer dealer : dealers){
+			DealerVM vm = new DealerVM(dealer);
+			vm.setPins(getAllDealerConfig(dealer.getId()));
+			for(ZoneVM zone : zoneList){
+				if(dealer.getZone().equals(zone.id+"")){
+					vm.setZone(zone);
+				}
 			}
-			tx.commit();
-		}catch (HibernateException e) {
-			if (tx!=null) tx.rollback();
-			e.printStackTrace(); 
-		}finally {
-			session.close(); 
+			for(ZoneVM zone : territoryList){
+				if(dealer.getTerritory().equals(zone.id+"")){
+					vm.setTerritory(zone);
+				}
+			}
+			vms.add(vm);
 		}
 		dataList.put("dealerList", vms);
 		return dataList;
 	}
-
 
 	public Map getDetailsForUser() {
 		String sql = "select * from zone";
@@ -153,7 +169,7 @@ public class DealerService {
 		List<ZoneVM> roleList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
 			ZoneVM vm = new ZoneVM();
-			vm.roleId =  (Integer) map.get("role_id");
+			vm.roleId =  (int) map.get("role_id");
 			vm.name = (String) map.get("name");
 			roleList.add(vm);
 		}
@@ -204,14 +220,19 @@ public class DealerService {
 			e.printStackTrace();
 		}
 		user.phone = userVM.getPhone();
-		user.role = userVM.getRoleName();
 		user.address = userVM.getAddress();
-		user.state = userVM.getState();
-		user.district = userVM.getDistrict();
 		user.postCode = userVM.getPostCode();
+		user.zone = (Zone) sessionFactory.getCurrentSession().get(Zone.class, Long.parseLong(userVM.getZone()));
+		user.state = (State) sessionFactory.getCurrentSession().get(State.class, Long.parseLong(userVM.getState()));
+		user.district = (District) sessionFactory.getCurrentSession().get(District.class, Long.parseLong(userVM.getDistrict()));
 		sessionFactory.getCurrentSession().save(user);
-
-
+		
+		Session session = sessionFactory.getCurrentSession();
+		System.out.println("userVM.getRoleName() :: "+userVM.getRole());
+		Query query = session.createQuery("FROM Role Where role_id = :id"); 
+		query.setParameter("id", userVM.getRole());
+		List results = query.list();
+		Role role = (Role) results.get(0);
 
 		String randomStr = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		Random rnd = new Random();
@@ -219,9 +240,17 @@ public class DealerService {
 		StringBuilder sb = new StringBuilder( 8 );
 		for( int i = 0; i < 8; i++ ) 
 			sb.append( randomStr.charAt( rnd.nextInt(randomStr.length()) ) );
-
-		jt.update("insert into authusers (authusers.email_id,authusers.password,authusers.username) values (?,?,?)",
-				new Object[] {userVM.getEmail(), sb.toString(), userVM.getEmail()});
+		
+		AuthUser authUser = new AuthUser();
+		authUser.setEmail(userVM.getEmail());
+		authUser.setPassword(sb.toString());
+		authUser.setEntityId(user.getId());
+		authUser.setUsername(userVM.getEmail());
+		authUser.setEntityName(role.getName());
+		List<Role> roles = new ArrayList<>();
+		roles.add(role);
+		authUser.setRoles(roles);
+		sessionFactory.getCurrentSession().save(authUser);
 
 		for(String productId : userVM.getProductlist()) {
 			jt.update("insert into user_product (user_product.User_id,user_product.products_id) values (?,?)",
@@ -264,13 +293,14 @@ public class DealerService {
 		dealer.customerGroup = dealerVM.getCustomerGroup();
 		dealer.phone = dealerVM.getPhone();
 		dealer.email = dealerVM.getEmail();
-		dealer.zone = dealerVM.getZone();
-		dealer.territory = dealerVM.getTerritory();
-		dealer.rsm = dealerVM.getRsm();
+		dealer.zone = dealerVM.getZone().getId()+"";
+		dealer.territory = dealerVM.getTerritory().getId()+"";
+		dealer.rsm = (User) sessionFactory.getCurrentSession().get(User.class, Long.valueOf( dealerVM.getRsm()).longValue());
 		dealer.address = dealerVM.getAddress();
 		dealer.state = dealerVM.getState();
 		dealer.district = dealerVM.getDistrict();
 		dealer.subDistrict = dealerVM.getSubdist();
+		dealer.zipCode = dealerVM.getZipCode();
 		sessionFactory.getCurrentSession().save(dealer);
 		
 		for(PinsVM vm : dealerVM.getPins()){
@@ -279,6 +309,12 @@ public class DealerService {
 			configuration.dealer = dealer;
 			sessionFactory.getCurrentSession().save(configuration);
 		}
+		
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("FROM Role Where name = :name"); 
+		query.setParameter("name", "Dealer");
+		List results = query.list();
+		Role role = (Role) results.get(0);
 
 		String randomStr = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		Random rnd = new Random();
@@ -286,24 +322,19 @@ public class DealerService {
 		StringBuilder sb = new StringBuilder( 8 );
 		for( int i = 0; i < 8; i++ ) 
 			sb.append( randomStr.charAt( rnd.nextInt(randomStr.length()) ) );
-
-		jt.update("insert into authusers (authusers.email_id,authusers.password,authusers.username,authusers.entityId) values (?,?,?,?)",
-				new Object[] {dealerVM.getEmail(), sb.toString(), dealerVM.getCode(), dealer.getId()});
-
-		String sql = "select roles.role_id from roles where roles.name = ?";
-
-		Long roleId = (Long)jt.queryForObject(
-				sql, new Object[] { "Dealer" }, Long.class);
-
-		sql = "select authusers.auth_id from authusers where authusers.entityId = ?";
-
-		Long authId = (Long)jt.queryForObject(
-				sql, new Object[] { dealer.getId() }, Long.class);
-
-		jt.update("insert into userrole (userrole.user_id,userrole.role_id) values (?,?)",
-				new Object[] {authId,roleId});
-
 		
+		AuthUser authUser = new AuthUser();
+		authUser.setEmail(dealer.getEmail());
+		authUser.setPassword(sb.toString());
+		authUser.setEntityId(dealer.getId());
+		authUser.setUsername(dealer.getDealerCode());
+		authUser.setEntityName("Dealer");
+		List<Role> roles = new ArrayList<>();
+		roles.add(role);
+		authUser.setRoles(roles);
+		sessionFactory.getCurrentSession().save(authUser);
+
+
 
 	}
 
@@ -316,13 +347,14 @@ public class DealerService {
 		dealer.customerGroup = dealerVM.getCustomerGroup();
 		dealer.phone = dealerVM.getPhone();
 		dealer.email = dealerVM.getEmail();
-		dealer.zone = dealerVM.getZone();
-		dealer.territory = dealerVM.getTerritory();
-		dealer.rsm = dealerVM.getRsm();
+		dealer.zone = dealerVM.getZone().getId()+"";
+		dealer.territory = dealerVM.getTerritory().getId()+"";
+		dealer.rsm = (User) sessionFactory.getCurrentSession().get(User.class, Long.valueOf( dealerVM.getRsm()).longValue());
 		dealer.address = dealerVM.getAddress();
 		dealer.state = dealerVM.getState();
 		dealer.district = dealerVM.getDistrict();
 		dealer.subDistrict = dealerVM.getSubdist();
+		dealer.zipCode = dealerVM.getZipCode();
 		sessionFactory.getCurrentSession().update(dealer);
 		
 		removeAllDealerConfig(dealer.getId());
@@ -348,16 +380,17 @@ public class DealerService {
 			e.printStackTrace();
 		}
 		user.phone = userVM.getPhone();
-		user.role = userVM.getRole();
-		user.zone = userVM.getZone();
+		user.zone = (Zone) sessionFactory.getCurrentSession().get(Zone.class, userVM.getZone().getId());
 		user.address = userVM.getAddress();
-		user.state = userVM.getState();
-		user.district = userVM.getDistrict();
+		user.state = (State) sessionFactory.getCurrentSession().get(State.class, userVM.getState().getId());
+		user.district = (District) sessionFactory.getCurrentSession().get(District.class, userVM.getDistrict().getId());
 		user.postCode = userVM.getPostCode();
 		removeAlluserProductMapping(userVM.getId());
-		for(String productId : userVM.getProductList()) {
-			jt.update("insert into user_product (user_product.User_id,user_product.products_id) values (?,?)",
-					new Object[] {user.getId(), Integer.parseInt(productId)});
+		for(ProductVM productVM : userVM.getProducts()) {
+			if(productVM.getSelected() == true){
+				jt.update("insert into user_product (user_product.User_id,user_product.products_id) values (?,?)",
+						new Object[] {user.getId(), productVM.getId()});
+			}
 		}
 		sessionFactory.getCurrentSession().update(user);
 		return getUserDetails();
@@ -391,41 +424,48 @@ public class DealerService {
 	}
 	
 	public List<UserVM> getUserDetails(){
-		String sql = "select * from user";
+		Session session = sessionFactory.getCurrentSession();
+		List<Map<String, Object>> rows=  jt.queryForList("Select * FROM user"); 
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");   
-		List<Map<String,Object>> rows = jt.queryForList(sql);
 		List<UserVM> userList = new ArrayList<UserVM>();
-		for(Map map : rows) {
+		for(Map row : rows) {
 			UserVM vm = new UserVM();
-			vm.id = (Long) map.get("id");
-			vm.name = (String) map.get("name");
-			vm.address = (String) map.get("address");
+			vm.id = (Long) row.get("id");
+			vm.name = (String) row.get("name");
+			vm.address = (String) row.get("address");
 
-			vm.birthday = df.format((Date) map.get("birthday"));
-			vm.email = (String) map.get("email");
-			vm.gender = (String) map.get("gender");
-			vm.phone = (String) map.get("phone");
-			vm.postCode = (String) map.get("postCode");
-			sql = "select roles.name from roles where roles.role_id = ?";
-			String roleName = (String)jt.queryForObject(
-					sql, new Object[] { Integer.parseInt((String) map.get("role")) }, String.class);
-			vm.role = (String) map.get("role");
-			vm.roleName = roleName;
+			vm.birthday = df.format((Date) row.get("birthday"));
+			vm.email = (String) row.get("email");
+			vm.gender = (String) row.get("gender");
+			vm.phone = (String) row.get("phone");
+			vm.postCode = (String) row.get("postCode");
 			vm.products = new ArrayList<ProductVM>();
-			sql = "select zone.name from zone where zone.id = ?";
-			vm.zone = (String) map.get("name");
-			vm.zoneName = (String) map.get("name");
-			vm.state = (String) map.get("state");
-			vm.district = (String) map.get("district");
-			//Select * from product pp left join (select products_id from user_product up where user_id = 2) a on pp.id = a.products_id
+			String sql = "Select * from zone as z where z.id = ?";
+			rows = jt.queryForList(sql,new Object[] { (Long) row.get("zone_id")});
+			vm.zone =   new ZoneVM(rows.get(0));
+			sql = "Select * from state as s where s.id = ?";
+			rows = jt.queryForList(sql,new Object[] { (Long) row.get("state_id")});
+			vm.state =   new ZoneVM(rows.get(0));
+			sql = "Select * from district as d where d.id = ?";
+			rows = jt.queryForList(sql,new Object[] { (Long) row.get("district_id")});
+			vm.district =   new ZoneVM(rows.get(0));
+			sql = "Select * from userrole as ur where ur.user_id = (Select au.auth_id from authusers as au where au.entityId = "+(Long) row.get("id")+")";
+			List<Map<String, Object>> productRows=  jt.queryForList(sql);
+			
+			if(productRows.size() != 0){
+				Map map = productRows.get(0);
+				ZoneVM zoneVM = new ZoneVM();
+				zoneVM.setName((String)map.get("name"));
+				zoneVM.setRoleId((int)map.get("role_id"));
+				vm.role = zoneVM;
+			}
 			sql = "Select * from product pp left join (select products_id from user_product up where user_id = ?) a on pp.id = a.products_id";
-			rows = jt.queryForList(sql,new Object[] { (Long) map.get("id")});
+			rows = jt.queryForList(sql,new Object[] { (Long) row.get("id")});
 			List<ProductVM> products = new ArrayList<ProductVM>();
 			for(Map mapProduct : rows) {
 				ProductVM pvm = new ProductVM();
 				pvm.id = (Long) mapProduct.get("id");
 				pvm.name = (String) mapProduct.get("name");
-				System.out.println((Long) map.get("id")+ " :: "+mapProduct.get("products_id"));
 				if(mapProduct.get("products_id") != null){
 					pvm.setSelected(true);
 				}
@@ -436,8 +476,7 @@ public class DealerService {
 		}
 		return userList;
 	}
-
-
+	
 	public void updateDealerConfig(List<DealerConfigurationVM> configurationVMs) {
 		for(DealerConfigurationVM configurationVM : configurationVMs){
 			DealerConfiguration configuration = (DealerConfiguration) sessionFactory.getCurrentSession().get(DealerConfiguration.class, configurationVM.getId());
@@ -459,4 +498,20 @@ public class DealerService {
 	}
 
 
+	public List<UserVM> getRSMByZone(Long zone) {
+		
+		String sql = "Select * from user WHERE user.zone = ? and user.role = ?";
+		List<Map<String,Object>> rows = jt.queryForList(sql,new Object[] {zone, 7L});
+		List<UserVM> userVMs = new ArrayList<UserVM>();
+		for(Map mapUser : rows) {
+			UserVM uvm = new UserVM();
+			uvm.id = (Long) mapUser.get("id");
+			uvm.name = (String) mapUser.get("name");
+			userVMs.add(uvm);
+		}
+		
+		return userVMs;
+		
+	}
+	
 }

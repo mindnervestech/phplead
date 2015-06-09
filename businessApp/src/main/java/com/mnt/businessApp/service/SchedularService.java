@@ -2,7 +2,6 @@ package com.mnt.businessApp.service;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -16,19 +15,19 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.mnt.businessApp.viewmodel.LeadDetailsVM;
 import com.mnt.businessApp.viewmodel.UserInfoVM;
 import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Lead;
 import com.mnt.entities.businessApp.LeadDetails;
+import com.mnt.entities.businessApp.Product;
 
 @Service
 public class SchedularService {
@@ -274,11 +273,8 @@ public class SchedularService {
 					c = row.getCell(14);
 					if (c != null) {
 						switch (c.getCellType()) {
-						case Cell.CELL_TYPE_NUMERIC:
-							leadDetails.product = c.getNumericCellValue() + "";
-							break;
 						case Cell.CELL_TYPE_STRING:
-							leadDetails.product = c.getStringCellValue();
+							leadDetails.product = getProductByName(c.getStringCellValue());
 							break;
 						}
 					}
@@ -509,6 +505,20 @@ public class SchedularService {
 		}
 
 
+	}
+
+	private Product getProductByName(String productName) {
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("From Product where name = ?");
+		query.setParameter(1, productName);
+		List<Product> products = query.list();  
+		if(products.size() == 0){
+			Product product = new Product();
+			product.setName(productName);
+			session.save(product);
+		}
+		
+		return products.get(0);
 	}
 
 	private void assignDealer(Lead lead) {

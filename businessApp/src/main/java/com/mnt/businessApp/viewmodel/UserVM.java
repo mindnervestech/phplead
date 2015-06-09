@@ -1,8 +1,10 @@
 package com.mnt.businessApp.viewmodel;
 
-import java.util.Date;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserVM {
 
 	public Long id;
@@ -11,16 +13,13 @@ public class UserVM {
 	public String gender;
 	public String birthday;
 	public String phone;
-	public String zone;
-	public String role;
+	public ZoneVM zone;
+	public ZoneVM role;
 	public String address;
-	public String state;
-	public String district;
+	public ZoneVM state;
+	public ZoneVM district;
 	public String postCode;
-	public String roleName;
-	public String zoneName;
 	public List<ProductVM> products;
-	private List<String> productlist;
 	
 	public Long getId() {
 		return id;
@@ -52,16 +51,22 @@ public class UserVM {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	public String getZone() {
+	public String getBirthday() {
+		return birthday;
+	}
+	public void setBirthday(String birthday) {
+		this.birthday = birthday;
+	}
+	public ZoneVM getZone() {
 		return zone;
 	}
-	public void setZone(String zone) {
+	public void setZone(ZoneVM zone) {
 		this.zone = zone;
 	}
-	public String getRole() {
+	public ZoneVM getRole() {
 		return role;
 	}
-	public void setRole(String role) {
+	public void setRole(ZoneVM role) {
 		this.role = role;
 	}
 	public String getAddress() {
@@ -70,11 +75,17 @@ public class UserVM {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	public String getState() {
+	public ZoneVM getState() {
 		return state;
 	}
-	public void setState(String state) {
+	public void setState(ZoneVM state) {
 		this.state = state;
+	}
+	public ZoneVM getDistrict() {
+		return district;
+	}
+	public void setDistrict(ZoneVM district) {
+		this.district = district;
 	}
 	public String getPostCode() {
 		return postCode;
@@ -82,42 +93,10 @@ public class UserVM {
 	public void setPostCode(String postCode) {
 		this.postCode = postCode;
 	}
-	public String getDistrict() {
-		return district;
-	}
-	public void setDistrict(String district) {
-		this.district = district;
-	}
-	public String getBirthday() {
-		return birthday;
-	}
-	public void setBirthday(String birthday) {
-		this.birthday = birthday;
-	}
-	public String getRoleName() {
-		return roleName;
-	}
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
-	}
-	public String getZoneName() {
-		return zoneName;
-	}
-	public void setZoneName(String zoneName) {
-		this.zoneName = zoneName;
-	}
 	public List<ProductVM> getProducts() {
 		return products;
 	}
-	public void setProducts(List<ProductVM> productList) {
-		this.products = productList;
+	public void setProducts(List<ProductVM> products) {
+		this.products = products;
 	}
-	public List<String> getProductList() {
-		return productlist;
-	}
-	public void setProductList(List<String> productList) {
-		this.productlist = productList;
-	}
-	
-	
 }

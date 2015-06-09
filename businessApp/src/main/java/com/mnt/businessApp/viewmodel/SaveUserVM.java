@@ -10,13 +10,14 @@ public class SaveUserVM {
 	public String gender;
 	public String phone;
 	public String birthday;
-	public String roleName;
-	public String zoneName;
+	public String role;
+	public String zone;
 	private List<String> productlist;
 	public String address;
 	public String district;
 	public String postCode;
 	public String state;
+	public String city;
 	
 	public String getName() {
 		return name;
@@ -41,12 +42,6 @@ public class SaveUserVM {
 	}
 	public void setBirthday(String birthday) {
 		this.birthday = birthday;
-	}
-	public String getRoleName() {
-		return roleName;
-	}
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
 	}
 	public String getAddress() {
 		return address;
@@ -78,16 +73,28 @@ public class SaveUserVM {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getZoneName() {
-		return zoneName;
-	}
-	public void setZoneName(String zoneName) {
-		this.zoneName = zoneName;
-	}
 	public List<String> getProductlist() {
 		return productlist;
 	}
 	public void setProductlist(List<String> productlist) {
 		this.productlist = productlist;
+	}
+	public String getRole() {
+		return role;
+	}
+	public void setRole(String role) {
+		this.role = role;
+	}
+	public String getZone() {
+		return zone;
+	}
+	public void setZone(String zone) {
+		this.zone = zone;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
 	}
 }

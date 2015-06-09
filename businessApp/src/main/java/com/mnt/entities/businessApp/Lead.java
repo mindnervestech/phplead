@@ -14,8 +14,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import org.hibernate.annotations.Generated;
-
 @Entity
 public class Lead {
 
@@ -36,6 +34,8 @@ public class Lead {
 	public String disposition2;
 	
 	public Date	uploadDate;
+	
+	public Date	lastDispo1ModifiedDate;
 	
 	public String escalatedLevel;
 	
@@ -161,6 +161,14 @@ public class Lead {
 
 	public void setEscalatedTo(User escalatedTo) {
 		this.escalatedTo = escalatedTo;
+	}
+
+	public Date getLastDispo1ModifiedDate() {
+		return lastDispo1ModifiedDate;
+	}
+
+	public void setLastDispo1ModifiedDate(Date lastDispo1ModifiedDate) {
+		this.lastDispo1ModifiedDate = lastDispo1ModifiedDate;
 	}
 	
 	

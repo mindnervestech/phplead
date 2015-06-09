@@ -32,7 +32,9 @@ public class AuthUser implements UserDetails {
     public String username;
     public String password;
     public String email;
+    public String entityName;
     public Long entityId;
+    
     
     public List<Role> roles = new ArrayList<Role>();
     
@@ -134,6 +136,14 @@ public class AuthUser implements UserDetails {
 		return true;
 	}
 
+	public String getEntityName() {
+		return entityName;
+	}
+
+	public void setEntityName(String entityName) {
+		this.entityName = entityName;
+	}
+
 	public Long getEntityId() {
 		return entityId;
 	}
@@ -141,7 +151,6 @@ public class AuthUser implements UserDetails {
 	public void setEntityId(Long entityId) {
 		this.entityId = entityId;
 	}
-    
-    
+
 	
 }

@@ -42,7 +42,7 @@ public class LeadVM {
 		this.city = lead.getLeadDetails().getCity();
 		this.state = lead.getLeadDetails().getState();
 		this.pinCode = lead.getLeadDetails().getPinCode();
-		this.product = lead.getLeadDetails().getProduct();
+		this.product = lead.getLeadDetails().getProduct().getName();
 		this.type = lead.getLeadDetails().getType();
 		this.campaignName = lead.getLeadDetails().getCampaignName();
 		this.categorization = lead.getLeadDetails().getCategorization();

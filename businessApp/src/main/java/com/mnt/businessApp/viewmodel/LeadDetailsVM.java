@@ -1,9 +1,9 @@
 package com.mnt.businessApp.viewmodel;
 
 import java.util.Date;
+import java.util.Map;
 
 import com.mnt.entities.businessApp.Lead;
-import com.mnt.entities.businessApp.LeadDetails;
 
 public class LeadDetailsVM {
 
@@ -18,8 +18,23 @@ public class LeadDetailsVM {
 	public String disposition2;
 	public String esacaletedTo;
 	public Date followUpDate;
-	
+	private String dealerName;
 	public LeadDetailsVM() {
+	}
+
+	
+	public LeadDetailsVM(Map map) {
+		this.id = (Long) map.get("id");
+		this.leadNumber =  (Long) map.get("srNo");
+		this.contactNumber = (Long) map.get("contactNo");
+		this.contactName = (String) map.get("name");
+		this.email = (String) map.get("email");
+		this.pincode = (Long) map.get("pincode");
+		this.product = (String) map.get("product");
+		this.disposition1 = (String) map.get("dispo1");
+		this.disposition2 = (String) map.get("dispo2");
+		this.followUpDate = (Date) map.get("date");
+		this.dealerName = (String) map.get("dealerName");
 	}
 
 	public LeadDetailsVM(Lead lead) {
@@ -29,7 +44,7 @@ public class LeadDetailsVM {
 		this.email = lead.getLeadDetails().getEmail();
 		this.contactNumber = lead.getLeadDetails().getContactNo();
 		this.pincode = lead.getLeadDetails().getPinCode();
-		this.product = lead.getLeadDetails().getProduct();
+		this.product = lead.getLeadDetails().getProduct().getName();
 		this.disposition1 = lead.getDisposition1();
 		this.disposition2 = lead.getDisposition2();
 		this.esacaletedTo = lead.getEscalatedTo().getName();
@@ -122,6 +137,16 @@ public class LeadDetailsVM {
 
 	public void setFollowUpDate(Date followUpDate) {
 		this.followUpDate = followUpDate;
+	}
+
+
+	public String getDealerName() {
+		return dealerName;
+	}
+
+
+	public void setDealerName(String dealerName) {
+		this.dealerName = dealerName;
 	}
 
 }
