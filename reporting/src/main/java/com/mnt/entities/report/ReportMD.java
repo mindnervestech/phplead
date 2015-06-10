@@ -18,7 +18,7 @@ public class ReportMD {
 	@Column(length=500)
 	private String description;
 	
-	@Column(name="query")
+	@Column(name="query",length=500)
 	private String sql;
 	
 	
@@ -34,6 +34,9 @@ public class ReportMD {
 	
 	@Column(length=500)
 	private String columns;
+	
+	@Column(length=500)
+	private String hiddenpivotcol;
 
 	public Long getId() {
 		return id;
@@ -97,6 +100,14 @@ public class ReportMD {
 
 	public void setColumns(String columns) {
 		this.columns = columns;
+	}
+
+	public String getHiddenpivotcol() {
+		return hiddenpivotcol;
+	}
+
+	public void setHiddenpivotcol(String hiddenpivotcol) {
+		this.hiddenpivotcol = hiddenpivotcol;
 	}
 	
 	
