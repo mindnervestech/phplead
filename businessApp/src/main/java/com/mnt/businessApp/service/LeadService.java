@@ -74,7 +74,12 @@ public class LeadService {
 					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
-					+ " ld.id = l.leadDetails_id and ld.product_id IN ( select products_id  from user_product  where User_id = ? )";
+					+ " ld.id = l.leadDetails_id";
+			List<Map<String, Object>> rows = jt.queryForList(sql);
+			for(Map map : rows) {
+				vms.add(new LeadDetailsVM(map));
+			}
+			return vms;
 		}
 		
 		List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] {user.getEntityId()});
@@ -115,6 +120,8 @@ public class LeadService {
 		activityStream.setNewDisposition2(vm.getDisposition2());
 		activityStream.setOldDisposition1(lead.getDisposition1());
 		activityStream.setOldDisposition2(lead.getDisposition2());
+		activityStream.setLead(lead);
+		activityStream.setReason(vm.getReason());
 		activityStream.setCreatedDate(new Date());
 		sessionFactory.getCurrentSession().save(activityStream);
 		System.out.println(" before :::::: "+lead.getDisposition2());
@@ -128,6 +135,12 @@ public class LeadService {
 			ageing = getLeadAgeing(lead.getId(), vm.getDisposition1());
 			secs = (new Date().getTime() - lead.getLastDispo1ModifiedDate().getTime()) / 1000;
 			hours = (int) (secs / 3600);    
+			ageing.setProduct(lead.getLeadDetails().getProduct().getName());
+			ageing.setAgeing(Long.valueOf(hours));
+			if(lead.getDealer() != null){
+				ageing.setZone(lead.getDealer().getZone());
+				ageing.setDealer_id(lead.getDealer().getId());
+			}
 			sessionFactory.getCurrentSession().update(ageing);
 			System.out.println("after :::::: "+vm.getDisposition2());
 			if(vm.getDisposition2().equals("Won") || vm.getDisposition2().equals("Lost")){
@@ -135,7 +148,11 @@ public class LeadService {
 				secs = (new Date().getTime() - lead.getUploadDate().getTime() ) / 1000;
 				hours = (int) (secs / 3600);  
 				ageing.setAgeing(Long.valueOf(hours));
-				System.out.println(" End  :: "+vm.getDisposition2());
+				ageing.setProduct(lead.getLeadDetails().getProduct().getName());
+				if(lead.getDealer() != null){
+					ageing.setZone(lead.getDealer().getZone());
+					ageing.setDealer_id(lead.getDealer().getId());
+				}
 				sessionFactory.getCurrentSession().update(ageing);
 			}
 		}

@@ -33,10 +33,9 @@ public class LeadVM {
 	public LeadVM(Lead lead) {
 		this.id = lead.getId();
 		this.disposition1 = lead.getDisposition1();
-		this.disposition2 = lead.getDisposition2();
 		//this.uploadDate = lead.getUploadDate();
 		this.name = lead.getLeadDetails().getName();
-		this.leadNumber = lead.getLeadDetails().getSrNo();
+		this.leadNumber = lead.getLeadDetails().getSr();
 		this.email = lead.getLeadDetails().getEmail();
 		this.contactNo = lead.getLeadDetails().getContactNo();
 		this.city = lead.getLeadDetails().getCity();
@@ -50,7 +49,6 @@ public class LeadVM {
 		this.areaofInterest2 = lead.getLeadDetails().getAreaofInterest2();
 		this.remarks1 = lead.getLeadDetails().getRemarks1();
 		this.followUpDate = lead.getFollowUpDate();
-		this.reason = lead.getReason();
 	}
 
 	public Long getId() {

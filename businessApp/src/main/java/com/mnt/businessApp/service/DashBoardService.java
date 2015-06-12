@@ -48,12 +48,36 @@ public class DashBoardService {
 				return getProgressBarForSelloutContact(user);
 				
 			case "Category Manager":
+			case "Sellout-Regional":
 				return getProgressBarForCM(user);
+				
+			case "CEO":
+			case "Admin":
+			case "General Manager":
+				return getProgressBarAdmin(user);
 					
 		}
 		return null;
 	}
 	
+	private List<Map> getProgressBarAdmin(AuthUser user) {
+		String sql = "SELECT COUNT(*) FROM Lead";
+		List<Map> list = new ArrayList<>();
+		int total = jt.queryForInt(sql);
+		int escalated = jt.queryForInt("SELECT COUNT(*) FROM Lead where disposition1 = 'Escalated'");
+		int open = jt.queryForInt("SELECT COUNT(*) FROM Lead where ( disposition1 = 'New' "
+				+ "or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted') ) and dealer_id IN (:ids)");
+		int won = jt.queryForInt("SELECT COUNT(*) FROM Leadwhere disposition2 = 'Won' ");
+		int lost = jt.queryForInt("SELECT COUNT(*) FROM Lead where disposition2 = 'Lost' ");
+		
+		
+		list.add(getList("Escalated", "icon fa fa-suitcase", "warning", total, escalated));
+		list.add(getList( "Open", "icon fa fa-folder-open", "warning", total, open));
+		list.add(getList(  "Won", "icon fa fa-thumbs-up", "success",total, won));
+		list.add(getList( "Lost Leads", "icon fa fa-thumbs-down", "danger", total, lost));
+		return list;
+	}
+
 	private List<Map> getProgressBarForDealer(AuthUser user){
 		String sql = "SELECT COUNT(*) FROM Lead where dealer_id = ?";
 		List<Map> list = new ArrayList<>();
