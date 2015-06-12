@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.mnt.businessApp.viewmodel.UserInfoVM;
+import com.mnt.entities.businessApp.ActivityStream;
 import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Lead;
@@ -486,13 +487,25 @@ public class SchedularService {
 					Lead lead = new Lead();
 					lead.setLeadDetails(leadDetails);
 					lead.setUploadDate(new Date());
-					assignDealer(lead);
+					lead.setDisposition1("New");
 					sessionFactory.getCurrentSession().save(lead);
 					
-					LeadAgeing ageing = new LeadAgeing();
+					ActivityStream activityStream = new ActivityStream();
+					activityStream.setNewDisposition1("New");
+					activityStream.setLead(lead);
+					activityStream.setCreatedDate(new Date());
+					sessionFactory.getCurrentSession().save(activityStream);
+					
+					
+					
+					/*LeadAgeing ageing = new LeadAgeing();
 					ageing.setAgeing(0L);
 					ageing.setStatus("New");
-					
+					ageing.setZone(lead.getDealer().getZone());
+					ageing.setProduct(leadDetails.getProduct().getName());
+					ageing.setDealer_id(lead.getDealer().getId());
+					ageing.setLead_id(lead.getId());
+					*/
 					
 
 					if (leadDetails.filter != null) {
