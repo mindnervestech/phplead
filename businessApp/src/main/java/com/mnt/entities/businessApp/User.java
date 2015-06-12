@@ -23,7 +23,7 @@ public class User {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Long id;
 	public String address;
-	public Date birthday;
+	public String birthday;
 	public String email;
 	public String gender;
 	public String name;
@@ -69,10 +69,10 @@ public class User {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
-	public Date getBirthday() {
+	public String getBirthday() {
 		return birthday;
 	}
-	public void setBirthday(Date birthday) {
+	public void setBirthday(String birthday) {
 		this.birthday = birthday;
 	}
 	public String getPhone() {

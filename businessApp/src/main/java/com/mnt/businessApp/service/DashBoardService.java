@@ -154,15 +154,20 @@ public class DashBoardService {
 
 
 	private Map getLeadProgressBarVM(String sql, String description, String iconClass, String type, int total,List<Long> ids) {
-		Map<String, DashBoardProgressBarVm> map = new HashMap<>();
 		if(ids.size() == 0){
 			return null;
 		}
 		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
-		DashBoardProgressBarVm vm = new DashBoardProgressBarVm();
 		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
 				NamedParameterJdbcTemplate(jt.getDataSource());
 		int actualValue = namedParameterJdbcTemplate.queryForInt(sql, param);
+		return getList(description, iconClass, type, total, actualValue);
+	}
+
+	private Map getList(String description, String iconClass, String type,
+			int total, int actualValue) {
+		Map<String, DashBoardProgressBarVm> map = new HashMap<>();
+		DashBoardProgressBarVm vm = new DashBoardProgressBarVm();
 		vm.setActualValue(actualValue+"");
 		vm.setDescription(description+" Leads");
 		vm.setIconClass(iconClass);
@@ -254,9 +259,19 @@ public class DashBoardService {
 				ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
 			}
 		}
+		if(user.getEntityName().equals("Admin")){
+			ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
+		}  
+		List<Map> list = new ArrayList<>();
+		if(ids.size() == 0){
+			list.add(getList("Escalated", "icon fa fa-suitcase", "warning", 0, 0));
+			list.add(getList( "Open", "icon fa fa-folder-open", "warning", 0, 0));
+			list.add(getList(  "Won", "icon fa fa-thumbs-up", "success", 0, 0));
+			list.add(getList( "Lost Leads", "icon fa fa-thumbs-down", "danger", 0, 0));
+			return list;
+		}
 		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and l.dealer_id IN (:ids)"+sqlDate
 				+ proZone;
-		List<Map> list = new ArrayList<>();
 		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
 		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
 				NamedParameterJdbcTemplate(jt.getDataSource());

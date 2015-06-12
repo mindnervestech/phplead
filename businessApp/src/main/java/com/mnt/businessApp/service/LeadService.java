@@ -68,6 +68,15 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
 					+ " ld.id = l.leadDetails_id and ld.product_id IN ( select products_id  from user_product  where User_id = ? )";
 		}
+		if(user.getEntityName().equals("Admin")){
+			sql = "Select ld.sr as srNo, ld.name as name, "
+					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
+					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
+					+ " ld.id = l.leadDetails_id and ld.product_id IN ( select products_id  from user_product  where User_id = ? )";
+		}
+		
 		List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] {user.getEntityId()});
 		for(Map map : rows) {
 			vms.add(new LeadDetailsVM(map));
