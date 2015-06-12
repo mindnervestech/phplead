@@ -213,8 +213,8 @@ public class DealerService {
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 		try {
 			user.birthday = df.parse(userVM.getBirthday());
-		} catch (ParseException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			//e.printStackTrace();
 		}
 		user.phone = userVM.getPhone();
 		user.address = userVM.getAddress();
@@ -430,7 +430,7 @@ public class DealerService {
 			vm.id = (Long) row.get("id");
 			vm.name = (String) row.get("name");
 			vm.address = (String) row.get("address");
-
+            // TODO: Shahank handle null pointer in case of no birthdae
 			vm.birthday = df.format((Date) row.get("birthday"));
 			vm.email = (String) row.get("email");
 			vm.gender = (String) row.get("gender");
