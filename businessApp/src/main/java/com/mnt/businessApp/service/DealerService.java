@@ -390,6 +390,7 @@ public class DealerService {
 			}
 		}
 		sessionFactory.getCurrentSession().update(user);
+		sessionFactory.getCurrentSession().flush();
 		return getUserDetails();
 	}
 
