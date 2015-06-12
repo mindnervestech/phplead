@@ -29,7 +29,7 @@ public class LeadDetailsVM {
 		this.contactNumber = (Long) map.get("contactNo");
 		this.contactName = (String) map.get("name");
 		this.email = (String) map.get("email");
-		this.pincode = (String) map.get("pincode");
+		this.pincode = map.get("pincode").toString();
 		this.product = (String) map.get("product");
 		this.disposition1 = (String) map.get("dispo1");
 		this.disposition2 = (String) map.get("dispo2");

@@ -246,7 +246,11 @@ public class BusinessController {
 		mailService.sendMail("shwashank12@gmail.com", "SUBJECT", "BODY");
 	}
 	
-	
+	@Transactional
+	@RequestMapping(value="/getRSMByZone/{zone}",method = RequestMethod.GET)
+	public @ResponseBody List<UserVM> getRSMByZone(@PathVariable("zone") Long zone) {
+		return dealerService.getRSMByZone(zone);
+	}
 	
 
 }

@@ -110,12 +110,12 @@ public class DealerService {
 			DealerVM vm = new DealerVM(dealer);
 			vm.setPins(getAllDealerConfig(dealer.getId()));
 			for(ZoneVM zone : zoneList){
-				if(dealer.getZone().equals(zone.id+"")){
+				if(dealer.getZone().equals(zone.name)){
 					vm.setZone(zone);
 				}
 			}
 			for(ZoneVM zone : territoryList){
-				if(dealer.getTerritory().equals(zone.id+"")){
+				if(dealer.getTerritory().equals(zone.name)){
 					vm.setTerritory(zone);
 				}
 			}
@@ -210,12 +210,7 @@ public class DealerService {
 		user.name = userVM.getName();
 		user.email = userVM.getEmail();
 		user.gender = userVM.getGender();
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-		try {
-			user.birthday = df.parse(userVM.getBirthday());
-		} catch (Exception e) {
-			//e.printStackTrace();
-		}
+		user.birthday = userVM.getBirthday();
 		user.phone = userVM.getPhone();
 		user.address = userVM.getAddress();
 		user.postCode = userVM.getPostCode();
@@ -370,12 +365,7 @@ public class DealerService {
 		user.name = userVM.getName();
 		user.email = userVM.getEmail();
 		user.gender = userVM.getGender();
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-		try {
-			user.birthday = df.parse(userVM.getBirthday());
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		user.birthday = userVM.getBirthday();
 		user.phone = userVM.getPhone();
 		user.zone = (Zone) sessionFactory.getCurrentSession().get(Zone.class, userVM.getZone().getId());
 		user.address = userVM.getAddress();
@@ -431,8 +421,8 @@ public class DealerService {
 			vm.id = (Long) row.get("id");
 			vm.name = (String) row.get("name");
 			vm.address = (String) row.get("address");
-            // TODO: Shahank handle null pointer in case of no birthdae
-			vm.birthday = df.format((Date) row.get("birthday"));
+
+			vm.birthday = (String) row.get("birthday");
 			vm.email = (String) row.get("email");
 			vm.gender = (String) row.get("gender");
 			vm.phone = (String) row.get("phone");
@@ -447,7 +437,7 @@ public class DealerService {
 			sql = "Select * from district as d where d.id = ?";
 			rows = jt.queryForList(sql,new Object[] { (Long) row.get("district_id")});
 			vm.district =   new ZoneVM(rows.get(0));
-			sql = "Select * from userrole as ur where ur.user_id = (Select au.auth_id from authusers as au where au.entityId = "+(Long) row.get("id")+")";
+			sql = "Select * from userrole as ur,  roles as r where r.role_id = ur.role_id and ur.user_id = (Select au.auth_id from authusers as au where au.entityId = "+(Long) row.get("id")+")";
 			List<Map<String, Object>> productRows=  jt.queryForList(sql);
 			
 			if(productRows.size() != 0){
@@ -498,8 +488,8 @@ public class DealerService {
 
 	public List<UserVM> getRSMByZone(Long zone) {
 		
-		String sql = "Select * from user WHERE user.zone = ? and user.role = ?";
-		List<Map<String,Object>> rows = jt.queryForList(sql,new Object[] {zone, 7L});
+		String sql = "Select * from user WHERE zone_id = ?";
+		List<Map<String,Object>> rows = jt.queryForList(sql,new Object[] {zone});
 		List<UserVM> userVMs = new ArrayList<UserVM>();
 		for(Map mapUser : rows) {
 			UserVM uvm = new UserVM();
