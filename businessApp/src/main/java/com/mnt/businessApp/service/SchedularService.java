@@ -26,6 +26,7 @@ import com.mnt.businessApp.viewmodel.UserInfoVM;
 import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Lead;
+import com.mnt.entities.businessApp.LeadAgeing;
 import com.mnt.entities.businessApp.LeadDetails;
 import com.mnt.entities.businessApp.Product;
 
@@ -258,15 +259,14 @@ public class SchedularService {
 							break;
 						}
 					}
-
 					c = row.getCell(13);
 					if (c != null) {
 						switch (c.getCellType()) {
 						case Cell.CELL_TYPE_NUMERIC:
-							leadDetails.pinCode = (long) c.getNumericCellValue();
+							leadDetails.pinCode = c.getNumericCellValue()+"";
 							break;
 						case Cell.CELL_TYPE_STRING:
-							leadDetails.pinCode = Long.parseLong(c.getStringCellValue());
+							leadDetails.pinCode = c.getStringCellValue();
 							break;
 						}
 					}
@@ -489,6 +489,11 @@ public class SchedularService {
 					assignDealer(lead);
 					sessionFactory.getCurrentSession().save(lead);
 					
+					LeadAgeing ageing = new LeadAgeing();
+					ageing.setAgeing(0L);
+					ageing.setStatus("New");
+					
+					
 
 					if (leadDetails.filter != null) {
 						System.out.println("storeExcelFile"
@@ -509,16 +514,18 @@ public class SchedularService {
 
 	private Product getProductByName(String productName) {
 		Session session = sessionFactory.getCurrentSession();
-		Query query = session.createQuery("From Product where name = ?");
-		query.setParameter(1, productName);
+		Query query = session.createQuery("From Product where name = '"+productName+"'");
 		List<Product> products = query.list();  
+		Product product;
 		if(products.size() == 0){
-			Product product = new Product();
+			product = new Product();
 			product.setName(productName);
 			session.save(product);
+		} else {
+			product =  products.get(0);
 		}
 		
-		return products.get(0);
+		return product;
 	}
 
 	private void assignDealer(Lead lead) {

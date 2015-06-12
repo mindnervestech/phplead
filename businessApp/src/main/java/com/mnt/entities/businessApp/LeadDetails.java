@@ -27,7 +27,7 @@ public class LeadDetails {
     public Long		contactNo;
     public String	state;
     public String	city;
-    public Long		pinCode;
+    public String	pinCode;
     
     @ManyToOne
     public Product	product;
@@ -87,7 +87,7 @@ public class LeadDetails {
 	public String getCity() {
 		return city;
 	}
-	public Long getPinCode() {
+	public String getPinCode() {
 		return pinCode;
 	}
 	public String getType() {
@@ -180,7 +180,7 @@ public class LeadDetails {
 	public void setCity(String city) {
 		this.city = city;
 	}
-	public void setPinCode(Long pinCode) {
+	public void setPinCode(String pinCode) {
 		this.pinCode = pinCode;
 	}
 	public void setType(String type) {

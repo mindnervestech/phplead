@@ -290,8 +290,8 @@ public class DealerService {
 		dealer.customerGroup = dealerVM.getCustomerGroup();
 		dealer.phone = dealerVM.getPhone();
 		dealer.email = dealerVM.getEmail();
-		dealer.zone = dealerVM.getZone().getId()+"";
-		dealer.territory = dealerVM.getTerritory().getId()+"";
+		dealer.zone = dealerVM.getZone().getName();
+		dealer.territory = dealerVM.getTerritory().getName();
 		dealer.rsm = (User) sessionFactory.getCurrentSession().get(User.class, Long.valueOf( dealerVM.getRsm()).longValue());
 		dealer.address = dealerVM.getAddress();
 		dealer.state = dealerVM.getState();

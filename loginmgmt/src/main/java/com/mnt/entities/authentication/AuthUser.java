@@ -75,6 +75,7 @@ public class AuthUser implements UserDetails {
     /* non UserDetails methods */
     @Id
     @Column(name="auth_id")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     public Long getId() { return id; }
     
     public void setId(Long id) {

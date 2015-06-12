@@ -17,7 +17,7 @@ public class LeadVM {
     public Long		contactNo;
     public String	state;
     public String	city;
-    public Long		pinCode;
+    public String	pinCode;
     public String	product;
     public String	type;
     public String	campaignName;
@@ -141,11 +141,11 @@ public class LeadVM {
 		this.city = city;
 	}
 
-	public Long getPinCode() {
+	public String getPinCode() {
 		return pinCode;
 	}
 
-	public void setPinCode(Long pinCode) {
+	public void setPinCode(String pinCode) {
 		this.pinCode = pinCode;
 	}
 

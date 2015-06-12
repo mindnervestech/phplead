@@ -69,7 +69,7 @@ public class BusinessController {
     private JdbcTemplate jt;
 	
 	@Transactional
-	@RequestMapping(value="/testURL",method=RequestMethod.GET)
+	@RequestMapping(value="/uploadLeads",method=RequestMethod.GET)
 	public @ResponseBody String home() {
 		schedularService.uploadandStoreExcel();
 		return "HERE";

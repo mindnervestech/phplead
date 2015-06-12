@@ -12,7 +12,7 @@ public class LeadDetailsVM {
 	public String contactName;
 	public String email;
 	public Long contactNumber;
-	public Long pincode;
+	public String pincode;
 	public String product;
 	public String disposition1;
 	public String disposition2;
@@ -29,7 +29,7 @@ public class LeadDetailsVM {
 		this.contactNumber = (Long) map.get("contactNo");
 		this.contactName = (String) map.get("name");
 		this.email = (String) map.get("email");
-		this.pincode = (Long) map.get("pincode");
+		this.pincode = (String) map.get("pincode");
 		this.product = (String) map.get("product");
 		this.disposition1 = (String) map.get("dispo1");
 		this.disposition2 = (String) map.get("dispo2");
@@ -91,11 +91,11 @@ public class LeadDetailsVM {
 		this.contactNumber = contactNumber;
 	}
 
-	public Long getPincode() {
+	public String getPincode() {
 		return pincode;
 	}
 
-	public void setPincode(Long pincode) {
+	public void setPincode(String pincode) {
 		this.pincode = pincode;
 	}
 
