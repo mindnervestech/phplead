@@ -96,9 +96,6 @@ public class DealerService {
 		dataList.put("districtList", districtList);
 
 		Session session = sessionFactory.getCurrentSession();
-		if(user.getEntityName().equals("Dealer")){
-			sql = "FROM Dealer ";
-		}
 		if(user.getEntityName().equals("RSM")){
 			sql = "FROM Dealer where rsm_id = "+user.getEntityId();
 		}

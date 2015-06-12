@@ -1,25 +1,12 @@
 package com.mnt.report.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.SessionFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -34,15 +21,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
-
 @Controller
 public class ReportMDService {
 	
@@ -53,7 +31,7 @@ public class ReportMDService {
 	NamedParameterJdbcTemplate namedJdbcTemplate;
 
 	
-    @RequestMapping(value="/report/run",method=RequestMethod.GET)
+    @RequestMapping(value="report/run",method=RequestMethod.GET)
     @ResponseBody
     public JSONObject runReports(@RequestParam String filter) {
     	JSONObject resp = new JSONObject();
@@ -116,7 +94,7 @@ public class ReportMDService {
     	return resp;
     }
     
-	@RequestMapping(value="/reports/md",method=RequestMethod.GET)
+	@RequestMapping(value="reports/md",method=RequestMethod.GET)
 	@ResponseBody
 	@Transactional
 	public List<ReportMDVM> getReports() {
@@ -159,7 +137,7 @@ public class ReportMDService {
 		return jsonStr;
 	}
 	
-	@RequestMapping(value="/reports/md/{reportid}",method=RequestMethod.GET)
+	@RequestMapping(value="reports/md/{reportid}",method=RequestMethod.GET)
 	@ResponseBody
 	public Object execute(Long id) {
 		return null;
@@ -172,7 +150,7 @@ public class ReportMDService {
 		public String description;
 		public Long id;
 	}
-	
+/*	
 	public void generatePDF(List<Map<String, Object>> rs){
 
 		 Document document = new Document();
@@ -273,7 +251,7 @@ public class ReportMDService {
 		 
 	}
 	
-	
+	*/
 	/*
 	select B.DD_ISSUE_DATE from tbl_de_data A,tbl_parent_image B  WHERE 
 	(A.DC_AD_SIZE IN (:DC_AD_SIZEin) OR :DC_AD_SIZE IS NULL) AND

@@ -8,6 +8,7 @@ public class DashBoardProgressBarVm {
 	public String actualValue;
 	public String symbol;
 	public int value = 1;
+	public String href;
 	
 	public String getType() {
 		return type;
@@ -44,6 +45,12 @@ public class DashBoardProgressBarVm {
 	}
 	public void setValue(int value) {
 		this.value = value;
+	}
+	public String getHref() {
+		return href;
+	}
+	public void setHref(String href) {
+		this.href = href;
 	}
 	
 }

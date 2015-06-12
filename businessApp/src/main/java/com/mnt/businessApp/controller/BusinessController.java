@@ -11,7 +11,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mail.MailSender;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -60,7 +60,7 @@ public class BusinessController {
 	private MailService mailService;
 
 	@Autowired
-	private MailSender mailSender;
+	private JavaMailSender mailSender;
 
 	@Autowired
 	private VelocityEngine velocityEngine;
@@ -85,6 +85,24 @@ public class BusinessController {
 	@RequestMapping(value="/getEscalatedLeads",method=RequestMethod.GET)
 	public @ResponseBody List<LeadDetailsVM> getEscalatedLeads() {
 		return leadService.getAllEscalatedLeadDetails();
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getOpenLeads",method=RequestMethod.GET)
+	public @ResponseBody List<LeadDetailsVM> getOpenLeads() {
+		return leadService.getOpenLeads();
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getWonLeads",method=RequestMethod.GET)
+	public @ResponseBody List<LeadDetailsVM> getWonLeads() {
+		return leadService.getWonLeads();
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getLostLeads",method=RequestMethod.GET)
+	public @ResponseBody List<LeadDetailsVM> getLostLeads() {
+		return leadService.getLostLeads();
 	}
 	
 	@Transactional
@@ -222,6 +240,11 @@ public class BusinessController {
 		return leadService.getZoneAndProduct();
 	}
 	
+	@Transactional
+	@RequestMapping(value="/sendMail", method = RequestMethod.GET)
+	public @ResponseBody void sendMail(){
+		mailService.sendMail("shwashank12@gmail.com", "SUBJECT", "BODY");
+	}
 	
 	
 	
