@@ -35,7 +35,7 @@ public class DealerVM {
 		this.district = dealer.getDistrict();
 		this.email = dealer.getEmail();
 		this.phone =dealer.getPhone();
-		this.rsm = dealer.getRsm().getName();
+		this.rsm = dealer.getRsm().getId().toString();
 		this.state = dealer.getState();
 		this.subdist = dealer.getSubDistrict();
 		//this.territory = dealer.getTerritory();

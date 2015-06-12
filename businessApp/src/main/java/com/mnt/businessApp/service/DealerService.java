@@ -110,12 +110,12 @@ public class DealerService {
 			DealerVM vm = new DealerVM(dealer);
 			vm.setPins(getAllDealerConfig(dealer.getId()));
 			for(ZoneVM zone : zoneList){
-				if(dealer.getZone().equals(zone.id+"")){
+				if(dealer.getZone().equals(zone.name)){
 					vm.setZone(zone);
 				}
 			}
 			for(ZoneVM zone : territoryList){
-				if(dealer.getTerritory().equals(zone.id+"")){
+				if(dealer.getTerritory().equals(zone.name)){
 					vm.setTerritory(zone);
 				}
 			}
@@ -487,8 +487,8 @@ public class DealerService {
 
 	public List<UserVM> getRSMByZone(Long zone) {
 		
-		String sql = "Select * from user WHERE user.zone = ? and user.role = ?";
-		List<Map<String,Object>> rows = jt.queryForList(sql,new Object[] {zone, 7L});
+		String sql = "Select * from user WHERE zone_id = ?";
+		List<Map<String,Object>> rows = jt.queryForList(sql,new Object[] {zone});
 		List<UserVM> userVMs = new ArrayList<UserVM>();
 		for(Map mapUser : rows) {
 			UserVM uvm = new UserVM();
