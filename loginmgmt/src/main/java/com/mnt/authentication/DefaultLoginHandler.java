@@ -20,7 +20,7 @@ public abstract class DefaultLoginHandler implements LoginHandler{
 	@Override
 	public Object onSuccess(AuthUser u) {
 		return new LoginStatus(u.username, 
-				RequestContextHolder.currentRequestAttributes().getSessionId(),u.privResourceMap);
+				RequestContextHolder.currentRequestAttributes().getSessionId(),u.privResourceMap,u.name);
 	}
 	
 	public class LoginStatus {
@@ -30,22 +30,25 @@ public abstract class DefaultLoginHandler implements LoginHandler{
 		    private final String error;
 		    private final String accessToken;
 		    private final Object payload;
+		    private final String name;
 		 
 		    public LoginStatus(boolean loggedIn, String username,String error, 
-		    		String accessToken,Object payload) {
+		    		String accessToken,Object payload, String name) {
 		      this.loggedIn = loggedIn;
 		      this.username = username;
 		      this.error = error;
 		      this.accessToken = accessToken;
 		      this.payload = payload;
+		      this.name = name;
+		     
 		    }
 		    
 		    public LoginStatus(String error) {
-		    	this(false,"",error,"",null);
+		    	this(false,"",error,"",null,"");
 			}
 		    
-		    public LoginStatus(String username,String accessToken, Object payload) {
-		    	this(true,username,"",accessToken,payload);
+		    public LoginStatus(String username,String accessToken, Object payload,String name) {
+		    	this(true,username,"",accessToken,payload,name);
 			}
 		 
 		    public boolean isLoggedIn() {
@@ -67,11 +70,15 @@ public abstract class DefaultLoginHandler implements LoginHandler{
 			public Object getPayload() {
 				return payload;
 			}
+
+			public String getName() {
+				return name;
+			}
 	  }
 
 	@Override
 	public Object onAuthenticate(AuthUser u) {
-		return new LoginStatus(u.username,u.id+"","");
+		return new LoginStatus(u.username,u.id+"","",u.name);
 		
 	}
 

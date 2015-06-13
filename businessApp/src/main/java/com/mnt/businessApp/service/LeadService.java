@@ -131,25 +131,17 @@ public class LeadService {
 		activityStream.setReason(vm.getReason());
 		activityStream.setCreatedDate(new Date());
 		sessionFactory.getCurrentSession().save(activityStream);
-		System.out.println(" before :::::: "+lead.getDisposition2());
 		if(lead.getDisposition2() == null || (!lead.getDisposition2().equals("Won") && !lead.getDisposition2().equals("Lost"))){
-			System.out.println(" in if :::::: "+vm.getDisposition2());
-			LeadAgeing ageing = getLeadAgeing(lead.getId(), lead.getDisposition1());
+			LeadAgeing ageing = getLeadAgeing(lead.getId(), vm.getDisposition1());
 			long secs = (new Date().getTime() - lead.getLastDispo1ModifiedDate().getTime()) / 1000;
 			Integer hours = (int) (secs / 3600);    
 			ageing.setAgeing(ageing.getAgeing() + hours);
-			sessionFactory.getCurrentSession().update(ageing);
-			ageing = getLeadAgeing(lead.getId(), vm.getDisposition1());
-			secs = (new Date().getTime() - lead.getLastDispo1ModifiedDate().getTime()) / 1000;
-			hours = (int) (secs / 3600);    
 			ageing.setProduct(lead.getLeadDetails().getProduct().getName());
-			ageing.setAgeing(Long.valueOf(hours));
 			if(lead.getDealer() != null){
 				ageing.setZone(lead.getDealer().getZone());
 				ageing.setDealer_id(lead.getDealer().getId());
 			}
 			sessionFactory.getCurrentSession().update(ageing);
-			System.out.println("after :::::: "+vm.getDisposition2());
 			if(vm.getDisposition2().equals("Won") || vm.getDisposition2().equals("Lost")){
 				ageing = getLeadAgeing(lead.getId(), vm.getDisposition2());
 				secs = (new Date().getTime() - lead.getUploadDate().getTime() ) / 1000;

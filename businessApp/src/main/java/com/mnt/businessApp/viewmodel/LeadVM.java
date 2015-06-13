@@ -28,11 +28,13 @@ public class LeadVM {
 	public Date followUpDate;
 	public String reason;
 	public Boolean isLost = false;
+	public Boolean isCompleated = false;
 	public LeadVM() {}
 	
 	public LeadVM(Lead lead) {
 		this.id = lead.getId();
 		this.disposition1 = lead.getDisposition1();
+		this.disposition2 = lead.getDisposition2();
 		//this.uploadDate = lead.getUploadDate();
 		this.name = lead.getLeadDetails().getName();
 		this.leadNumber = lead.getLeadDetails().getSr();
@@ -49,6 +51,9 @@ public class LeadVM {
 		this.areaofInterest2 = lead.getLeadDetails().getAreaofInterest2();
 		this.remarks1 = lead.getLeadDetails().getRemarks1();
 		this.followUpDate = lead.getFollowUpDate();
+		if(lead.getDisposition2().equals("Won") || lead.getDisposition2().equals("Lost")){
+			this.isCompleated = true;
+		}
 	}
 
 	public Long getId() {
