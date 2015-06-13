@@ -67,7 +67,7 @@ public class SchedularService {
 	// upload the excel
 	public void uploadandStoreExcel() {
 
-		File excelfile = new File("F://leads.xlsx");
+		File excelfile = new File("E://leads.xlsx");
 		String filename = excelfile.getName();
 		Workbook wb_xssf; //Declare XSSF WorkBook
 		Workbook wb_hssf;//Declare HSSf WorkBook

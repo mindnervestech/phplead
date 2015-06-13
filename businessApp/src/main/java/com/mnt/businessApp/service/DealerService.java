@@ -248,6 +248,7 @@ public class DealerService {
 			jt.update("insert into user_product (user_product.User_id,user_product.products_id) values (?,?)",
 					new Object[] {user.getId(), Integer.parseInt(productId)});
 		}
+		sessionFactory.getCurrentSession().flush();
 		return getUserDetails();
 	}
 

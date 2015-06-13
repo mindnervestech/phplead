@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -39,6 +40,7 @@ import com.mnt.businessApp.viewmodel.UserVM;
 
 @Controller
 @RequestMapping(value="/api/business")
+@PreAuthorize("isAuthenticated()")
 public class BusinessController {
 
 	@Autowired

@@ -11,6 +11,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.stereotype.Service;
 
 import com.mnt.businessApp.viewmodel.LeadDetailsVM;
@@ -33,9 +34,11 @@ public class LeadService {
 	private JdbcTemplate jt;
 
 	public List<LeadDetailsVM> getAllLeadDetails() {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String sql = "";
+		List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+		
 		if(user.getEntityName().equals("Dealer")){
 			sql =  "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
@@ -44,7 +47,7 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ "ld.id = l.leadDetails_id and dealer_id = ?";
 		}  
-		if(user.getEntityName().equals("RSM")){
+		else if(user.getEntityName().equals("RSM")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
@@ -52,7 +55,7 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ " ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer  where rsm_id = ? )";
 		}
-		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
@@ -60,7 +63,7 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
 					+ " ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer as d where zone = (Select user.zone_id from user WHERE user.id = ?))";
 		}
-		if(user.getEntityName().equals("Category Manager")){
+		else if(user.getEntityName().equals("Category Manager")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
@@ -68,26 +71,30 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
 					+ " ld.id = l.leadDetails_id and ld.product_id IN ( select products_id  from user_product  where User_id = ? )";
 		}
-		if(user.getEntityName().equals("Admin")){
+		else if(user.getEntityName().equals("Admin")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
 					+ " ld.id = l.leadDetails_id";
-			List<Map<String, Object>> rows = jt.queryForList(sql);
+			rows = jt.queryForList(sql);
 			for(Map map : rows) {
 				vms.add(new LeadDetailsVM(map));
 			}
 			return vms;
+		} else {
+			System.out.println("Unknown Role");
 		}
 		
-		List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] {user.getEntityId()});
+		rows = jt.queryForList(sql,new Object[] {user.getEntityId()});
 		for(Map map : rows) {
 			vms.add(new LeadDetailsVM(map));
 		}
 		return vms;
 	}
+
+	
 
 	public LeadVM getLeadVMById(Long id) {
 		Lead lead = getLeadById(id);
@@ -191,7 +198,7 @@ public class LeadService {
 	}
 
 	public List<LeadDetailsVM> getAllEscalatedLeadDetails() {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String sql = "";
 		if(user.getEntityName().equals("Dealer")){
@@ -240,7 +247,7 @@ public class LeadService {
 	}
 
 	public List<LeadDetailsVM> getFollowUpLeads() {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String sql = "";
 		if(user.getEntityName().equals("Dealer")){
@@ -307,7 +314,7 @@ public class LeadService {
 	}
 
 	public Map getZoneAndProduct() {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		String sql = "select * from zone";
 		
 		List<Map<String, Object>> rows = jt.queryForList(sql);
@@ -345,7 +352,7 @@ public class LeadService {
 	}
 
 	public List<LeadDetailsVM> getOpenLeads() {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String proZone = "" ;
 		if(user.getEntityName().equals("Dealer")){
@@ -377,7 +384,7 @@ public class LeadService {
 	}
 	
 	public List<LeadDetailsVM> getWonLeads() {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String proZone = "" ;
 		if(user.getEntityName().equals("Dealer")){
@@ -409,7 +416,7 @@ public class LeadService {
 	}
 	
 	public List<LeadDetailsVM> getLostLeads() {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String proZone = "" ;
 		if(user.getEntityName().equals("Dealer")){
