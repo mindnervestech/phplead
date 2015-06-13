@@ -19,6 +19,7 @@ import com.mnt.businessApp.viewmodel.DashBoardProgressBarVm;
 import com.mnt.businessApp.viewmodel.SplineVM;
 import com.mnt.businessApp.viewmodel.ZoneVM;
 import com.mnt.entities.authentication.AuthUser;
+import com.mnt.entities.businessApp.User;
 
 @Service
 public class DashBoardService {
@@ -29,126 +30,6 @@ public class DashBoardService {
 	@Autowired
 	private JdbcTemplate jt;
 
-	public List<Map> getDashboardProgressbar() {
-		AuthUser user = Utils.getLoggedInUser();
-		switch(user.getEntityName()){
-			case "Dealer":
-				return getProgressBarForDealer(user);
-				
-			case "RSM":
-				return getProgressBarForRSM(user);
-				
-			case "ZSM":
-			case "Sellout Manager":
-				return getProgressBarForZSM(user);
-				
-			case "Sellout Contact":
-				return getProgressBarForSelloutContact(user);
-				
-			case "Category Manager":
-			case "Sellout-Regional":
-				return getProgressBarForCM(user);
-				
-			case "CEO":
-			case "Admin":
-			case "General Manager":
-				return getProgressBarAdmin(user);
-					
-		}
-		return null;
-	}
-	
-	private List<Map> getProgressBarAdmin(AuthUser user) {
-		String sql = "SELECT COUNT(*) FROM Lead";
-		List<Map> list = new ArrayList<>();
-		int total = jt.queryForInt(sql);
-		int escalated = jt.queryForInt("SELECT COUNT(*) FROM Lead where disposition1 = 'Escalated'");
-		int open = jt.queryForInt("SELECT COUNT(*) FROM Lead where ( disposition1 = 'New' "
-				+ "or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted') ) and dealer_id IN (:ids)");
-		int won = jt.queryForInt("SELECT COUNT(*) FROM Leadwhere disposition2 = 'Won' ");
-		int lost = jt.queryForInt("SELECT COUNT(*) FROM Lead where disposition2 = 'Lost' ");
-		
-		
-		list.add(getList("Escalated", "icon fa fa-suitcase", "warning", total, escalated));
-		list.add(getList( "Open", "icon fa fa-folder-open", "warning", total, open));
-		list.add(getList(  "Won", "icon fa fa-thumbs-up", "success",total, won));
-		list.add(getList( "Lost Leads", "icon fa fa-thumbs-down", "danger", total, lost));
-		return list;
-	}
-
-	private List<Map> getProgressBarForDealer(AuthUser user){
-		String sql = "SELECT COUNT(*) FROM Lead where dealer_id = ?";
-		List<Map> list = new ArrayList<>();
-		int total = jt.queryForInt(sql, new Object[] { user.getEntityId() });
-		List<Long> ids = new ArrayList<>();
-		ids.add(user.getEntityId());
-		sql = "SELECT COUNT(*) FROM Lead where disposition1 = 'Escalated' and dealer_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Escalated", "icon fa fa-suitcase", "warning", total,ids));
-		return getProgressBarByDealers(list,total,ids);
-	}
-	
-	private List<Map> getProgressBarForRSM(AuthUser user){
-		List<Long> ids = new ArrayList<>();
-		ids = jt.queryForList("Select dealer.id FROM dealer where dealer.rsm_id = "+user.getEntityId(), Long.class);
-		String sql = "SELECT COUNT(*) FROM Lead where dealer_id IN (:ids)";
-		List<Map> list = new ArrayList<>();
-		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
-		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
-				NamedParameterJdbcTemplate(jt.getDataSource());
-		int total = namedParameterJdbcTemplate.queryForInt(sql, param);
-		sql = "SELECT COUNT(*) FROM Lead where disposition1 = 'Escalated' and escalatedLevel = 2 and"
-				+ " dealer_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Escalated", "icon fa fa-suitcase", "warning", total,ids));
-		return getProgressBarByDealers(list,total,ids);
-	}
-	
-	private List<Map> getProgressBarForZSM(AuthUser user){
-		List<Long> ids = new ArrayList<>();
-		ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = (Select user.zone_id from user WHERE user.id = "+user.getEntityId()+")", Long.class);
-		String sql = "SELECT COUNT(*) FROM Lead where dealer_id IN (:ids)";
-		List<Map> list = new ArrayList<>();
-		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
-		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
-				NamedParameterJdbcTemplate(jt.getDataSource());
-		int total = namedParameterJdbcTemplate.queryForInt(sql, param);
-		sql = "SELECT COUNT(*) FROM Lead where disposition1 = 'Escalated' and escalatedLevel = 3 and"
-				+ " dealer_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Escalated", "icon fa fa-suitcase", "warning", total,ids));
-		return getProgressBarByDealers(list,total,ids);
-	}
-	
-	private List<Map> getProgressBarForSelloutContact(AuthUser user){
-		List<Long> ids = new ArrayList<>();
-		ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = "
-				+ "(Select user.zone_id from user WHERE user.id = "+user.getEntityId()+")", Long.class);
-		String sql = "SELECT COUNT(*) FROM Lead where dealer_id IN (:ids)";
-		List<Map> list = new ArrayList<>();
-		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
-		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
-				NamedParameterJdbcTemplate(jt.getDataSource());
-		int total = namedParameterJdbcTemplate.queryForInt(sql, param);
-		sql = "SELECT COUNT(*) FROM Lead where disposition1 = 'Escalated' and escalatedLevel = 2"
-				+ " and dealer_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Escalated", "icon fa fa-suitcase", "warning", total,ids));
-		return getProgressBarByDealers(list,total,ids);
-	}
-	
-	private List<Map> getProgressBarForCM(AuthUser user){
-		List<Long> ids = new ArrayList<>();
-		ids = jt.queryForList(" select products_id  from user_product  where User_id = "+user.getEntityId(), Long.class);
-		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id"
-				+ " and ld.product_id IN (:ids)";
-		List<Map> list = new ArrayList<>();
-		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
-		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
-				NamedParameterJdbcTemplate(jt.getDataSource());
-		int total = namedParameterJdbcTemplate.queryForInt(sql, param);
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id"
-				+ " and l.disposition1 = 'Escalated' and ld.product_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Escalated", "icon fa fa-suitcase", "warning", total,ids));
-		return getProgressBarByProducts(list,total,ids);
-	}
-	
 	private List<Map> getProgressBarByProducts(List<Map> list, int total,List<Long> ids) {
 		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id "
 				+ "and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted'))"
@@ -162,18 +43,6 @@ public class DashBoardService {
 		list.add(getLeadProgressBarVM(sql, "Lost", "icon fa fa-thumbs-down", "danger", total,ids));
 		return list;
 	}
-
-	private List<Map> getProgressBarByDealers(List<Map> list, int total, List<Long> ids){
-		String sql = "SELECT COUNT(*) FROM Lead where ( disposition1 = 'New' "
-				+ "or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted') ) and dealer_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Open", "icon fa fa-folder-open", "warning", total,ids));
-		sql = "SELECT COUNT(*) FROM Lead where disposition2 = 'Won' and dealer_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Won", "icon fa fa-thumbs-up", "success", total,ids));
-		sql = "SELECT COUNT(*) FROM Lead where disposition2 = 'Lost' and dealer_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Lost", "icon fa fa-thumbs-down", "danger", total,ids));
-		return list;
-	}
-
 
 	private Map getLeadProgressBarVM(String sql, String description, String iconClass, String type, int total,List<Long> ids) {
 		if(ids.size() == 0){
@@ -202,88 +71,45 @@ public class DashBoardService {
 		return map;
 	}
 
-	public List<Map> getDashboardProgressbar(Long zone, Long product) {
-		List<Long> ids = new ArrayList<>();
-		String proZone;
-		ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = "+zone, Long.class);
-		
-		if(product == 0 ){
-			proZone = " and l.dealer_id IN (:ids)";
-		} else{
-			proZone = " and ld.product_id ="+product+" and l.dealer_id IN (:ids)";
-		}
-		if(ids.size() == 0){
-			ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
-		}
-		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id"
-				+ proZone;
-		List<Map> list = new ArrayList<>();
-		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
-		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
-				NamedParameterJdbcTemplate(jt.getDataSource());
-		int total = namedParameterJdbcTemplate.queryForInt(sql, param);
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id"
-				+ " and l.disposition1 = 'Escalated' "
-				+ proZone;
-		list.add(getLeadProgressBarVM(sql, "Escalated", "icon fa fa-suitcase", "warning", total,ids));
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id "
-				+ "and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted'))"
-				+proZone;
-		list.add(getLeadProgressBarVM(sql, "Open", "icon fa fa-folder-open", "warning", total,ids));
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and disposition2 = 'Won'"
-				+ proZone;
-		list.add(getLeadProgressBarVM(sql, "Won", "icon fa fa-thumbs-up", "success", total,ids));
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and disposition2 = 'Lost'"
-				+ proZone;
-		list.add(getLeadProgressBarVM(sql, "Lost", "icon fa fa-thumbs-down", "danger", total,ids));
-		return list;
-	}
-
-	public List<Map> getDashboardProgressbar(Date start, Date end, Long zone,
+	public List<Map> getDashboardProgressbar(Date start, Date end, String zone,
 			Long product) {
 		AuthUser user = Utils.getLoggedInUser();
 		String sql = "";
 		List<Long> ids = new ArrayList<>();
-		String sqlDate = " and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(end)+"'";
+		String sqlDate = " and l.lastDispo1ModifiedDate >= '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate <= '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
 		String proZone = "";
 		String escalatationlevel = "";
-		if(user.getEntityName().equals("Dealer")){
+		if(product != 0 || !zone.equals("0")){
+			if(product != 0 ){
+				proZone = " and ld.product_id ="+product;
+			}
+			if(!zone.equals("0")){
+				ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = '"+zone+"'", Long.class);
+			} else {
+				ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
+			}
+		}
+		else if(user.getEntityName().equals("Dealer")){
 			ids.add(user.getEntityId());
 		}  
-		if(user.getEntityName().equals("RSM")){
+		else if(user.getEntityName().equals("RSM")){
 			ids = jt.queryForList("select d.id  from dealer as d  where d.rsm_id = "+user.getEntityId(), Long.class);
 			escalatationlevel = " and l.escalatedLevel = 1 ";
 		}
-		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
-			ids = jt.queryForList("select d.id  from dealer as d where d.zone = (Select user.zone_id from user WHERE user.id = "+user.getEntityId()+")", Long.class);
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
+			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
+			ids = jt.queryForList("select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"'", Long.class);
 			escalatationlevel = " and l.escalatedLevel = 2 ";
 		}
-		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
+		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
 			proZone = " and ld.product_id IN ("+sql+")";
-			ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = "+zone, Long.class);
-			if(ids.size() == 0){
-				ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
-			}
+			ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
 		}
-		if(user.getEntityName().equals("General Manager") || user.getEntityName().equals("CEO")){
-			sql = "select product.id from product";
-			proZone = " and ld.product_id IN ("+sql+")";
-			ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = "+zone, Long.class);
-			if(ids.size() == 0){
-				ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
-			}
-		}
-		if(product != 0){
-			proZone = " and ld.product_id ="+product;
-			ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = "+zone, Long.class);
-			if(ids.size() == 0){
-				ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
-			}
-		}
-		if(user.getEntityName().equals("Admin")){
+		else if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
 			ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
 		}  
+
 		List<Map> list = new ArrayList<>();
 		if(ids.size() == 0){
 			list.add(getList("Escalated", "icon fa fa-suitcase", "warning", 0, 0));
@@ -343,7 +169,7 @@ public class DashBoardService {
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "select * from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
 		} else 
-		if(user.getEntityName().equals("General Manager") || user.getEntityName().equals("CEO")){
+		if(user.getEntityName().equals("General Manager") || user.getEntityName().equals("CEO") || user.getEntityName().equals("Admin")){
 			sql = "select * from product";
 		} else {
 			return map; 
@@ -385,6 +211,11 @@ public class DashBoardService {
 		if(user.getEntityName().equals("RSM")){
 			ids = jt.queryForList("Select dealer.id FROM dealer where dealer.rsm_id = "+user.getEntityId(), Long.class);
 		}
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
+			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
+			ids = jt.queryForList("select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"'", Long.class);
+			System.out.println(" :: Dealers "+ids.size());
+		}
 		return getDealerSplineVM(start, end, cat, color, ids, query);
 	}
 
@@ -397,7 +228,7 @@ public class DashBoardService {
 		List<List> list = new ArrayList<>();
 		List<Map<String, Object>> rows = namedParameterJdbcTemplate.queryForList("SELECT COUNT(*) as count, l.lastDispo1ModifiedDate as date from lead as l "
 				+ " where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(startDate)+"' "
-				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(endDate)+"' "
+				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(endDate))+"' "
 				+ " and l.dealer_id IN (:ids)"+query
 				+ " GROUP BY CAST(l.lastDispo1ModifiedDate  AS DATE) "
 				+ " ORDER BY CAST(l.lastDispo1ModifiedDate  AS DATE) asc",param);
@@ -438,9 +269,9 @@ public class DashBoardService {
 			List innerlist = new ArrayList(2);
 			innerlist.add(zoneVM.getName()); 
 			if(leadCat.equals("Open")){
-				innerlist.add(getSplineCountForOpen(zoneVM.getId(), start, end, category)); 
+				innerlist.add(getSplineCountForOpen(zoneVM, start, end, category)); 
 			} else {
-				innerlist.add(getSplineCount(zoneVM.getId(), start, end, leadCat, category)); 
+				innerlist.add(getSplineCount(zoneVM, start, end, leadCat, category)); 
 			}
 			list.add(innerlist);
 		}
@@ -450,29 +281,29 @@ public class DashBoardService {
 		return vm;
 	}
 
-	private Object getSplineCountForOpen(Long id, Date start, Date end, String category) {
+	private Object getSplineCountForOpen(ZoneVM zoneVm, Date start, Date end, String category) {
 		Map<String, List<Long>> param = null;
 		String sqlQuery = "";
 		if(category.equals("product")){
 			List<Long> ids = new ArrayList<>();
-			ids.add(id);
+			ids.add(zoneVm.getId());
 			param = Collections.singletonMap("ids",ids); 
 			sqlQuery = " and ld.product_id IN (:ids)";
 		} 
 		if(category.equals("zone")){
-			param = Collections.singletonMap("ids",getDealersByZoneId(id)); 
+			param = Collections.singletonMap("ids",getDealersByZoneId(zoneVm.getName())); 
 			sqlQuery = " and l.dealer_id IN (:ids)";
 		}
 		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
 				NamedParameterJdbcTemplate(jt.getDataSource());
 		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id "
 				+ "and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted'))"
-				+ sqlQuery+" and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(end)+"'";
+				+ sqlQuery+" and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
 		return namedParameterJdbcTemplate.queryForInt(sql, param);
 	}
 
-	private Integer getSplineCount(Long id, Date start, Date end, String status, String category) {
-		return getSplineCountDealerIds(getDealersByZoneId(id), start, end, status, category);
+	private Integer getSplineCount(ZoneVM zoneVM, Date start, Date end, String status, String category) {
+		return getSplineCountDealerIds(getDealersByZoneId(zoneVM.getName()), start, end, status, category);
 	}
 	
 	private Integer getSplineCountDealerIds(List<Long> ids, Date start, Date end, String status, String category){
@@ -480,16 +311,22 @@ public class DashBoardService {
 		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
 				NamedParameterJdbcTemplate(jt.getDataSource());
 		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and disposition2 = '"+status+"'"
-				+ "and l.dealer_id IN (:ids) and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(end)+"'";
+				+ "and l.dealer_id IN (:ids) and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
 		return namedParameterJdbcTemplate.queryForInt(sql, param);
 	}
 	
-	private List<Long> getDealersByZoneId(Long zone){
-		List<Long> ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = "+zone, Long.class);
+	private List<Long> getDealersByZoneId(String zone){
+		List<Long> ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = '"+zone+"'", Long.class);
 		if(ids.size() == 0){
 			ids.add(0L);
 		}
 		return ids;
 	}
-
+	
+	private Date getDate(Date end){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(end);
+		cal.add(Calendar.DATE, 1);
+		return cal.getTime();
+	}
 }

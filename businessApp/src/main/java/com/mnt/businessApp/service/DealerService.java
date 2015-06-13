@@ -49,10 +49,7 @@ public class DealerService {
 
 	public Map getZones() {
 		AuthUser user = Utils.getLoggedInUser();;
-		
-		String sql = "select * from zone";
-
-		List<Map<String, Object>> rows = jt.queryForList(sql);
+		List<Map<String, Object>> rows = jt.queryForList("select * from zone");
 		List<ZoneVM> zoneList = new ArrayList<ZoneVM>();
 		Map<String,List> dataList = new HashMap<String, List>();
 		for(Map map : rows) {
@@ -62,8 +59,8 @@ public class DealerService {
 			zoneList.add(vm);
 		}
 		dataList.put("zoneList", zoneList);
-		sql = "select * from territory";
-		rows = jt.queryForList(sql);
+		
+		rows = jt.queryForList("select * from territory");
 		List<ZoneVM> territoryList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
 			ZoneVM vm = new ZoneVM();
@@ -73,8 +70,7 @@ public class DealerService {
 		}
 		dataList.put("territoryList", territoryList);
 
-		sql = "select * from state";
-		rows = jt.queryForList(sql);
+		rows = jt.queryForList("select * from state");
 		List<ZoneVM> stateList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
 			ZoneVM vm = new ZoneVM();
@@ -84,8 +80,7 @@ public class DealerService {
 		}
 		dataList.put("stateList", stateList);
 
-		sql = "select * from district";
-		rows = jt.queryForList(sql);
+		rows = jt.queryForList("select * from district");
 		List<ZoneVM> districtList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
 			ZoneVM vm = new ZoneVM();
@@ -94,14 +89,17 @@ public class DealerService {
 			districtList.add(vm);
 		}
 		dataList.put("districtList", districtList);
-
+		String sql = "";
 		Session session = sessionFactory.getCurrentSession();
 		if(user.getEntityName().equals("RSM")){
 			sql = "FROM Dealer where rsm_id = "+user.getEntityId();
 		}
-		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
 			User user2 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
 			sql = "FROM Dealer where zone = "+user2.getZone().getId();
+		}
+		else if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
+			sql = "FROM Dealer";
 		}
 		List<DealerVM> vms = new ArrayList<DealerVM>();
 		Query query = session.createQuery(sql);
@@ -239,6 +237,7 @@ public class DealerService {
 		authUser.setEntityId(user.getId());
 		authUser.setUsername(userVM.getEmail());
 		authUser.setEntityName(role.getName());
+		authUser.setName(user.getName());
 		List<Role> roles = new ArrayList<>();
 		roles.add(role);
 		authUser.setRoles(roles);
@@ -322,6 +321,7 @@ public class DealerService {
 		authUser.setEntityId(dealer.getId());
 		authUser.setUsername(dealer.getDealerCode());
 		authUser.setEntityName("Dealer");
+		authUser.setName(dealer.getDealerName());
 		List<Role> roles = new ArrayList<>();
 		roles.add(role);
 		authUser.setRoles(roles);
