@@ -48,7 +48,7 @@ public class DealerService {
 
 
 	public Map getZones() {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();;
 		
 		String sql = "select * from zone";
 

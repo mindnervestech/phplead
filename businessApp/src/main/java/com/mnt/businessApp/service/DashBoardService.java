@@ -9,12 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.mnt.businessApp.viewmodel.DashBoardProgressBarVm;
@@ -32,7 +30,7 @@ public class DashBoardService {
 	private JdbcTemplate jt;
 
 	public List<Map> getDashboardProgressbar() {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		switch(user.getEntityName()){
 			case "Dealer":
 				return getProgressBarForDealer(user);
@@ -243,7 +241,7 @@ public class DashBoardService {
 
 	public List<Map> getDashboardProgressbar(Date start, Date end, Long zone,
 			Long product) {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		String sql = "";
 		List<Long> ids = new ArrayList<>();
 		String sqlDate = " and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(end)+"'";
@@ -339,7 +337,7 @@ public class DashBoardService {
 	}
 	
 	public Map getProductSplineBetweenDates(Date start, Date end) {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		Map<String, List<SplineVM>> map = new HashMap<>();
 		String sql = "";
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
@@ -379,7 +377,7 @@ public class DashBoardService {
 	}
 
 	private SplineVM getSplineDataForDealer(Date start, Date end, String query, String cat, String color) {
-		AuthUser user = ((AuthUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		AuthUser user = Utils.getLoggedInUser();
 		List<Long> ids = new ArrayList<>();
 		if(user.getEntityName().equals("Dealer")){
 			ids.add(user.getEntityId());
