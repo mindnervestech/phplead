@@ -59,7 +59,8 @@ public class LeadService {
 					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
-					+ " ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer as d where zone = (Select user.zone_id from user WHERE user.id = ?))";
+					+ " ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer as d where zone = "
+					+ "(Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
 		}
 		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
@@ -298,7 +299,7 @@ public class LeadService {
 					+ " and ld.id = l.leadDetails_id"
 					+ " and dealer_id IN ("
 					+ " select id  from dealer"
-					+ " where zone = (Select user.zone_id from user WHERE user.id = ?))";
+					+ " where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
 		}
 		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "Select ld.sr as srNo, "
@@ -390,7 +391,7 @@ public class LeadService {
 			proZone = " and dealer_id IN ( select id  from dealer  where rsm_id = ? )";
 		}
 		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
-			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select user.zone_id from user WHERE user.id = ?))";
+			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
 		}
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			proZone = " and ld.product_id IN ( select products_id  from user_product  where User_id = ? )";
@@ -438,7 +439,7 @@ public class LeadService {
 			proZone = " and dealer_id IN ( select id  from dealer  where rsm_id = ? )";
 		}
 		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
-			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select user.zone_id from user WHERE user.id = ?))";
+			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
 		}
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			proZone = " and ld.product_id IN ( select products_id  from user_product  where User_id = ? )";
@@ -485,7 +486,7 @@ public class LeadService {
 			proZone = " and dealer_id IN ( select id  from dealer  where rsm_id = ? )";
 		}
 		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
-			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select user.zone_id from user WHERE user.id = ?))";
+			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
 		}
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			proZone = " and ld.product_id IN ( select products_id  from user_product  where User_id = ? )";
