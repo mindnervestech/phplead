@@ -222,7 +222,7 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
 					+ " d.id = l.dealer_id and"
 					+ " disposition1 = 'Escalated' and l.escalatedLevel = " + escalatedLevel 
-					+ " and ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer where zone = (Select user.zone_id from user WHERE user.id = ?) )";
+					+ " and ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id) )";
 		}
 		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
