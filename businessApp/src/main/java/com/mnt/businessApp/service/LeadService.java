@@ -193,6 +193,10 @@ public class LeadService {
 		AuthUser user = Utils.getLoggedInUser();
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String sql = "";
+		int escalatedLevel = 0;
+		if(user.getEntityName().equals("ZSM")) escalatedLevel = 3;
+		if(user.getEntityName().equals("Sellout Manager")) escalatedLevel = 2;
+		if(user.getEntityName().equals("Sellout Contact")) escalatedLevel = 1;
 		if(user.getEntityName().equals("Dealer")){
 			sql =  "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
@@ -207,7 +211,7 @@ public class LeadService {
 					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
-					+ " d.id = l.dealer_id and disposition1 = 'Escalated' and l.escalatedLevel = 1 "
+					+ " d.id = l.dealer_id and disposition1 = 'Escalated' "
 					+ "and ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer  where rsm_id = ? )";
 		}
 		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
@@ -217,7 +221,7 @@ public class LeadService {
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
 					+ " d.id = l.dealer_id and"
-					+ " disposition1 = 'Escalated' and l.escalatedLevel = 2 "
+					+ " disposition1 = 'Escalated' and l.escalatedLevel = " + escalatedLevel 
 					+ " and ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer where zone = (Select user.zone_id from user WHERE user.id = ?) )";
 		}
 		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
@@ -227,7 +231,7 @@ public class LeadService {
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
 					+ " d.id = l.dealer_id and"
-					+ " disposition1 = 'Escalated' and l.escalatedLevel = 2 "
+					+ " disposition1 = 'Escalated' "
 					+ " and ld.id = l.leadDetails_id"
 					+ " and  ld.product_id IN ( select products_id  from user_product  where User_id = ? )";
 		}
