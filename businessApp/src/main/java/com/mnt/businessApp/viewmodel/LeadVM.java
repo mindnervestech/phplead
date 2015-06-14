@@ -51,7 +51,7 @@ public class LeadVM {
 		this.areaofInterest2 = lead.getLeadDetails().getAreaofInterest2();
 		this.remarks1 = lead.getLeadDetails().getRemarks1();
 		this.followUpDate = lead.getFollowUpDate();
-		if(lead.getDisposition2().equals("Won") || lead.getDisposition2().equals("Lost")){
+		if(lead.getDisposition2() != null && (lead.getDisposition2().equals("Won") || lead.getDisposition2().equals("Lost"))){
 			this.isCompleated = true;
 		}
 	}
