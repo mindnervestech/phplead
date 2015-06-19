@@ -96,7 +96,7 @@ public class DashBoardService {
 			ids = jt.queryForList("select d.id  from dealer as d  where d.rsm_id = "+user.getEntityId(), Long.class);
 			escalatationlevel = " and l.escalatedLevel = 1 ";
 		}
-		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
 			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
 			ids = jt.queryForList("select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"'", Long.class);
 			escalatationlevel = " and l.escalatedLevel = 2 ";
@@ -211,7 +211,7 @@ public class DashBoardService {
 		if(user.getEntityName().equals("RSM")){
 			ids = jt.queryForList("Select dealer.id FROM dealer where dealer.rsm_id = "+user.getEntityId(), Long.class);
 		}
-		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Contact") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
 			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
 			ids = jt.queryForList("select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"'", Long.class);
 			System.out.println(" :: Dealers "+ids.size());

@@ -1,14 +1,20 @@
 package com.mnt.entities.businessApp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Where;
 
 @Entity
 public class Dealer {
@@ -29,9 +35,13 @@ public class Dealer {
 	public String district;
 	public String subDistrict;
 	public String zipCode;
+	public Boolean status = true;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
-	public User rsm;
+	@ManyToMany(cascade = CascadeType.ALL)
+	public List<User> user;
+	
+	@ManyToMany(cascade = CascadeType.ALL)
+	public List<Product> products;
 	
 	@OneToMany
 	public List<Lead> leads;
@@ -78,12 +88,6 @@ public class Dealer {
 	public void setTerritory(String territory) {
 		this.territory = territory;
 	}
-	public User getRsm() {
-		return rsm;
-	}
-	public void setRsm(User rsm) {
-		this.rsm = rsm;
-	}
 	public String getAddress() {
 		return address;
 	}
@@ -125,5 +129,30 @@ public class Dealer {
 	}
 	public void setZone(String zone) {
 		this.zone = zone;
+	}
+	public Boolean getStatus() {
+		return status;
+	}
+	public void setStatus(Boolean status) {
+		this.status = status;
+	}
+	public List<User> getUser() {
+		return user;
+	}
+	public void setUser(List<User> user) {
+		this.user = user;
+	}
+	public void addUser(User user) {
+		if(this.user == null){
+			this.user = new ArrayList<>();
+		}
+		this.user.add(user);
+		
+	}
+	public List<Product> getProducts() {
+		return products;
+	}
+	public void setProducts(List<Product> products) {
+		this.products = products;
 	}
 }

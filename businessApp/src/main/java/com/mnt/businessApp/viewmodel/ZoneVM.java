@@ -7,6 +7,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import com.mnt.entities.authentication.District;
 import com.mnt.entities.authentication.State;
 import com.mnt.entities.authentication.Zone;
+import com.mnt.entities.businessApp.User;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZoneVM {
@@ -15,25 +16,33 @@ public class ZoneVM {
 	public int roleId;
 	public String name;
 	
+	public ZoneVM() {}
+	
 	public ZoneVM(Zone zone) {
 		this.id = zone.getId();
 		this.name = zone.getName();
 	}
+	
 	public ZoneVM(State state) {
 		this.id = state.getId();
 		this.name = state.getName();
 	}
+	
 	public ZoneVM(District district) {
 		this.id = district.getId();
 		this.name = district.getName();
 	}
-	public ZoneVM() {
-		// TODO Auto-generated constructor stub
-	}
+	
 	public ZoneVM(Map<String, Object> map) {
 		this.id = (Long) map.get("id");
 		this.name = (String) map.get("name");
 	}
+	
+	public ZoneVM(User user) {
+		this.id = user.getId();
+		this.name = user.getName();
+	}
+	
 	public Long getId() {
 		return id;
 	}

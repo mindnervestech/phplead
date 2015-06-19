@@ -18,6 +18,7 @@ public class SaveUserVM {
 	public String postCode;
 	public String state;
 	public String city;
+	public Long dealer;
 	
 	public String getName() {
 		return name;
@@ -96,5 +97,11 @@ public class SaveUserVM {
 	}
 	public void setCity(String city) {
 		this.city = city;
+	}
+	public Long getDealer() {
+		return dealer;
+	}
+	public void setDealer(Long dealer) {
+		this.dealer = dealer;
 	}
 }

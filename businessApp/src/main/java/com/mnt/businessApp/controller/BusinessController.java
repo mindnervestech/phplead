@@ -1,5 +1,6 @@
 package com.mnt.businessApp.controller;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -37,6 +39,7 @@ import com.mnt.businessApp.viewmodel.LeadVM;
 import com.mnt.businessApp.viewmodel.PinsVM;
 import com.mnt.businessApp.viewmodel.SaveUserVM;
 import com.mnt.businessApp.viewmodel.UserVM;
+import com.mnt.businessApp.viewmodel.ZoneVM;
 
 @Controller
 @RequestMapping(value="/api/business")
@@ -131,6 +134,12 @@ public class BusinessController {
 	public @ResponseBody List<LeadHistoryVM> getLeadHistory(@PathVariable("id") Long id) {
 		return leadService.getLeadHistory(id);
 	}
+	
+	@Transactional
+	@RequestMapping(value="/getNewLeadData",method=RequestMethod.GET)
+	public @ResponseBody Map getNewLeadData() {
+		return leadService.getNewLeadData();
+	}
 
 	@Transactional
 	@RequestMapping(value="/getDealersByZipCode/{zipCode}",method=RequestMethod.GET)
@@ -189,6 +198,21 @@ public class BusinessController {
 		return dealerService.updateUser(userVM);
 	}	
 	
+	
+	@Transactional
+	@RequestMapping(value="/changeUserStatus/{status}", method = RequestMethod.POST)
+	public @ResponseBody void changeUserStatus(@PathVariable("status") Long status, ModelMap model,@RequestBody List<Long> ids,HttpServletRequest request){
+		String sql = "UPDATE User u SET u.status = "+status+" WHERE u.id in (:ids)";
+		dealerService.changeStatus(sql, ids);
+	}	
+	
+	@Transactional
+	@RequestMapping(value="/changeDealerStatus/{status}", method = RequestMethod.POST)
+	public @ResponseBody void changeDealerStatus(@PathVariable("status") Long status, ModelMap model,@RequestBody List<Long> ids,HttpServletRequest request){
+		String sql = "UPDATE dealer d SET d.status = "+status+" WHERE d.id in (:ids)";
+		dealerService.changeStatus(sql, ids);
+	}	
+	
 	@Transactional
 	@RequestMapping(value="/getGeneralConfig",method=RequestMethod.GET)
 	public @ResponseBody Map getGeneralConfig() {
@@ -239,7 +263,7 @@ public class BusinessController {
 	@Transactional
 	@RequestMapping(value="/getZoneAndProduct", method = RequestMethod.GET)
 	public @ResponseBody Map getZoneAndProduct(){
-		return leadService.getZoneAndProduct();
+		return dealerService.getZoneAndProduct();
 	}
 	
 	@Transactional
@@ -250,9 +274,20 @@ public class BusinessController {
 	
 	@Transactional
 	@RequestMapping(value="/getRSMByZone/{zone}",method = RequestMethod.GET)
-	public @ResponseBody List<UserVM> getRSMByZone(@PathVariable("zone") Long zone) {
+	public @ResponseBody List<ZoneVM> getRSMByZone(@PathVariable("zone") Long zone) {
 		return dealerService.getRSMByZone(zone);
 	}
 	
+	@Transactional
+	@RequestMapping(value="/getTSRByZone/{zone}",method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getTSRByZone(@PathVariable("zone") Long zone) {
+		return dealerService.getTSRByZone(zone);
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getDealersByDistrict/{district}",method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getDealersByDistrict(@PathVariable("district") Long district) {
+		return dealerService.getDealersByDistrict(district);
+	}
 
 }

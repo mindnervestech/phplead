@@ -1,8 +1,10 @@
 package com.mnt.businessApp.viewmodel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mnt.entities.businessApp.Dealer;
+import com.mnt.entities.businessApp.User;
 
 public class DealerVM {
 
@@ -14,14 +16,17 @@ public class DealerVM {
 	public String email;
 	public ZoneVM zone;
 	public ZoneVM territory;
-	public String rsm;
+	public List<ZoneVM> rsm;
+	public List<ZoneVM> tsr;
 	public List<PinsVM> pins;
 	public String address;
 	public String state;
 	public String district;
 	public String subdist;
 	public String zipCode;
-	
+	public Boolean selected;
+	public String status;
+	public List<ProductVM> products;
 	
 	public DealerVM() {
 	}
@@ -35,11 +40,25 @@ public class DealerVM {
 		this.district = dealer.getDistrict();
 		this.email = dealer.getEmail();
 		this.phone =dealer.getPhone();
-		this.rsm = dealer.getRsm().getId().toString();
+		List<ZoneVM> rsm = new ArrayList<>();
+		List<ZoneVM> tsr = new ArrayList<>();
+		for(User user : dealer.getUser()){
+			if(user.getEntityName().equals("RSM")){
+				rsm.add(new ZoneVM(user));
+			}
+			if(user.getEntityName().equals("TSR")){
+				tsr.add(new ZoneVM(user));
+			}
+		}
+		this.rsm = rsm;
+		this.tsr = tsr;
 		this.state = dealer.getState();
 		this.subdist = dealer.getSubDistrict();
-		//this.territory = dealer.getTerritory();
-		//this.zone = dealer.getZone();
+		if(dealer.status == null){
+			this.status = "Active";
+		}else{
+			this.status = dealer.status == false ? "Inactive" : "Active";
+		}
 		this.zipCode = dealer.getZipCode();
 	}
 	public Long getId() {
@@ -90,12 +109,6 @@ public class DealerVM {
 	public void setTerritory(ZoneVM territory) {
 		this.territory = territory;
 	}
-	public String getRsm() {
-		return rsm;
-	}
-	public void setRsm(String rsm) {
-		this.rsm = rsm;
-	}
 	public List<PinsVM> getPins() {
 		return pins;
 	}
@@ -133,5 +146,45 @@ public class DealerVM {
 
 	public void setZipCode(String zipCode) {
 		this.zipCode = zipCode;
+	}
+
+	public Boolean getSelected() {
+		return selected;
+	}
+
+	public void setSelected(Boolean selected) {
+		this.selected = selected;
+	}
+
+	public List<ZoneVM> getRsm() {
+		return rsm;
+	}
+
+	public void setRsm(List<ZoneVM> rsm) {
+		this.rsm = rsm;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public List<ZoneVM> getTsr() {
+		return tsr;
+	}
+
+	public void setTsr(List<ZoneVM> tsr) {
+		this.tsr = tsr;
+	}
+
+	public List<ProductVM> getProducts() {
+		return products;
+	}
+
+	public void setProducts(List<ProductVM> products) {
+		this.products = products;
 	}
 }

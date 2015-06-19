@@ -20,6 +20,9 @@ public class UserVM {
 	public ZoneVM district;
 	public String postCode;
 	public List<ProductVM> products;
+	public Boolean selected;
+	public String status;
+	public Long dealer;
 	
 	public Long getId() {
 		return id;
@@ -98,5 +101,23 @@ public class UserVM {
 	}
 	public void setProducts(List<ProductVM> products) {
 		this.products = products;
+	}
+	public Boolean getSelected() {
+		return selected;
+	}
+	public void setSelected(Boolean selected) {
+		this.selected = selected;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public Long getDealer() {
+		return dealer;
+	}
+	public void setDealer(Long dealer) {
+		this.dealer = dealer;
 	}
 }
