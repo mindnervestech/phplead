@@ -19,7 +19,6 @@ import org.hibernate.annotations.Where;
 @Entity
 public class Dealer {
 
-
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Long id;

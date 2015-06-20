@@ -488,6 +488,7 @@ public class SchedularService {
 					lead.setLeadDetails(leadDetails);
 					lead.setUploadDate(new Date());
 					lead.setDisposition1("New");
+					lead.setOrigin("Call-center");
 					sessionFactory.getCurrentSession().save(lead);
 					
 					ActivityStream activityStream = new ActivityStream();

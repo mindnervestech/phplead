@@ -128,6 +128,12 @@ public class BusinessController {
 	public @ResponseBody void updateLead(@RequestBody LeadVM vm) {
 		leadService.updateLead(vm);
 	}
+	
+	@Transactional
+	@RequestMapping(value="/createLead",method=RequestMethod.POST)
+	public @ResponseBody void createLead(@RequestBody LeadVM vm) {
+		leadService.createLead(vm);
+	}
 
 	@Transactional
 	@RequestMapping(value="/lead/history/{id}",method=RequestMethod.GET)

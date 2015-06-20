@@ -41,6 +41,8 @@ public class Lead {
 	
 	public Date escalatedDate;
 	
+	public String origin;
+	
 	@ManyToOne(fetch=FetchType.EAGER)
 	public User escalatedTo;
 	
@@ -169,6 +171,14 @@ public class Lead {
 
 	public void setLastDispo1ModifiedDate(Date lastDispo1ModifiedDate) {
 		this.lastDispo1ModifiedDate = lastDispo1ModifiedDate;
+	}
+
+	public String getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(String origin) {
+		this.origin = origin;
 	}
 	
 	

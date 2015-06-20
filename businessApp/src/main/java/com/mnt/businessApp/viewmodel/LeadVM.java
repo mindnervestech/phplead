@@ -2,8 +2,11 @@ package com.mnt.businessApp.viewmodel;
 
 import java.util.Date;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 import com.mnt.entities.businessApp.Lead;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LeadVM {
 
 	public Long id;
@@ -230,6 +233,22 @@ public class LeadVM {
 
 	public void setIsLost(Boolean isLost) {
 		this.isLost = isLost;
+	}
+
+	public Boolean getIsCompleated() {
+		return isCompleated;
+	}
+
+	public void setIsCompleated(Boolean isCompleated) {
+		this.isCompleated = isCompleated;
+	}
+
+	public Long getDealer() {
+		return dealer;
+	}
+
+	public void setDealer(Long dealer) {
+		this.dealer = dealer;
 	}
 
 }

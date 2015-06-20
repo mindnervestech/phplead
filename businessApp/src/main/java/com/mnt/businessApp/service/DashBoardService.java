@@ -93,7 +93,7 @@ public class DashBoardService {
 			ids.add(user.getEntityId());
 		}  
 		else if(user.getEntityName().equals("RSM")){
-			ids = jt.queryForList("select d.id  from dealer as d  where d.rsm_id = "+user.getEntityId(), Long.class);
+			ids = jt.queryForList("SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId(), Long.class);
 			escalatationlevel = " and l.escalatedLevel = 1 ";
 		}
 		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
@@ -209,7 +209,7 @@ public class DashBoardService {
 			ids.add(user.getEntityId());
 		}
 		if(user.getEntityName().equals("RSM")){
-			ids = jt.queryForList("Select dealer.id FROM dealer where dealer.rsm_id = "+user.getEntityId(), Long.class);
+			ids = jt.queryForList("SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId(), Long.class);
 		}
 		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
 			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
