@@ -404,6 +404,7 @@ public class DealerService {
 						new Object[] {user.getId(), productVM.getId()});
 			}
 		}
+		jt.update("DELETE FROM dealer_user WHERE user_id = ? ",userVM.getId());
 		if(userVM.dealer != null){
 			((Dealer) sessionFactory.getCurrentSession().get(Dealer.class, userVM.dealer)).addUser(user);
 		}
