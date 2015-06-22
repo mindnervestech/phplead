@@ -49,7 +49,7 @@ public class LeadService {
 		if(user.getEntityName().equals("Dealer")){
 			sql =  "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ "ld.id = l.leadDetails_id and dealer_id = ?";
@@ -57,7 +57,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("RSM")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ " ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";
@@ -65,7 +65,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
 					+ " ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer as d where zone = "
@@ -74,7 +74,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
 					+ " ld.id = l.leadDetails_id and ld.product_id IN ( select products_id  from user_product  where User_id = ? )";
@@ -82,7 +82,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
 					+ " ld.id = l.leadDetails_id";
@@ -90,7 +90,8 @@ public class LeadService {
 			for(Map map : rows) {
 				vms.add(new LeadDetailsVM(map));
 			}
-			System.out.println(sql);
+			System.out.println("Lead Details : " + sql);
+			
 			return vms;
 		} else {
 			System.out.println("Unknown Role");
@@ -210,7 +211,7 @@ public class LeadService {
 		if(user.getEntityName().equals("Dealer")){
 			sql =  "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and disposition1 = 'Escalated'  "
 					+ "and ld.id = l.leadDetails_id and dealer_id = ?";
@@ -218,7 +219,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("RSM")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
 					+ " d.id = l.dealer_id and disposition1 = 'Escalated' "
@@ -227,7 +228,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
 					+ " d.id = l.dealer_id and"
@@ -237,7 +238,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
 					+ " d.id = l.dealer_id and"
@@ -248,7 +249,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
 					+ " d.id = l.dealer_id and"
@@ -276,7 +277,7 @@ public class LeadService {
 		if(user.getEntityName().equals("Dealer")){
 			sql =  "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
 					+ " d.id = l.dealer_id and l.followUpDate IS NOT NULL "
@@ -285,7 +286,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("RSM")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and l.followUpDate IS NOT NULL "
 					+ "and ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";
@@ -297,6 +298,7 @@ public class LeadService {
 					+ "ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,"
 					+ "p.name as product,"
+					+ "ld.state as state,"
 					+ "l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,"
 					+ "l.followUpDate as date ,"
@@ -317,6 +319,7 @@ public class LeadService {
 					+ "ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,"
 					+ "p.name as product,"
+					+ "ld.state as state,"
 					+ "l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,"
 					+ "l.followUpDate as date ,"
@@ -331,7 +334,7 @@ public class LeadService {
 		else if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and l.followUpDate IS NOT NULL "
 					+ "and ld.id = l.leadDetails_id";
@@ -370,7 +373,7 @@ public class LeadService {
 		if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
 			String sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ " ld.id = l.leadDetails_id "
@@ -385,7 +388,7 @@ public class LeadService {
 		
 		String sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ " ld.id = l.leadDetails_id "
@@ -418,7 +421,7 @@ public class LeadService {
 		if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
 			String sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ " ld.id = l.leadDetails_id "
@@ -432,7 +435,7 @@ public class LeadService {
 		}
 		String sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ " ld.id = l.leadDetails_id "
@@ -465,7 +468,7 @@ public class LeadService {
 		if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
 			String sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ " ld.id = l.leadDetails_id "
@@ -479,7 +482,7 @@ public class LeadService {
 		}
 		String sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
-					+ "ld.pinCode as pincode,p.name as product,l.disposition1 as dispo1,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ " ld.id = l.leadDetails_id "

@@ -14,6 +14,7 @@ public class LeadDetailsVM {
 	public Long contactNumber;
 	public String pincode;
 	public String product;
+	public String state;
 	public String disposition1;
 	public String disposition2;
 	public String esacaletedTo;
@@ -31,6 +32,7 @@ public class LeadDetailsVM {
 		this.email = (String) map.get("email");
 		this.pincode = map.get("pincode").toString();
 		this.product = (String) map.get("product");
+		this.state = (String) map.get("state");
 		this.disposition1 = (String) map.get("dispo1");
 		this.disposition2 = (String) map.get("dispo2");
 		this.followUpDate = (Date) map.get("date");
@@ -45,6 +47,7 @@ public class LeadDetailsVM {
 		this.contactNumber = lead.getLeadDetails().getContactNo();
 		this.pincode = lead.getLeadDetails().getPinCode();
 		this.product = lead.getLeadDetails().getProduct().getName();
+		this.state = lead.getLeadDetails().getState();
 		this.disposition1 = lead.getDisposition1();
 		this.disposition2 = lead.getDisposition2();
 		this.esacaletedTo = lead.getEscalatedTo().getName();
@@ -148,5 +151,16 @@ public class LeadDetailsVM {
 	public void setDealerName(String dealerName) {
 		this.dealerName = dealerName;
 	}
+
+
+	public String getState() {
+		return state;
+	}
+
+
+	public void setState(String state) {
+		this.state = state;
+	}
+	
 
 }

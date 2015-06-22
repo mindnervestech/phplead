@@ -32,6 +32,7 @@ public class LeadVM {
 	public String reason;
 	public Boolean isLost = false;
 	public Boolean isCompleated = false;
+	public Long dealer;
 	public LeadVM() {}
 	
 	public LeadVM(Lead lead) {
