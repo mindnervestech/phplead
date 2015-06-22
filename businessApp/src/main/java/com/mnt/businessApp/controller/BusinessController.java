@@ -1,6 +1,5 @@
 package com.mnt.businessApp.controller;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -37,6 +35,8 @@ import com.mnt.businessApp.viewmodel.LeadDetailsVM;
 import com.mnt.businessApp.viewmodel.LeadHistoryVM;
 import com.mnt.businessApp.viewmodel.LeadVM;
 import com.mnt.businessApp.viewmodel.PinsVM;
+import com.mnt.businessApp.viewmodel.ReassignUserVM;
+import com.mnt.businessApp.viewmodel.ReassignVM;
 import com.mnt.businessApp.viewmodel.SaveUserVM;
 import com.mnt.businessApp.viewmodel.UserVM;
 import com.mnt.businessApp.viewmodel.ZoneVM;
@@ -224,6 +224,19 @@ public class BusinessController {
 	public @ResponseBody Map getGeneralConfig() {
 		return jt.queryForList("select * from generalconfig").get(0);
 	}
+	
+	@Transactional
+	@RequestMapping(value="/reassignDealerToLead",method=RequestMethod.POST)
+	public @ResponseBody void reassignDealerToLead(ModelMap model,@RequestBody ReassignVM reassignVM, HttpServletRequest request) {
+		leadService.reassignDealers(reassignVM.getUserVM(), reassignVM.getIds());
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getReassignList",method=RequestMethod.GET)
+	public @ResponseBody List<ReassignUserVM> getReassignList() {
+		return leadService.getReassignList();
+	}
+	
 	
 	@Transactional
 	@RequestMapping(value="/updateGeneralConfig", method = RequestMethod.POST)

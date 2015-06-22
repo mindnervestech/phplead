@@ -29,6 +29,9 @@ public class Lead {
 	@ManyToOne(cascade = CascadeType.ALL,fetch=FetchType.EAGER)
 	public Dealer dealer;
 	
+	@ManyToOne(cascade = CascadeType.ALL,fetch=FetchType.EAGER)
+	public User user;
+	
 	public String disposition1;
 	
 	public String disposition2;
@@ -179,6 +182,14 @@ public class Lead {
 
 	public void setOrigin(String origin) {
 		this.origin = origin;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 	
 	

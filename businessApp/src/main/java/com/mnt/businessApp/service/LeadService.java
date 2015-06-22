@@ -1,6 +1,7 @@
 package com.mnt.businessApp.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +14,10 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.mnt.businessApp.viewmodel.ReassignUserVM;
 import com.mnt.businessApp.viewmodel.LeadDetailsVM;
 import com.mnt.businessApp.viewmodel.LeadHistoryVM;
 import com.mnt.businessApp.viewmodel.LeadVM;
@@ -503,29 +506,41 @@ public class LeadService {
 		map.put("productList", getProductList());
 		map.put("stateList", dealerService.getStates());
 		map.put("cityList", dealerService.getDistricts());
-		map.put("dealerList", getDealerList());
 		return map;
 	}
 	
-	private List<ZoneVM> getDealerList() {
+	public List<ReassignUserVM> getReassignList() {
 		AuthUser user = Utils.getLoggedInUser();
-		String sql = "";
+		String dealersql = "";
+		String usersql = "";
 		if(user.getEntityName().equals("RSM")){
-			sql = "select * from Dealer where id In ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+			dealersql = "select * from Dealer where id In ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+			usersql = "SELECT * FROM user WHERE user.entityName In ('RSM', 'TSR') and user.zone_id = (SELECT zone_id FROM user where id = "+user.getEntityId()+")";
 		} else if(user.getEntityName().equals("TSR")){
-			sql = "select * from Dealer where zone = (Select zone.name from user,zone WHERE user.id = "+user.getEntityId()+" and zone.id = user.zone_id))";
+			dealersql = "select * from Dealer where zone = (Select zone.name from user,zone WHERE user.id = "+user.getEntityId()+" and zone.id = user.zone_id))";
+			usersql = "SELECT * FROM user WHERE user.entityName In ('RSM', 'TSR') and user.zone_id = (SELECT zone_id FROM user where id = "+user.getEntityId()+")";
 		} else if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("Sales Consultant")){
-			sql = "select * from Dealer where id = "+user.getEntityId();
+			dealersql = "select * from Dealer where id = "+user.getEntityId();
 		}
-		List<Map<String, Object>> rows = jt.queryForList(sql);
-		List<ZoneVM> productList = new ArrayList<ZoneVM>();
+		List<Map<String, Object>> rows = jt.queryForList(dealersql);
+		List<ReassignUserVM> dealerList = new ArrayList<ReassignUserVM>();
 		for(Map map : rows) {
-			ZoneVM vm = new ZoneVM();
+			ReassignUserVM vm = new ReassignUserVM();
 			vm.id = (Long) map.get("id");
 			vm.name = (String) map.get("dealerName") +" : " + ((String) map.get("address")).substring(0,25);
-			productList.add(vm);
+			vm.entity = "Dealer";
+			dealerList.add(vm);
 		}
-		return productList;
+		
+		rows = jt.queryForList(usersql);
+		for(Map map : rows) {
+			ReassignUserVM vm = new ReassignUserVM();
+			vm.id = (Long) map.get("id");
+			vm.name = (String) map.get("name") +" : (" + (String) map.get("entityName")+")";
+			vm.entity = (String) map.get("entityName");
+			dealerList.add(vm);
+		}
+		return dealerList;
 	}
 
 
@@ -591,4 +606,22 @@ public class LeadService {
 		session.save(ageing);
 	}
 
+
+
+	public void reassignDealers(ReassignUserVM reassign, List<Long> ids) {
+		String hql = "";
+		if(reassign.getEntity().equals("Dealer")){
+			hql = "UPDATE lead SET lead.dealer_id = "+reassign.getId()+", lead.user_id = NULL where lead.id IN(:ids)";
+		}
+		else if(reassign.getEntity().equals("RSM") || reassign.getEntity().equals("TSR")){
+			hql = "UPDATE lead SET lead.user_id = "+reassign.getId()+",  lead.dealer_id = NULL where lead.id IN(:ids)";
+		}
+		else {
+			return ;
+		}
+		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
+		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
+				NamedParameterJdbcTemplate(jt.getDataSource());
+		namedParameterJdbcTemplate.update(hql, param);
+	}
 }
