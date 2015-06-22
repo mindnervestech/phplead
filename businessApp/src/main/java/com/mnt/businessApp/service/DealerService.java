@@ -446,7 +446,7 @@ public class DealerService {
 
 
 	public List<DealerConfigurationVM> getDealersByZipCode(Long zipCode) {
-		String sql = "select * from dealerconfiguration WHERE zipCode_id = ?";
+		String sql = "select * from dealer as d where d.id IN (Select dc.dealer_id from dealerconfiguration as dc where dc.zipCode_id = ?)";
 
 		List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] { zipCode});
 		List<DealerConfigurationVM> vms = new ArrayList<DealerConfigurationVM>();
