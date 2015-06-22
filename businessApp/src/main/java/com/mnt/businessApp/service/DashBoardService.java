@@ -71,7 +71,7 @@ public class DashBoardService {
 		return map;
 	}
 
-	public List<Map> getDashboardProgressbar(Date start, Date end, String zone,
+	public List<Map> getDashboardProgressbar(Date start, Date end, String zone, String state,
 			Long product) {
 		AuthUser user = Utils.getLoggedInUser();
 		String sql = "";
@@ -79,24 +79,29 @@ public class DashBoardService {
 		String sqlDate = " and l.lastDispo1ModifiedDate >= '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate <= '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
 		String proZone = "";
 		String escalatationlevel = "";
-		if(product != 0 || !zone.equals("0")){
+		if(product != 0 || !zone.equals("0") || !state.equals("0")){
+			String zoneState = "";
 			if(product != 0 ){
 				proZone = " and ld.product_id ="+product;
 			}
-			if(!zone.equals("0")){
-				ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = '"+zone+"'", Long.class);
-			} else {
-				ids = jt.queryForList("Select dealer.id FROM dealer", Long.class);
+			if(!zone.equals("0") && !state.equals("0")){
+				zoneState = " dealer.zone = '"+zone+"' and dealer.state = '"+state+"'";
+			} else if(!state.equals("0")){
+				zoneState = " dealer.state = '"+state+"'";
+			} else if(!zone.equals("0")){
+				zoneState = " dealer.zone = '"+zone+"'";
 			}
+			System.out.println("zoneState :::: "+zoneState);
+			ids = jt.queryForList("Select dealer.id FROM dealer where"+zoneState, Long.class);
 		}
 		else if(user.getEntityName().equals("Dealer")){
 			ids.add(user.getEntityId());
 		}  
-		else if(user.getEntityName().equals("RSM")){
+		else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
 			ids = jt.queryForList("SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId(), Long.class);
 			escalatationlevel = " and l.escalatedLevel = 1 ";
 		}
-		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM")  || user.getEntityName().equals("Sellout Manager")){
 			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
 			ids = jt.queryForList("select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"'", Long.class);
 			escalatationlevel = " and l.escalatedLevel = 2 ";
@@ -208,10 +213,10 @@ public class DashBoardService {
 		if(user.getEntityName().equals("Dealer")){
 			ids.add(user.getEntityId());
 		}
-		if(user.getEntityName().equals("RSM")){
+		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
 			ids = jt.queryForList("SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId(), Long.class);
 		}
-		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
 			ids = jt.queryForList("select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"'", Long.class);
 			System.out.println(" :: Dealers "+ids.size());

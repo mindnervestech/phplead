@@ -275,14 +275,14 @@ public class BusinessController {
 	@RequestMapping(value="/getDashboardProgressbarAll", method = RequestMethod.GET)
 	public @ResponseBody List<Map> getDashboardProgressbarAll(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,
-			@RequestParam("zone") String zone, @RequestParam("product") Long product){
-		return dashBoardService.getDashboardProgressbar(start, end, zone, product);
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product){
+		return dashBoardService.getDashboardProgressbar(start, end, zone, state, product);
 	}
 	
 	@Transactional
-	@RequestMapping(value="/getZoneAndProduct", method = RequestMethod.GET)
-	public @ResponseBody Map getZoneAndProduct(){
-		return dealerService.getZoneAndProduct();
+	@RequestMapping(value="/getZoneStateProduct", method = RequestMethod.GET)
+	public @ResponseBody Map getZoneStateProduct(){
+		return dealerService.getZoneStateProduct();
 	}
 	
 	@Transactional

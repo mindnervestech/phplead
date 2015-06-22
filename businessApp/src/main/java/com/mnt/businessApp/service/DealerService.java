@@ -605,16 +605,16 @@ public class DealerService {
 		return userVMs;
 	}
 
-	public Map getZoneAndProduct() {
+	public Map getZoneStateProduct() {
 		AuthUser user = Utils.getLoggedInUser();
 		String sql = "select * from zone";
 		
 		Map<String,List> dataList = new HashMap<String, List>();
-		System.out.println(" ::::::::::::::::: "+user.getEntityName());
 		if(!(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional") || user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager"))){
 			return dataList;
 		}
 		dataList.put("zoneList", getZone());
+		dataList.put("stateList", getStates());
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "select * from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
 		}

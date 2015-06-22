@@ -48,7 +48,7 @@ public class LeadService {
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String sql = "";
 		List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
-		
+		String userSql = "";
 		if(user.getEntityName().equals("Dealer")){
 			sql =  "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
@@ -57,22 +57,44 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ "ld.id = l.leadDetails_id and dealer_id = ?";
 		}  
-		else if(user.getEntityName().equals("RSM")){
+		else if(user.getEntityName().equals("RSM")  || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ " ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";
+			userSql = "Select ld.sr as srNo, ld.name as name, "
+					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+" l.disposition2 as dispo2,l.followUpDate as date , u.name as dealerName"
+					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id and "
+					+" ld.id = l.leadDetails_id and l.user_id = u.id and l.user_id = ? and l.dealer_id IS NULL";
+			rows = jt.queryForList(userSql,new Object[] {user.getEntityId()});
+			for(Map map : rows) {
+				vms.add(new LeadDetailsVM(map));
+			}
+			
 		}
-		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and"
-					+ " ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer as d where zone = "
-					+ "(Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
+					+ " ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer as d where state = "
+					+ "(Select state.name from user , state WHERE user.id = ? and state.id = user.state_id))";
+			userSql = "Select ld.sr as srNo, ld.name as name, "
+					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+" l.disposition2 as dispo2,l.followUpDate as date , u.name as dealerName"
+					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id and "
+					+" ld.id = l.leadDetails_id and l.user_id = u.id and l.user_id IN  ( select id  from user as u where u.state_id = "
+					+ "(Select user.state_id from user WHERE user.id = ? )) and l.dealer_id IS NULL";
+			rows = jt.queryForList(userSql,new Object[] {user.getEntityId()});
+			for(Map map : rows) {
+				vms.add(new LeadDetailsVM(map));
+			}
 		}
 		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
@@ -93,8 +115,7 @@ public class LeadService {
 			for(Map map : rows) {
 				vms.add(new LeadDetailsVM(map));
 			}
-			System.out.println("Lead Details : " + sql);
-			
+			System.out.println(sql);
 			return vms;
 		} else {
 			System.out.println("Unknown Role");
@@ -207,11 +228,12 @@ public class LeadService {
 		AuthUser user = Utils.getLoggedInUser();
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String sql = "";
+		String userSql = "";
 		int escalatedLevel = 0;
 		if(user.getEntityName().equals("ZSM")) escalatedLevel = 3;
 		if(user.getEntityName().equals("Sellout Manager")) escalatedLevel = 2;
 		if(user.getEntityName().equals("TSR")) escalatedLevel = 1;
-		if(user.getEntityName().equals("Dealer")){
+		if(user.getEntityName().equals("Dealer") ){
 			sql =  "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,ld.state as state,l.disposition1 as dispo1,"
@@ -219,7 +241,7 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and disposition1 = 'Escalated'  "
 					+ "and ld.id = l.leadDetails_id and dealer_id = ?";
 		}  
-		else if(user.getEntityName().equals("RSM")){
+		else if(user.getEntityName().equals("RSM")  || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
@@ -227,8 +249,19 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
 					+ " d.id = l.dealer_id and disposition1 = 'Escalated' "
 					+ "and ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";
+			userSql = "Select ld.sr as srNo, ld.name as name, "
+					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+" l.disposition2 as dispo2,l.followUpDate as date , u.name as dealerName"
+					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id and "
+					+"  disposition1 = 'Escalated' and"
+					+" ld.id = l.leadDetails_id and l.user_id = u.id and l.user_id = ? and l.dealer_id IS NULL";
+			List<Map<String, Object>> rows = jt.queryForList(userSql,new Object[] {user.getEntityId()});
+			for(Map map : rows) {
+				vms.add(new LeadDetailsVM(map));
+			}
 		}
-		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
@@ -237,6 +270,18 @@ public class LeadService {
 					+ " d.id = l.dealer_id and"
 					+ " disposition1 = 'Escalated' and l.escalatedLevel = " + escalatedLevel 
 					+ " and ld.id = l.leadDetails_id and dealer_id IN ( select id  from dealer where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id) )";
+			userSql = "Select ld.sr as srNo, ld.name as name, "
+					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+" l.disposition2 as dispo2,l.followUpDate as date , u.name as dealerName"
+					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id and "
+					+ " disposition1 = 'Escalated' and l.escalatedLevel = " + escalatedLevel 
+					+" and ld.id = l.leadDetails_id and l.user_id = u.id and l.user_id IN  ( select id  from user as u where u.state_id = "
+					+ "(Select user.state_id from user WHERE user.id = ? )) and l.dealer_id IS NULL";
+			List<Map<String, Object>> rows = jt.queryForList(userSql,new Object[] {user.getEntityId()});
+			for(Map map : rows) {
+				vms.add(new LeadDetailsVM(map));
+			}
 		}
 		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
@@ -277,6 +322,8 @@ public class LeadService {
 		AuthUser user = Utils.getLoggedInUser();
 		List<LeadDetailsVM> vms = new ArrayList<LeadDetailsVM>();
 		String sql = "";
+		String userSql = "";
+		
 		if(user.getEntityName().equals("Dealer")){
 			sql =  "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
@@ -286,15 +333,26 @@ public class LeadService {
 					+ " d.id = l.dealer_id and l.followUpDate IS NOT NULL "
 					+ "and ld.id = l.leadDetails_id and dealer_id = ?";
 		}  
-		else if(user.getEntityName().equals("RSM")){
+		else if(user.getEntityName().equals("RSM")|| user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and l.followUpDate IS NOT NULL "
 					+ "and ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";
+			userSql = "Select ld.sr as srNo, ld.name as name, "
+					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+" l.disposition2 as dispo2,l.followUpDate as date , u.name as dealerName"
+					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id and "
+					+" and l.followUpDate IS NOT NULL "
+					+" ld.id = l.leadDetails_id and l.user_id = u.id and l.user_id = ? and l.dealer_id IS NULL";
+			List<Map<String, Object>> rows = jt.queryForList(userSql,new Object[] {user.getEntityId()});
+			for(Map map : rows) {
+				vms.add(new LeadDetailsVM(map));
+			}
 		}
-		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			sql = "Select ld.sr as srNo, "
 					+ "ld.name as name, "
 					+ "l.id as id,ld.email as email, "
@@ -314,6 +372,18 @@ public class LeadService {
 					+ " and dealer_id IN ("
 					+ " select id  from dealer"
 					+ " where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
+			userSql = "Select ld.sr as srNo, ld.name as name, "
+					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+" l.disposition2 as dispo2,l.followUpDate as date , u.name as dealerName"
+					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id and "
+					+" and l.followUpDate IS NOT NULL "
+					+" and ld.id = l.leadDetails_id and l.user_id = u.id and l.user_id IN  ( select id  from user as u where u.state_id = "
+					+ "(Select user.state_id from user WHERE user.id = ? )) and l.dealer_id IS NULL";
+			List<Map<String, Object>> rows = jt.queryForList(userSql,new Object[] {user.getEntityId()});
+			for(Map map : rows) {
+				vms.add(new LeadDetailsVM(map));
+			}
 		}
 		else if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "Select ld.sr as srNo, "
