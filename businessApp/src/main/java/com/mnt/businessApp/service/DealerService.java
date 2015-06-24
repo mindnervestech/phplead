@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -21,6 +23,7 @@ import com.mnt.businessApp.viewmodel.DealerVM;
 import com.mnt.businessApp.viewmodel.GeneralConfigVM;
 import com.mnt.businessApp.viewmodel.PinsVM;
 import com.mnt.businessApp.viewmodel.ProductVM;
+import com.mnt.businessApp.viewmodel.RolesVM;
 import com.mnt.businessApp.viewmodel.SaveUserVM;
 import com.mnt.businessApp.viewmodel.UserVM;
 import com.mnt.businessApp.viewmodel.ZoneVM;
@@ -33,6 +36,7 @@ import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.DealerConfiguration;
 import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Product;
+import com.mnt.entities.businessApp.Roles;
 import com.mnt.entities.businessApp.User;
 import com.mnt.entities.businessApp.ZipCode;
 
@@ -446,7 +450,7 @@ public class DealerService {
 
 
 	public List<DealerConfigurationVM> getDealersByZipCode(Long zipCode) {
-		String sql = "select * from dealer as d where d.id IN (Select dc.dealer_id from dealerconfiguration as dc where dc.zipCode_id = ?)";
+		String sql = "select d.dealerName as name, dc.percentage as percentage, dc.id as id, d.address as address from dealer as d ,dealerconfiguration as dc where dc.zipCode_id = ? and dc.dealer_id = d.id";
 
 		List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] { zipCode});
 		List<DealerConfigurationVM> vms = new ArrayList<DealerConfigurationVM>();
@@ -456,10 +460,9 @@ public class DealerService {
 			for(Map map : rows) {
 				DealerConfigurationVM vm = new DealerConfigurationVM();
 				vm.id = (Long) map.get("id");
-				vm.zipCode = (Long) map.get("zipCode_id");
-				Dealer dealer = (Dealer) sessionFactory.getCurrentSession().get(Dealer.class, (Long) map.get("dealer_id"));
-				vm.dealerName = dealer.getDealerName();
-				vm.dealerAddress = dealer.getAddress();
+				vm.zipCode = zipCode;
+				vm.dealerName = (String) map.get("name");
+				vm.dealerAddress = (String) map.get("address");
 				vm.percentage = (Float) map.get("percentage");
 				if(map.get("percentage") == null){
 					vm.percentage = percentage;
@@ -532,6 +535,27 @@ public class DealerService {
 		return userList;
 	}
 	
+	public List<RolesVM> getDetailsForRoles(){
+		System.out.println("Roles");
+		String sql = "select * from roles";
+		
+		List<Map<String, Object>> rows=  jt.queryForList(sql);
+		List<RolesVM> roleList = new ArrayList<RolesVM>();
+		for(Map row : rows){
+			RolesVM r = new RolesVM();
+			r.role_id =  (int) row.get("role_id");
+			r.name = (String) row.get("name");
+			r.report_freq = (String) row.get("report_freq");
+			
+			System.out.println("Name" + r.name);
+			
+			roleList.add(r);
+		}
+		
+		return roleList;
+	}
+	
+	
 	public void updateDealerConfig(List<DealerConfigurationVM> configurationVMs) {
 		for(DealerConfigurationVM configurationVM : configurationVMs){
 			DealerConfiguration configuration = (DealerConfiguration) sessionFactory.getCurrentSession().get(DealerConfiguration.class, configurationVM.getId());
@@ -551,6 +575,33 @@ public class DealerService {
 		sessionFactory.getCurrentSession().update(configuration);
 		
 	}
+	public void updateReportFrequency(List<RolesVM> role){
+		Session session = sessionFactory.openSession();
+		
+		Transaction tx = null;
+	      try{
+	         tx = session.beginTransaction();
+	          
+	         for(RolesVM r : role){
+	 			System.out.println(r.getRole_id());
+	 			Roles rol = (Roles) session.get(Roles.class, r.getRole_id());
+	 			//rol.setName(r.getName());
+	 			//rol.setReport_freq(r.getReport_freq());
+	 			
+	 			rol.name = r.getName();
+	 			rol.report_freq = r.getReport_freq();
+	 			session.update(rol);
+	 		}
+	         tx.commit();
+	      }catch (HibernateException e) {
+	         if (tx!=null) tx.rollback();
+	         e.printStackTrace(); 
+	      }finally {
+	         session.close(); 
+	      }
+		
+	}
+	
 
 
 	public List<ZoneVM> getRSMByZone(Long zone) {

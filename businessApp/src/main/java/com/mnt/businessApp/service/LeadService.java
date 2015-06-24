@@ -597,7 +597,7 @@ public class LeadService {
 		for(Map map : rows) {
 			ReassignUserVM vm = new ReassignUserVM();
 			vm.id = (Long) map.get("id");
-			vm.name = (String) map.get("dealerName") +" : " + ((String) map.get("address")).substring(0,25);
+			vm.name = (String) map.get("dealerName") +" : " + ((String) map.get("address")).substring(0,50);
 			vm.entity = "Dealer";
 			dealerList.add(vm);
 		}

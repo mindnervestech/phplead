@@ -37,9 +37,11 @@ import com.mnt.businessApp.viewmodel.LeadVM;
 import com.mnt.businessApp.viewmodel.PinsVM;
 import com.mnt.businessApp.viewmodel.ReassignUserVM;
 import com.mnt.businessApp.viewmodel.ReassignVM;
+import com.mnt.businessApp.viewmodel.RolesVM;
 import com.mnt.businessApp.viewmodel.SaveUserVM;
 import com.mnt.businessApp.viewmodel.UserVM;
 import com.mnt.businessApp.viewmodel.ZoneVM;
+import com.mnt.entities.businessApp.Roles;
 
 @Controller
 @RequestMapping(value="/api/business")
@@ -160,9 +162,21 @@ public class BusinessController {
 	}
 	
 	@Transactional
+	@RequestMapping(value="/updateReportFrequency", method = RequestMethod.POST)
+	@ResponseBody void updateReportFrequency(ModelMap model,@RequestBody List<RolesVM> role,HttpServletRequest request){
+		dealerService.updateReportFrequency(role);		   
+	}
+	
+	@Transactional
 	@RequestMapping(value="/getDetailsForUser", method = RequestMethod.GET)
 	public @ResponseBody Map getDetailsForUser(ModelMap model,HttpServletRequest request){
 		return dealerService.getDetailsForUser();
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getDetailsForRoles", method = RequestMethod.GET)
+	public @ResponseBody List<RolesVM> getDetailsForRoles(){
+		return dealerService.getDetailsForRoles();
 	}
 	
 	@Transactional
