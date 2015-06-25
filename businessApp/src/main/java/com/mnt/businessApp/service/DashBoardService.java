@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,6 +24,10 @@ import com.mnt.entities.businessApp.User;
 
 @Service
 public class DashBoardService {
+	
+
+	@Autowired
+	private DealerService dealerService;
 
 	@Autowired
 	private SessionFactory sessionFactory;
@@ -81,24 +86,35 @@ public class DashBoardService {
 		String escalatationlevel = "";
 		if(product != 0 || !zone.equals("0") || !state.equals("0")){
 			String zoneState = "";
+			
+			if(!zone.equals("0") && !state.equals("0")){
+				zoneState = " where dealer.zone = '"+zone+"' and dealer.state = '"+state+"'";
+			} else if(!state.equals("0")){
+				zoneState = " where dealer.state = '"+state+"'";
+			} else if(!zone.equals("0")){
+				zoneState = " where dealer.zone = '"+zone+"'";
+			}
 			if(product != 0 ){
 				proZone = " and ld.product_id ="+product;
+			} else {
+				if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+					sql = "select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+					proZone = " and ld.product_id IN ("+sql+")";
+				}
 			}
-			if(!zone.equals("0") && !state.equals("0")){
-				zoneState = " dealer.zone = '"+zone+"' and dealer.state = '"+state+"'";
-			} else if(!state.equals("0")){
-				zoneState = " dealer.state = '"+state+"'";
-			} else if(!zone.equals("0")){
-				zoneState = " dealer.zone = '"+zone+"'";
+			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+				ids = jt.queryForList("SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId(), Long.class);
+			} else {
+				ids = jt.queryForList("Select dealer.id FROM dealer"+zoneState, Long.class);
 			}
-			System.out.println("zoneState :::: "+zoneState);
-			ids = jt.queryForList("Select dealer.id FROM dealer where"+zoneState, Long.class);
 		}
 		else if(user.getEntityName().equals("Dealer")){
 			ids.add(user.getEntityId());
 		}  
 		else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
 			ids = jt.queryForList("SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId(), Long.class);
+			sql = "select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+			proZone = " and ld.product_id IN ("+sql+")";
 			escalatationlevel = " and l.escalatedLevel = 1 ";
 		}
 		else if(user.getEntityName().equals("ZSM")  || user.getEntityName().equals("Sellout Manager")){
@@ -118,9 +134,9 @@ public class DashBoardService {
 		List<Map> list = new ArrayList<>();
 		if(ids.size() == 0){
 			list.add(getList("Escalated", "icon fa fa-suitcase", "warning", 0, 0));
-			list.add(getList( "Open", "icon fa fa-folder-open", "warning", 0, 0));
-			list.add(getList(  "Won", "icon fa fa-thumbs-up", "success", 0, 0));
-			list.add(getList( "Lost Leads", "icon fa fa-thumbs-down", "danger", 0, 0));
+			list.add(getList("Open", "icon fa fa-folder-open", "warning", 0, 0));
+			list.add(getList("Won", "icon fa fa-thumbs-up", "success", 0, 0));
+			list.add(getList("Lost", "icon fa fa-thumbs-down", "danger", 0, 0));
 			return list;
 		}
 		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and l.dealer_id IN (:ids)"+sqlDate
@@ -142,26 +158,28 @@ public class DashBoardService {
 		list.add(getLeadProgressBarVM(sql, "Won", "icon fa fa-thumbs-up", "success", total,ids));
 		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and disposition2 = 'Lost' and l.dealer_id IN (:ids) "
 				+ proZone+sqlDate;
-		list.add(getLeadProgressBarVM(sql, "Lost Leads", "icon fa fa-thumbs-down", "danger", total,ids));
+
+		list.add(getLeadProgressBarVM(sql, "Lost", "icon fa fa-thumbs-down", "danger", total,ids));
 		return list;
 	}
 
-	public Map getZoneSplineBetweenDates(Date start, Date end) {
-		List<Map<String, Object>> rows = jt.queryForList("select * from zone");
-		List<ZoneVM> zoneList = new ArrayList<ZoneVM>();
-		Map<String,List> dataList = new HashMap<String, List>();
-		for(Map map : rows) {
-			if(map.get("name").equals("Corporate"))
-				continue;
-			ZoneVM vm = new ZoneVM();
-			vm.id = (Long) map.get("id");
-			vm.name = (String) map.get("name");
-			zoneList.add(vm);
+	public Map getZoneSplineBetweenDates(Date start, Date end, String zone, String state) {
+		List<ZoneVM> zoneList = new ArrayList<>();
+		String zoneOrState = "zone";
+		if(zone.equals("0")){
+			zoneList = dealerService.getZone();
+			zoneOrState = "zone";
+		} else if(zone.equals("state")) {
+			zoneList = dealerService.getStateByZone("user");
+			zoneOrState = "state";
+		}else {
+			zoneList = dealerService.getStateByZone(zone);
+			zoneOrState = "state";
 		}
 		List<SplineVM> splineVMs = new ArrayList<>(); 
-		splineVMs.add(getSplineData(start, end, zoneList, "Won", "#01c6ad", "zone"));
-		splineVMs.add(getSplineData(start, end, zoneList, "Lost", "#FF0000", "zone"));
-		splineVMs.add(getSplineData(start, end, zoneList, "Open", "#ffce54", "zone"));
+		splineVMs.add(getSplineData(start, end, zoneList, "Won", "#01c6ad", zoneOrState));
+		splineVMs.add(getSplineData(start, end, zoneList, "Lost", "#FF0000", zoneOrState));
+		splineVMs.add(getSplineData(start, end, zoneList, "Open", "#ffce54", zoneOrState));
 		Map<String, List<SplineVM>> map = new HashMap<>();
 		map.put("dataset", splineVMs);
 		return map;
@@ -209,36 +227,30 @@ public class DashBoardService {
 
 	private SplineVM getSplineDataForDealer(Date start, Date end, String query, String cat, String color) {
 		AuthUser user = Utils.getLoggedInUser();
-		List<Long> ids = new ArrayList<>();
 		if(user.getEntityName().equals("Dealer")){
-			ids.add(user.getEntityId());
+			query = query + " and l.dealer_id IN ("+user.getEntityId()+") ";
 		}
 		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
-			ids = jt.queryForList("SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId(), Long.class);
+			query = query + " and l.dealer_id IN (SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId()+") "
+					+ " and ld.id = l.leadDetails_id and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
 		}
 		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
-			ids = jt.queryForList("select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"'", Long.class);
-			System.out.println(" :: Dealers "+ids.size());
+			query = query + " and l.dealer_id IN (select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"' ) ";
 		}
-		return getDealerSplineVM(start, end, cat, color, ids, query);
+		return getDealerSplineVM(start, end, cat, color, query);
 	}
 
 	private SplineVM getDealerSplineVM(Date startDate, Date endDate, String cat,
-			String color, List<Long> ids, String query) {
-		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
-		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
-				NamedParameterJdbcTemplate(jt.getDataSource());
+			String color, String query) {
 		SplineVM vm = new SplineVM();
 		List<List> list = new ArrayList<>();
-		List<Map<String, Object>> rows = namedParameterJdbcTemplate.queryForList("SELECT COUNT(*) as count, l.lastDispo1ModifiedDate as date from lead as l "
+		List<Map<String, Object>> rows = jt.queryForList("SELECT COUNT(*) as count, l.lastDispo1ModifiedDate as date from lead as l, leaddetails as ld "
 				+ " where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(startDate)+"' "
 				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(endDate))+"' "
-				+ " and l.dealer_id IN (:ids)"+query
+				+  query
 				+ " GROUP BY CAST(l.lastDispo1ModifiedDate  AS DATE) "
-				+ " ORDER BY CAST(l.lastDispo1ModifiedDate  AS DATE) asc",param);
-		List<ZoneVM> zoneList = new ArrayList<ZoneVM>();
-		Map<String,List> dataList = new HashMap<String, List>();
+				+ " ORDER BY CAST(l.lastDispo1ModifiedDate  AS DATE) asc");
 		
 		Calendar start = Calendar.getInstance();
 		start.setTime(startDate);
@@ -295,33 +307,63 @@ public class DashBoardService {
 			param = Collections.singletonMap("ids",ids); 
 			sqlQuery = " and ld.product_id IN (:ids)";
 		} 
-		if(category.equals("zone")){
+		else if(category.equals("zone")){
 			param = Collections.singletonMap("ids",getDealersByZoneId(zoneVm.getName())); 
 			sqlQuery = " and l.dealer_id IN (:ids)";
 		}
+		else if(category.equals("state")){
+			param = Collections.singletonMap("ids",getDealersByStateId(zoneVm.getName())); 
+			sqlQuery = " and l.dealer_id IN (:ids)";
+		}
+		AuthUser user = Utils.getLoggedInUser();
+		String proZone = "";
+		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
+			String sqlProduct = "select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+			proZone = " and ld.product_id IN ("+sqlProduct+") ";
+		} 
 		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
 				NamedParameterJdbcTemplate(jt.getDataSource());
 		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id "
-				+ "and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted'))"
-				+ sqlQuery+" and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
+				+ proZone + " and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted'))"
+				+ sqlQuery +" and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
 		return namedParameterJdbcTemplate.queryForInt(sql, param);
 	}
 
 	private Integer getSplineCount(ZoneVM zoneVM, Date start, Date end, String status, String category) {
-		return getSplineCountDealerIds(getDealersByZoneId(zoneVM.getName()), start, end, status, category);
+		if(category.equals("state")){
+			return getSplineCountDealerIds(getDealersByStateId(zoneVM.getName()), start, end, status, category);
+		} else if(category.equals("zone")){
+			return getSplineCountDealerIds(getDealersByZoneId(zoneVM.getName()), start, end, status, category);
+		}
+		return null;
+		
 	}
 	
 	private Integer getSplineCountDealerIds(List<Long> ids, Date start, Date end, String status, String category){
 		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
 		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
 				NamedParameterJdbcTemplate(jt.getDataSource());
+		AuthUser user = Utils.getLoggedInUser();
+		String proZone = "";
+		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
+			String sqlProduct = "select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+			proZone = " and ld.product_id IN ("+sqlProduct+") ";
+		} 
 		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and disposition2 = '"+status+"'"
-				+ "and l.dealer_id IN (:ids) and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
+				+ proZone+ " and l.dealer_id IN (:ids) and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
 		return namedParameterJdbcTemplate.queryForInt(sql, param);
 	}
 	
 	private List<Long> getDealersByZoneId(String zone){
 		List<Long> ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = '"+zone+"'", Long.class);
+		if(ids.size() == 0){
+			ids.add(0L);
+		}
+		return ids;
+	}
+	
+	private List<Long> getDealersByStateId(String state){
+		List<Long> ids = jt.queryForList("Select dealer.id FROM dealer where dealer.state = '"+state+"'", Long.class);
 		if(ids.size() == 0){
 			ids.add(0L);
 		}

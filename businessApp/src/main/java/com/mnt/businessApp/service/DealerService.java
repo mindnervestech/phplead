@@ -68,12 +68,12 @@ public class DealerService {
 		AuthUser user = Utils.getLoggedInUser();;
 		Session session = sessionFactory.getCurrentSession();
 		Query query;
-		if(user.getEntityName().equals("RSM")){
+		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") ){
 			List<Long> ids = jt.queryForList("SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId(), Long.class);
 			query = session.createQuery("FROM Dealer where id IN (:ids)");
 			query.setParameterList("ids", ids);
 		}
-		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
+		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			User user2 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
 			query = session.createQuery("FROM Dealer where zone = "+user2.getZone().getId());
 		}
@@ -141,7 +141,7 @@ public class DealerService {
 		return territoryList;
 	}
 
-	private List<ZoneVM> getZone() {
+	public List<ZoneVM> getZone() {
 		List<Map<String, Object>> rows = jt.queryForList("select * from zone");
 		List<ZoneVM> zoneList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
@@ -661,12 +661,12 @@ public class DealerService {
 		String sql = "select * from zone";
 		
 		Map<String,List> dataList = new HashMap<String, List>();
-		if(!(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional") || user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager"))){
+		if(!(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional") || 
+				user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") || user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager"))){
 			return dataList;
 		}
 		dataList.put("zoneList", getZone());
-		dataList.put("stateList", getStates());
-		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
+		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "select * from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
 		}
 		if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
@@ -682,6 +682,23 @@ public class DealerService {
 		}
 		dataList.put("productList", productList);
 		return dataList;
+	}
+
+	public List<ZoneVM> getStateByZone(String zone) {
+		String sql = "Select * from state WHERE state.zone_id = (SELECT id from zone WHERE zone.name = '"+zone+"')";
+		if(zone.equals("user")){
+			AuthUser authUser = Utils.getLoggedInUser();
+			sql = "Select * from state WHERE state.zone_id = (select user.zone_id from user where user.id = "+authUser.getEntityId()+")";
+		}
+		List<Map<String, Object>> rows = jt.queryForList(sql);
+		List<ZoneVM> stateList = new ArrayList<ZoneVM>();
+		for(Map map : rows) {
+			ZoneVM vm = new ZoneVM();
+			vm.id = (Long) map.get("id");
+			vm.name = (String) map.get("name");
+			stateList.add(vm);
+		}
+		return stateList;
 	}
 	
 }

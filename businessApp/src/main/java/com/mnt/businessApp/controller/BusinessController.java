@@ -267,8 +267,16 @@ public class BusinessController {
 	@Transactional
 	@RequestMapping(value="/getZoneSplineBetweenDates", method = RequestMethod.GET)
 	public @ResponseBody Map getZoneSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
-			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end){
-		return dashBoardService.getZoneSplineBetweenDates(start, end);
+			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product){
+		return dashBoardService.getZoneSplineBetweenDates(start, end, zone, state);
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getStateSplineBetweenDates", method = RequestMethod.GET)
+	public @ResponseBody Map getStateSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
+			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end, @RequestParam("state") String state){
+		return dashBoardService.getZoneSplineBetweenDates(start, end, "state", state);
 	}
 	
 	@Transactional
@@ -297,6 +305,12 @@ public class BusinessController {
 	@RequestMapping(value="/getZoneStateProduct", method = RequestMethod.GET)
 	public @ResponseBody Map getZoneStateProduct(){
 		return dealerService.getZoneStateProduct();
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getStateByZone/{zone}", method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getStateByZone(@PathVariable("zone") String zone){
+		return dealerService.getStateByZone(zone);
 	}
 	
 	@Transactional
