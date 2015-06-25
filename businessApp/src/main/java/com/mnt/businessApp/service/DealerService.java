@@ -668,6 +668,19 @@ public class DealerService {
 		dataList.put("zoneList", getZone());
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") || user.getEntityName().equals("Sellout-Regional")){
 			sql = "select * from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+			if( user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") ){
+				String dealersql = "select * from Dealer where id In ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+				List<ZoneVM> dealerList = new ArrayList<ZoneVM>();
+				List<Map<String, Object>> rows = jt.queryForList(dealersql);
+				for(Map map : rows) {
+					ZoneVM vm = new ZoneVM();
+					vm.id = (Long) map.get("id");
+					vm.name = (String) map.get("dealerName");
+					dealerList.add(vm);
+				}
+				
+				dataList.put("dealerList", dealerList);
+			}
 		}
 		if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
 			sql = "select * from product";

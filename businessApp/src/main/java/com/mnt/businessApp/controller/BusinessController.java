@@ -297,8 +297,8 @@ public class BusinessController {
 	@RequestMapping(value="/getDashboardProgressbarAll", method = RequestMethod.GET)
 	public @ResponseBody List<Map> getDashboardProgressbarAll(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,
-			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product){
-		return dashBoardService.getDashboardProgressbar(start, end, zone, state, product);
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product,  @RequestParam("dealer") Long dealer){
+		return dashBoardService.getDashboardProgressbar(start, end, zone, state, product, dealer);
 	}
 	
 	@Transactional

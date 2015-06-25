@@ -77,14 +77,14 @@ public class DashBoardService {
 	}
 
 	public List<Map> getDashboardProgressbar(Date start, Date end, String zone, String state,
-			Long product) {
+			Long product, Long dealer) {
 		AuthUser user = Utils.getLoggedInUser();
 		String sql = "";
 		List<Long> ids = new ArrayList<>();
 		String sqlDate = " and l.lastDispo1ModifiedDate >= '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate <= '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
 		String proZone = "";
 		String escalatationlevel = "";
-		if(product != 0 || !zone.equals("0") || !state.equals("0")){
+		if(dealer != 0 || product != 0 || !zone.equals("0") || !state.equals("0")){
 			String zoneState = "";
 			
 			if(!zone.equals("0") && !state.equals("0")){
@@ -103,7 +103,11 @@ public class DashBoardService {
 				}
 			}
 			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
-				ids = jt.queryForList("SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId(), Long.class);
+				if(dealer != 0){
+					ids.add(dealer);
+				} else {
+					ids = jt.queryForList("SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId(), Long.class);
+				}
 			} else {
 				ids = jt.queryForList("Select dealer.id FROM dealer"+zoneState, Long.class);
 			}

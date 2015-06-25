@@ -436,10 +436,10 @@ public class LeadService {
 		if(user.getEntityName().equals("Dealer")){
 			proZone =  " and dealer_id = ?";
 		}  
-		if(user.getEntityName().equals("RSM")){
+		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")  || user.getEntityName().equals("Sales Consultant")){
 			proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";
 		}
-		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
+		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
 		}
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
@@ -484,10 +484,10 @@ public class LeadService {
 		if(user.getEntityName().equals("Dealer")){
 			proZone =  " and dealer_id = ?";
 		}  
-		if(user.getEntityName().equals("RSM")){
+		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")  || user.getEntityName().equals("Sales Consultant")){
 			proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";
 		}
-		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
+		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
 		}
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
@@ -531,10 +531,10 @@ public class LeadService {
 		if(user.getEntityName().equals("Dealer")){
 			proZone =  " and dealer_id = ?";
 		}  
-		if(user.getEntityName().equals("RSM")){
+		if(user.getEntityName().equals("RSM")  || user.getEntityName().equals("TSR")  || user.getEntityName().equals("Sales Consultant")){
 			proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";
 		}
-		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout Manager")){
+		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select zone.name from user,zone WHERE user.id = ? and zone.id = user.zone_id))";
 		}
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
@@ -574,10 +574,33 @@ public class LeadService {
 
 
 	public Map getNewLeadData() {
+		AuthUser user = Utils.getLoggedInUser();
 		Map<String, List<ZoneVM>> map = new HashMap<>();
 		map.put("productList", getProductList());
 		map.put("stateList", dealerService.getStates());
 		map.put("cityList", dealerService.getDistricts());
+		if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("Sales Consultant")){
+			String dealersql = "";
+			switch(user.getEntityName()){
+				case "Dealer":
+					 dealersql = "select * from Dealer where id = "+user.getEntityId();
+					 break;
+				case "Sales Consultant":
+					 dealersql = "select * from Dealer where id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+")";
+					 break;
+			}
+			
+			List<Map<String, Object>> rows = jt.queryForList(dealersql);
+			List<ZoneVM> dealerList = new ArrayList<ZoneVM>();
+			for(Map result : rows) {
+				ZoneVM vm = new ZoneVM();
+				vm.id = (Long) result.get("id");
+				vm.name = (String) result.get("dealerName");
+				dealerList.add(vm);
+			}
+			map.put("dealerList", dealerList);
+		}
+		
 		return map;
 	}
 	
@@ -588,9 +611,7 @@ public class LeadService {
 		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
 			dealersql = "select * from Dealer where id In ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
 			usersql = "SELECT * FROM user WHERE user.entityName In ('RSM', 'TSR') and user.zone_id = (SELECT zone_id FROM user where id = "+user.getEntityId()+")";
-		} else if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("Sales Consultant")){
-			dealersql = "select * from Dealer where id = "+user.getEntityId();
-		}
+		} 
 		List<Map<String, Object>> rows = jt.queryForList(dealersql);
 		List<ReassignUserVM> dealerList = new ArrayList<ReassignUserVM>();
 		for(Map map : rows) {
