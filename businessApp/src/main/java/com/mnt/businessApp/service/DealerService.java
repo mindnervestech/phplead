@@ -36,7 +36,6 @@ import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.DealerConfiguration;
 import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Product;
-import com.mnt.entities.businessApp.Roles;
 import com.mnt.entities.businessApp.User;
 import com.mnt.entities.businessApp.ZipCode;
 
@@ -584,7 +583,7 @@ public class DealerService {
 	          
 	         for(RolesVM r : role){
 	 			System.out.println(r.getRole_id());
-	 			Roles rol = (Roles) session.get(Roles.class, r.getRole_id());
+	 			Role rol = (Role) session.get(Role.class, r.getRole_id());
 	 			//rol.setName(r.getName());
 	 			//rol.setReport_freq(r.getReport_freq());
 	 			

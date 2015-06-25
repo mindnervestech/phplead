@@ -41,7 +41,6 @@ import com.mnt.businessApp.viewmodel.RolesVM;
 import com.mnt.businessApp.viewmodel.SaveUserVM;
 import com.mnt.businessApp.viewmodel.UserVM;
 import com.mnt.businessApp.viewmodel.ZoneVM;
-import com.mnt.entities.businessApp.Roles;
 
 @Controller
 @RequestMapping(value="/api/business")
