@@ -19,6 +19,7 @@ import org.springframework.security.core.GrantedAuthority;
 public class Role implements java.io.Serializable, GrantedAuthority {
     public int id;
     public String name;
+    public String report_freq;
 
     public List<PermissionMatrix> permissionMatrix = new ArrayList<PermissionMatrix>();
     
@@ -49,6 +50,15 @@ public class Role implements java.io.Serializable, GrantedAuthority {
         this.name = name;
     }
 	
+    
+	public String getReport_freq() {
+		return report_freq;
+	}
+
+	public void setReport_freq(String report_freq) {
+		this.report_freq = report_freq;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		return id == ((Role)obj).id;
