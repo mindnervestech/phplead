@@ -319,15 +319,15 @@ public class BusinessController {
 	}
 	
 	@Transactional
-	@RequestMapping(value="/getRSMByZone/{zone}",method = RequestMethod.GET)
-	public @ResponseBody List<ZoneVM> getRSMByZone(@PathVariable("zone") Long zone) {
-		return dealerService.getRSMByZone(zone);
+	@RequestMapping(value="/getRSMByZone/{state}",method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getRSMByZone(@PathVariable("state") String state,  @RequestParam("query") String query) {
+		return dealerService.getRSMByZone(state, query);
 	}
 	
 	@Transactional
-	@RequestMapping(value="/getTSRByZone/{zone}",method = RequestMethod.GET)
-	public @ResponseBody List<ZoneVM> getTSRByZone(@PathVariable("zone") Long zone) {
-		return dealerService.getTSRByZone(zone);
+	@RequestMapping(value="/getTSRByZone/{state}",method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getTSRByZone(@PathVariable("state") String state,  @RequestParam("query") String query) {
+		return dealerService.getTSRByZone(state, query);
 	}
 	
 	@Transactional
