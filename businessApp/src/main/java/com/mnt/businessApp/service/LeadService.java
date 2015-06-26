@@ -57,7 +57,7 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
 					+ "ld.id = l.leadDetails_id and dealer_id = ?";
 		}  
-		else if(user.getEntityName().equals("RSM")  || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+		else if(user.getEntityName().equals("RSM")  || user.getEntityName().equals("TSR")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
@@ -117,7 +117,16 @@ public class LeadService {
 				vms.add(new LeadDetailsVM(map));
 			}
 			return vms;
-		} else {
+		}
+		else if(user.getEntityName().equals("Sales Consultant")){
+			sql = "Select ld.sr as srNo, ld.name as name, "
+					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
+					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
+					+ " ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";			
+		}
+		else {
 			System.out.println("Unknown Role");
 		}
 		System.out.println(sql);
@@ -241,7 +250,7 @@ public class LeadService {
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and disposition1 = 'Escalated'  "
 					+ "and ld.id = l.leadDetails_id and dealer_id = ?";
 		}  
-		else if(user.getEntityName().equals("RSM")  || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+		else if(user.getEntityName().equals("RSM")  || user.getEntityName().equals("TSR")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
@@ -311,6 +320,15 @@ public class LeadService {
 			System.out.println(sql);
 			return vms;
 		}
+		else if(user.getEntityName().equals("Sales Consultant")){
+			sql = "Select ld.sr as srNo, ld.name as name, "
+					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
+					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and"
+					+ " d.id = l.dealer_id and disposition1 = 'Escalated' "
+					+ "and ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";			
+		}
 		List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] {user.getEntityId()});
 		for(Map map : rows) {
 			vms.add(new LeadDetailsVM(map));
@@ -334,7 +352,7 @@ public class LeadService {
 					+ " d.id = l.dealer_id and l.followUpDate IS NOT NULL "
 					+ "and ld.id = l.leadDetails_id and dealer_id = ?";
 		}  
-		else if(user.getEntityName().equals("RSM")|| user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+		else if(user.getEntityName().equals("RSM")|| user.getEntityName().equals("TSR") ){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
@@ -417,8 +435,16 @@ public class LeadService {
 			for(Map map : rows) {
 				vms.add(new LeadDetailsVM(map));
 			}
-			System.out.println(sql);
+						System.out.println(sql);
 			return vms;
+		}
+		else if(user.getEntityName().equals("Sales Consultant")){
+			sql = "Select ld.sr as srNo, ld.name as name, "
+					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
+					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and l.followUpDate IS NOT NULL "
+					+ "and ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";			
 		}
 		List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] {user.getEntityId()});
 		for(Map map : rows) {

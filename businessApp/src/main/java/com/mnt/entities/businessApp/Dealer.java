@@ -28,7 +28,7 @@ public class Dealer {
 	public String phone;
 	public String email;
 	public String zone;
-	public String territory;
+	//public String territory;
 	public String address;
 	public String state;
 	public String district;
@@ -81,12 +81,12 @@ public class Dealer {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getTerritory() {
+	/*public String getTerritory() {
 		return territory;
 	}
 	public void setTerritory(String territory) {
 		this.territory = territory;
-	}
+	}*/
 	public String getAddress() {
 		return address;
 	}

@@ -15,7 +15,7 @@ public class DealerVM {
 	public String phone;
 	public String email;
 	public ZoneVM zone;
-	public ZoneVM territory;
+	//public ZoneVM territory;
 	public List<ZoneVM> rsm;
 	public List<ZoneVM> tsr;
 	public List<PinsVM> pins;
@@ -103,12 +103,12 @@ public class DealerVM {
 	public void setZone(ZoneVM zone) {
 		this.zone = zone;
 	}
-	public ZoneVM getTerritory() {
+	/*public ZoneVM getTerritory() {
 		return territory;
 	}
 	public void setTerritory(ZoneVM territory) {
 		this.territory = territory;
-	}
+	}*/
 	public List<PinsVM> getPins() {
 		return pins;
 	}

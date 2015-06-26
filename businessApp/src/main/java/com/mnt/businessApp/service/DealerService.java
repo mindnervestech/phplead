@@ -52,19 +52,18 @@ public class DealerService {
 	public Map getZones() {
 		Map<String,List> dataList = new HashMap<String, List>();
 		List<ZoneVM> zoneList = getZone();
-		List<ZoneVM> territoryList = getTerritory();
+		//List<ZoneVM> territoryList = getTerritory();
 		dataList.put("zoneList", zoneList);
-		dataList.put("territoryList", territoryList);
+		//dataList.put("territoryList", territoryList);
 		dataList.put("stateList", getStates());
 		dataList.put("districtList", getDistricts());
 		dataList.put("productList", getProductList());
-		dataList.put("dealerList", getDealers(zoneList, territoryList));
+		dataList.put("dealerList", getDealers(zoneList));
 		return dataList;
 	}
 
-	private List<DealerVM> getDealers(List<ZoneVM> zoneList,
-			List<ZoneVM> territoryList) {
-		AuthUser user = Utils.getLoggedInUser();;
+	private List<DealerVM> getDealers(List<ZoneVM> zoneList) {
+		AuthUser user = Utils.getLoggedInUser();
 		Session session = sessionFactory.getCurrentSession();
 		Query query;
 		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") ){
@@ -93,11 +92,11 @@ public class DealerService {
 					vm.setZone(zone);
 				}
 			}
-			for(ZoneVM zone : territoryList){
+			/*for(ZoneVM zone : territoryList){
 				if(dealer.getTerritory().equals(zone.name)){
 					vm.setTerritory(zone);
 				}
-			}
+			}*/
 			vm.setProducts(products);
 			vms.add(vm);
 		}
@@ -128,7 +127,7 @@ public class DealerService {
 		return stateList;
 	}
 
-	private List<ZoneVM> getTerritory() {
+	/*private List<ZoneVM> getTerritory() {
 		List<Map<String, Object>> rows = jt.queryForList("select * from territory");
 		List<ZoneVM> territoryList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
@@ -138,7 +137,7 @@ public class DealerService {
 			territoryList.add(vm);
 		}
 		return territoryList;
-	}
+	}*/
 
 	public List<ZoneVM> getZone() {
 		List<Map<String, Object>> rows = jt.queryForList("select * from zone");
@@ -295,7 +294,7 @@ public class DealerService {
 		dealer.phone = dealerVM.getPhone();
 		dealer.email = dealerVM.getEmail();
 		dealer.zone = dealerVM.getZone().getName();
-		dealer.territory = dealerVM.getTerritory().getName();
+		//dealer.territory = dealerVM.getTerritory().getName();
 		List<User> user = new ArrayList<>();
 		for(ZoneVM rsm : dealerVM.getRsm()){
 			user.add((User) session.get(User.class, Long.valueOf( rsm.getId()).longValue()));
@@ -360,7 +359,7 @@ public class DealerService {
 		dealer.phone = dealerVM.getPhone();
 		dealer.email = dealerVM.getEmail();
 		dealer.zone = dealerVM.getZone().getName();
-		dealer.territory = dealerVM.getTerritory().getName();
+		//dealer.territory = dealerVM.getTerritory().getName();
 		List<User> user = new ArrayList<>();
 		for(ZoneVM rsm : dealerVM.getRsm()){
 			user.add((User) session.get(User.class, Long.valueOf( rsm.getId()).longValue()));
