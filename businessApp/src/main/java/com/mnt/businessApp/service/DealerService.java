@@ -340,7 +340,7 @@ public class DealerService {
 		authUser.setEmail(dealer.getEmail());
 		authUser.setPassword(sb.toString());
 		authUser.setEntityId(dealer.getId());
-		authUser.setUsername(dealer.getDealerCode());
+		authUser.setUsername(dealer.getEmail());
 		authUser.setEntityName("Dealer");
 		authUser.setName(dealer.getDealerName());
 		List<Role> roles = new ArrayList<>();
@@ -712,9 +712,10 @@ public class DealerService {
 		return stateList;
 	}
 	
-	public Map<String,Map<String, List<Long>>> getProductUserMapping() {
+	/*public Map<String,Map<String, List<Long>>> getProductUserMapping() {
 		String sql = "select up.product_id,  entityName, id from user, user_product up where user.id = up.user_id";
 		String sql = "select up.product_id,  entityName, id from dealer, dealer_product up where dealer.id = up.dealer_id";
-	}
+		
+	}*/
 	
 }

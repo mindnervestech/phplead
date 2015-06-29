@@ -364,9 +364,9 @@ public class LeadService {
 					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+" l.disposition2 as dispo2,l.followUpDate as date , u.name as dealerName"
-					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id and "
-					+" and l.followUpDate IS NOT NULL "
-					+" ld.id = l.leadDetails_id and l.user_id = u.id and l.user_id = ? and l.dealer_id IS NULL";
+					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id"
+					+" and l.followUpDate IS NOT NULL"
+					+" and ld.id = l.leadDetails_id and l.user_id = u.id and l.user_id = ? and l.dealer_id IS NULL";
 			List<Map<String, Object>> rows = jt.queryForList(userSql,new Object[] {user.getEntityId()});
 			for(Map map : rows) {
 				vms.add(new LeadDetailsVM(map));
@@ -396,7 +396,7 @@ public class LeadService {
 					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+" l.disposition2 as dispo2,l.followUpDate as date , u.name as dealerName"
-					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id and "
+					+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id"
 					+" and l.followUpDate IS NOT NULL "
 					+" and ld.id = l.leadDetails_id and l.user_id = u.id and l.user_id IN  ( select id  from user as u where u.state_id = "
 					+ "(Select user.state_id from user WHERE user.id = ? )) and l.dealer_id IS NULL";
