@@ -8,8 +8,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.springframework.security.core.userdetails.User;
-
 @Entity
 @Table(name="permissionmatrix")
 public class PermissionMatrix {

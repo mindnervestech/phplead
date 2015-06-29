@@ -30,14 +30,14 @@ import com.mnt.businessApp.viewmodel.ZoneVM;
 import com.mnt.entities.authentication.AuthUser;
 import com.mnt.entities.authentication.District;
 import com.mnt.entities.authentication.Role;
-import com.mnt.entities.authentication.State;
-import com.mnt.entities.authentication.Zone;
 import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.DealerConfiguration;
 import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Product;
+import com.mnt.entities.businessApp.State;
 import com.mnt.entities.businessApp.User;
 import com.mnt.entities.businessApp.ZipCode;
+import com.mnt.entities.businessApp.Zone;
 
 @Service
 public class DealerService {
@@ -535,7 +535,7 @@ public class DealerService {
 	
 	public List<RolesVM> getDetailsForRoles(){
 		System.out.println("Roles");
-		String sql = "select * from roles";
+		String sql = "select role_id,name,report_freq from roles";
 		
 		List<Map<String, Object>> rows=  jt.queryForList(sql);
 		List<RolesVM> roleList = new ArrayList<RolesVM>();
@@ -604,7 +604,7 @@ public class DealerService {
 
 	public List<ZoneVM> getRSMByZone(String state, String query) {
 		
-		String sql = "Select * from user as u WHERE u.name LIKE ('"+query+"%') and u.state_id = (Select id from state where name = '"+state+"') and u.entityName = 'RSM'";
+		String sql = "Select id,name from user as u WHERE u.name LIKE ('"+query+"%') and u.state_id = (Select id from state where name = '"+state+"') and u.entityName = 'RSM'";
 		List<Map<String,Object>> rows = jt.queryForList(sql);
 		List<ZoneVM> userVMs = new ArrayList<ZoneVM>();
 		for(Map mapUser : rows) {
@@ -627,7 +627,7 @@ public class DealerService {
 	}
 
 	public List<ZoneVM> getDealersByDistrict(Long district) {
-		String sql = "Select * from dealer WHERE district = (Select d.name from district d where d.id = ?)";
+		String sql = "Select id,dealerName from dealer WHERE district = (Select d.name from district d where d.id = ?)";
 		List<Map<String,Object>> rows = jt.queryForList(sql,new Object[] {district});
 		List<ZoneVM> vms = new ArrayList<ZoneVM>();
 		for(Map mapUser : rows) {
@@ -641,7 +641,7 @@ public class DealerService {
 
 	public List<ZoneVM> getTSRByZone(String state, String query) {
 
-		String sql = "Select * from user as u WHERE u.name LIKE ('"+query+"%') and u.state_id = (Select id from state where name = '"+state+"') and u.entityName = 'TSR'";
+		String sql = "Select id,name from user as u WHERE u.name LIKE ('"+query+"%') and u.state_id = (Select id from state where name = '"+state+"') and u.entityName = 'TSR'";
 		List<Map<String,Object>> rows = jt.queryForList(sql);
 		List<ZoneVM> userVMs = new ArrayList<ZoneVM>();
 		for(Map mapUser : rows) {
@@ -665,9 +665,9 @@ public class DealerService {
 		}
 		dataList.put("zoneList", getZone());
 		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") || user.getEntityName().equals("Sellout-Regional")){
-			sql = "select * from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+			sql = "select id,name from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
 			if( user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") ){
-				String dealersql = "select * from Dealer where id In ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+				String dealersql = "select id,dealerName from Dealer where id In ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
 				List<ZoneVM> dealerList = new ArrayList<ZoneVM>();
 				List<Map<String, Object>> rows = jt.queryForList(dealersql);
 				for(Map map : rows) {
@@ -681,7 +681,7 @@ public class DealerService {
 			}
 		}
 		if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
-			sql = "select * from product";
+			sql = "select id,name from product";
 		}
 		List<Map<String,Object>> rows = jt.queryForList(sql);
 		List<ProductVM> productList = new ArrayList<ProductVM>();
@@ -696,10 +696,10 @@ public class DealerService {
 	}
 
 	public List<ZoneVM> getStateByZone(String zone) {
-		String sql = "Select * from state WHERE state.zone_id = (SELECT id from zone WHERE zone.name = '"+zone+"')";
+		String sql = "Select id,name from state WHERE state.zone_id = (SELECT id from zone WHERE zone.name = '"+zone+"')";
 		if(zone.equals("user")){
 			AuthUser authUser = Utils.getLoggedInUser();
-			sql = "Select * from state WHERE state.zone_id = (select user.zone_id from user where user.id = "+authUser.getEntityId()+")";
+			sql = "Select id,name from state WHERE state.zone_id = (select user.zone_id from user where user.id = "+authUser.getEntityId()+")";
 		}
 		List<Map<String, Object>> rows = jt.queryForList(sql);
 		List<ZoneVM> stateList = new ArrayList<ZoneVM>();
@@ -710,6 +710,11 @@ public class DealerService {
 			stateList.add(vm);
 		}
 		return stateList;
+	}
+	
+	public Map<String,Map<String, List<Long>>> getProductUserMapping() {
+		String sql = "select up.product_id,  entityName, id from user, user_product up where user.id = up.user_id";
+		String sql = "select up.product_id,  entityName, id from dealer, dealer_product up where dealer.id = up.dealer_id";
 	}
 	
 }

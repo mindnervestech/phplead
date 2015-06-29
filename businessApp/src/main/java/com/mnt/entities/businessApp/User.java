@@ -12,8 +12,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 import com.mnt.entities.authentication.District;
-import com.mnt.entities.authentication.State;
-import com.mnt.entities.authentication.Zone;
 
 @Entity
 public class User {

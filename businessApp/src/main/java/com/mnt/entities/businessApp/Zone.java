@@ -1,4 +1,4 @@
-package com.mnt.entities.authentication;
+package com.mnt.entities.businessApp;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

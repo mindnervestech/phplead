@@ -6,8 +6,8 @@ import java.util.Map;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import com.mnt.entities.authentication.District;
-import com.mnt.entities.authentication.State;
-import com.mnt.entities.authentication.Zone;
+import com.mnt.entities.businessApp.State;
+import com.mnt.entities.businessApp.Zone;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SplineVM {
