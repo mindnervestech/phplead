@@ -73,7 +73,7 @@ public class DealerService {
 		}
 		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			User user2 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
-			query = session.createQuery("FROM Dealer where zone = "+user2.getZone().getId());
+			query = session.createQuery("FROM Dealer where zone = '"+user2.getZone().getName()+"'");
 		}
 		else if(user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager")){
 			query = session.createQuery("FROM Dealer");
