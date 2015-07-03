@@ -21,8 +21,6 @@ public class MailService
     @Autowired
     private JavaMailSender mailSender;
     
-    
-    
     @Autowired
     private VelocityEngine velocityEngine;
      
@@ -44,7 +42,6 @@ public class MailService
 		             velocityContext.put("lastName", "Chavan");
 		             velocityContext.put("location", "Pune");
 		             velocityContext.put("message", "Message");
-		             
 		             String text = VelocityEngineUtils.mergeTemplateIntoString(
 		                     velocityEngine, "email-template.vm", "UTF-8", velocityContext);
 		             message.setText(text, true);

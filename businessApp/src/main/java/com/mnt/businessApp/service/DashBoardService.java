@@ -166,70 +166,175 @@ public class DashBoardService {
 		list.add(getLeadProgressBarVM(sql, "Lost", "icon fa fa-thumbs-down", "danger", total,ids));
 		return list;
 	}
-
-	public Map getZoneSplineBetweenDates(Date start, Date end, String zone, String state) {
-		List<ZoneVM> zoneList = new ArrayList<>();
-		String zoneOrState = "zone";
-		if(zone.equals("0")){
-			zoneList = dealerService.getZone();
-			zoneOrState = "zone";
-		} else if(zone.equals("state")) {
-			zoneList = dealerService.getStateByZone("user");
-			zoneOrState = "state";
-		}else {
-			zoneList = dealerService.getStateByZone(zone);
-			zoneOrState = "state";
-		}
-		List<SplineVM> splineVMs = new ArrayList<>(); 
-		splineVMs.add(getSplineData(start, end, zoneList, "Won", "#01c6ad", zoneOrState));
-		splineVMs.add(getSplineData(start, end, zoneList, "Lost", "#FF0000", zoneOrState));
-		splineVMs.add(getSplineData(start, end, zoneList, "Open", "#ffce54", zoneOrState));
-		Map<String, List<SplineVM>> map = new HashMap<>();
-		map.put("dataset", splineVMs);
-		return map;
-	}
 	
-	public Map getProductSplineBetweenDates(Date start, Date end) {
+	public Map getZoneSplineBetweenDates(Date start, Date end, String zone, String state, Long product) {
+		List<SplineVM> splineVMs = new ArrayList<>(); 
 		AuthUser user = Utils.getLoggedInUser();
+		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
+			List<String> zones = jt.queryForList("Select name from zone WHERE id = (select user.zone_id from user where user.id = "+user.getEntityId()+")", String.class); 
+			if (zones.isEmpty()) {
+				return null;
+			} else {
+				zone = zones.get(0);
+			}
+		}
+		splineVMs.add(getSplineVMforZone(start, end, zone, state, product, " and disposition2 = 'Won' ", "Won", "#01c6ad"));
+		splineVMs.add(getSplineVMforZone(start, end, zone, state, product,  " and disposition2 = 'Lost' ", "Lost", "#FF0000"));
+		splineVMs.add(getSplineVMforZone(start, end,  zone, state, product, " and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted')) ", "Open", "#ffce54"));
 		Map<String, List<SplineVM>> map = new HashMap<>();
-		String sql = "";
-		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
-			sql = "select * from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
-		} else 
-		if(user.getEntityName().equals("General Manager") || user.getEntityName().equals("CEO") || user.getEntityName().equals("Admin")){
-			sql = "select * from product";
-		} else {
-			return map; 
-		}
-		List<Map<String, Object>>rows = jt.queryForList(sql);
-		
-		List<ZoneVM> productList = new ArrayList<ZoneVM>();
-		for(Map row : rows) {
-			ZoneVM vm = new ZoneVM();
-			vm.id = (Long) row.get("id");
-			vm.name = (String) row.get("name");
-			productList.add(vm);
-		}
-		List<SplineVM> splineVMs = new ArrayList<SplineVM>(); 
-		splineVMs.add(getSplineData(start, end, productList, "Won", "#01c6ad", "product"));
-		splineVMs.add(getSplineData(start, end, productList, "Lost", "#FF0000", "product"));
-		splineVMs.add(getSplineData(start, end, productList, "Open", "#ffce54", "product"));
-		
 		map.put("dataset", splineVMs);
 		return map;
 	}
 	
-	public Map getDealerSplineBetweenDates(Date start, Date end) {
+	private SplineVM getSplineVMforZone(Date start, Date end, String zone, String state, Long product, String query, String cat, String color) {
+		AuthUser user = Utils.getLoggedInUser();
+		System.out.println("ZONE :: "+zone);
+		SplineVM vm = new SplineVM();
+		String productSql = "";
+		String zoneState = "";
+		String select = "SELECT COUNT(*) as count, d.zone as name ";
+		String gropBy = " GROUP BY d.zone ORDER BY d.zone asc";
+		String all = "Select * from zone where zone.name != 'Corporate' ORDER BY name asc";
+		if(product == 0){
+			if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
+				productSql = " and ld.product_id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+				
+			} else if(user.getEntityName().equals("General Manager") || user.getEntityName().equals("CEO") || user.getEntityName().equals("Admin")){
+				productSql = " and ld.product_id IN (select id from product) ";
+			} 
+		} else {
+			productSql = " and ld.product_id IN ("+product+")";
+		}
+		
+		
+		if(!state.equals("0")){
+			zoneState = " and d.state = '"+state+"'";
+			select = "SELECT COUNT(*) as count, d.state as name ";
+			gropBy = " GROUP BY d.state ORDER BY d.state asc";
+			all = "Select id, name from state where state.name = '"+state+"'";
+		} else if(!zone.equals("0")){
+			zoneState = " and d.zone = '"+zone+"'";
+			select = "SELECT COUNT(*) as count, d.state as name ";
+			gropBy = " GROUP BY d.state ORDER BY d.state asc";
+			all = "Select id, name from state where state.zone_id = (SELECT id from zone WHERE zone.name = '"+zone+"') ORDER BY name asc";
+		}  
+		
+		
+		List<Map<String, Object>> rows = jt.queryForList(select+" from lead as l, leaddetails as ld, product as p, "
+				+ " dealer as d where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
+				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"' "
+				+ " and ld.product_id = p.id and ld.id = l.leadDetails_id and l.dealer_id = d.id "
+				+ productSql + zoneState + query + gropBy);
+		
+				
+		List<Map<String, Object>>  allProducts = jt.queryForList(all);
+		List<ZoneVM> productList = new ArrayList<ZoneVM>();
+		int i = 0;
+		List<List> list = new ArrayList<>();
+		for(Map row : allProducts) {
+			List innerlist = new ArrayList(2);
+			innerlist.add(row.get("name"));
+			if(i < rows.size()){
+				Map data = rows.get(i);
+				if(data.get("name").equals(row.get("name"))){
+					innerlist.add(data.get("count"));
+					i++;
+				} else {
+					innerlist.add(0+"");
+				}
+			} else {
+				innerlist.add(0+"");
+			}
+			list.add(innerlist);
+		}
+		vm.setData(list);
+		vm.setColor(color);
+		vm.setLabel(cat);
+		return vm;
+	}
+
+	public Map getProductSplineBetweenDates(Date start, Date end, String zone, String state, Long product) {
 		List<SplineVM> splineVMs = new ArrayList<>(); 
-		splineVMs.add(getSplineDataForDealer(start, end, " and disposition2 = 'Won' ", "Won", "#01c6ad"));
-		splineVMs.add(getSplineDataForDealer(start, end, " and disposition2 = 'Lost' ", "Lost", "#FF0000"));
-		splineVMs.add(getSplineDataForDealer(start, end, " and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted')) ", "Open", "#ffce54"));
+		splineVMs.add(getSplineVMforProduct(start, end, zone, state, product, " and disposition2 = 'Won' ", "Won", "#01c6ad"));
+		splineVMs.add(getSplineVMforProduct(start, end, zone, state, product,  " and disposition2 = 'Lost' ", "Lost", "#FF0000"));
+		splineVMs.add(getSplineVMforProduct(start, end,  zone, state, product, " and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted')) ", "Open", "#ffce54"));
+		Map<String, List<SplineVM>> map = new HashMap<>();
+		map.put("dataset", splineVMs);
+		return map;
+	}
+	
+	private SplineVM getSplineVMforProduct(Date start, Date end, String zone, String state, Long product, String query, String cat, String color) {
+		SplineVM vm = new SplineVM();
+		AuthUser user = Utils.getLoggedInUser();
+		String productSql = "";
+		String zoneState = "";
+		if(product == 0){
+			if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
+				productSql = "SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId();
+			} else 
+			if(user.getEntityName().equals("General Manager") || user.getEntityName().equals("CEO") || user.getEntityName().equals("Admin")){
+				productSql = "select id from product";
+			} else {
+				return vm; 
+			}
+		} else {
+			productSql = ""+product;
+		}
+		
+		if(!zone.equals("0") && !state.equals("0")){
+			zoneState = " and d.zone = '"+zone+"' and d.state = '"+state+"'";
+		} else if(!state.equals("0")){
+			zoneState = " and d.state = '"+state+"'";
+		} else if(!zone.equals("0")){
+			zoneState = " and d.zone = '"+zone+"'";
+		}
+		
+		
+		List<Map<String, Object>> rows = jt.queryForList("SELECT COUNT(*) as count, p.id as id from lead as l, leaddetails as ld, product as p, "
+				+ " dealer as d where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
+				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"' "
+				+ " and ld.product_id = p.id and ld.product_id IN ("+productSql+") and ld.id = l.leadDetails_id and l.dealer_id = d.id"
+				+ zoneState + query
+				+ " GROUP BY ld.product_id ORDER BY ld.product_id asc");
+		
+				
+		List<Map<String, Object>>  allProducts = jt.queryForList("Select * from product where id In ("+productSql+") ORDER BY id asc");
+		List<ZoneVM> productList = new ArrayList<ZoneVM>();
+		int i = 0;
+		List<List> list = new ArrayList<>();
+		for(Map row : allProducts) {
+			List innerlist = new ArrayList(2);
+			innerlist.add(row.get("name"));
+			if(i < rows.size()){
+				Map data = rows.get(i);
+				if(data.get("id").equals(row.get("id"))){
+					innerlist.add(data.get("count"));
+					i++;
+				} else {
+					innerlist.add(0+"");
+				}
+			} else {
+				innerlist.add(0+"");
+			}
+			list.add(innerlist);
+		}
+		vm.setData(list);
+		vm.setColor(color);
+		vm.setLabel(cat);
+		return vm;
+	}
+	
+	public Map getDealerSplineBetweenDates(Date start, Date end, String state) {
+		List<SplineVM> splineVMs = new ArrayList<>(); 
+		splineVMs.add(getSplineDataForDealer(start, end, " and disposition2 = 'Won' ", "Won", "#01c6ad", state));
+		splineVMs.add(getSplineDataForDealer(start, end, " and disposition2 = 'Lost' ", "Lost", "#FF0000", state));
+		splineVMs.add(getSplineDataForDealer(start, end, " and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted')) ", "Open", "#ffce54", state));
 		Map<String, List<SplineVM>> map = new HashMap<>();
 		map.put("dataset", splineVMs);
 		return map;
 	}
 
-	private SplineVM getSplineDataForDealer(Date start, Date end, String query, String cat, String color) {
+	private SplineVM getSplineDataForDealer(Date start, Date end, String query, String cat, String color, String state) {
 		AuthUser user = Utils.getLoggedInUser();
 		if(user.getEntityName().equals("Dealer")){
 			query = query + " and l.dealer_id IN ("+user.getEntityId()+") ";
@@ -240,7 +345,11 @@ public class DashBoardService {
 		}
 		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
-			query = query + " and l.dealer_id IN (select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"' ) ";
+			String stateSql = "";
+			if(!state.equals("0")){
+				stateSql = " and d.state = '"+state+"'";
+			}
+			query = query + " and l.dealer_id IN (select d.id  from dealer as d where d.zone = '"+user1.getZone().getName()+"' "+stateSql+" ) ";
 		}
 		return getDealerSplineVM(start, end, cat, color, query);
 	}
@@ -248,13 +357,17 @@ public class DashBoardService {
 	private SplineVM getDealerSplineVM(Date startDate, Date endDate, String cat,
 			String color, String query) {
 		SplineVM vm = new SplineVM();
+		endDate = getDate(endDate);
 		List<List> list = new ArrayList<>();
-		List<Map<String, Object>> rows = jt.queryForList("SELECT COUNT(*) as count, l.lastDispo1ModifiedDate as date from lead as l, leaddetails as ld "
+		String sql = "SELECT COUNT(*) as count, l.lastDispo1ModifiedDate as date from lead as l, leaddetails as ld "
 				+ " where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(startDate)+"' "
-				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(endDate))+"' "
+				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(endDate)+"' "
+				+ " and  l.leadDetails_id = ld.id "
 				+  query
 				+ " GROUP BY CAST(l.lastDispo1ModifiedDate  AS DATE) "
-				+ " ORDER BY CAST(l.lastDispo1ModifiedDate  AS DATE) asc");
+				+ " ORDER BY CAST(l.lastDispo1ModifiedDate  AS DATE) asc";
+		System.out.println("sql :: "+sql);
+		List<Map<String, Object>> rows = jt.queryForList(sql);
 		
 		Calendar start = Calendar.getInstance();
 		start.setTime(startDate);
@@ -283,97 +396,6 @@ public class DashBoardService {
 		return vm;
 	}
 
-	private SplineVM getSplineData(Date start, Date end, List<ZoneVM> zoneList, String leadCat, String color, String category) {
-		SplineVM vm = new SplineVM();
-		List<List> list = new ArrayList<>();
-		for(ZoneVM zoneVM : zoneList){
-			List innerlist = new ArrayList(2);
-			innerlist.add(zoneVM.getName()); 
-			if(leadCat.equals("Open")){
-				innerlist.add(getSplineCountForOpen(zoneVM, start, end, category)); 
-			} else {
-				innerlist.add(getSplineCount(zoneVM, start, end, leadCat, category)); 
-			}
-			list.add(innerlist);
-		}
-		vm.setData(list);
-		vm.setColor(color);
-		vm.setLabel(leadCat);
-		return vm;
-	}
-
-	private Object getSplineCountForOpen(ZoneVM zoneVm, Date start, Date end, String category) {
-		Map<String, List<Long>> param = null;
-		String sqlQuery = "";
-		if(category.equals("product")){
-			List<Long> ids = new ArrayList<>();
-			ids.add(zoneVm.getId());
-			param = Collections.singletonMap("ids",ids); 
-			sqlQuery = " and ld.product_id IN (:ids)";
-		} 
-		else if(category.equals("zone")){
-			param = Collections.singletonMap("ids",getDealersByZoneId(zoneVm.getName())); 
-			sqlQuery = " and l.dealer_id IN (:ids)";
-		}
-		else if(category.equals("state")){
-			param = Collections.singletonMap("ids",getDealersByStateId(zoneVm.getName())); 
-			sqlQuery = " and l.dealer_id IN (:ids)";
-		}
-		AuthUser user = Utils.getLoggedInUser();
-		String proZone = "";
-		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
-			String sqlProduct = "select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
-			proZone = " and ld.product_id IN ("+sqlProduct+") ";
-		} 
-		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
-				NamedParameterJdbcTemplate(jt.getDataSource());
-		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id "
-				+ proZone + " and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted'))"
-				+ sqlQuery +" and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
-		return namedParameterJdbcTemplate.queryForInt(sql, param);
-	}
-
-	private Integer getSplineCount(ZoneVM zoneVM, Date start, Date end, String status, String category) {
-		if(category.equals("state")){
-			return getSplineCountDealerIds(getDealersByStateId(zoneVM.getName()), start, end, status, category);
-		} else if(category.equals("zone")){
-			return getSplineCountDealerIds(getDealersByZoneId(zoneVM.getName()), start, end, status, category);
-		}
-		return null;
-		
-	}
-	
-	private Integer getSplineCountDealerIds(List<Long> ids, Date start, Date end, String status, String category){
-		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
-		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
-				NamedParameterJdbcTemplate(jt.getDataSource());
-		AuthUser user = Utils.getLoggedInUser();
-		String proZone = "";
-		if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
-			String sqlProduct = "select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
-			proZone = " and ld.product_id IN ("+sqlProduct+") ";
-		} 
-		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and disposition2 = '"+status+"'"
-				+ proZone+ " and l.dealer_id IN (:ids) and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"'";
-		return namedParameterJdbcTemplate.queryForInt(sql, param);
-	}
-	
-	private List<Long> getDealersByZoneId(String zone){
-		List<Long> ids = jt.queryForList("Select dealer.id FROM dealer where dealer.zone = '"+zone+"'", Long.class);
-		if(ids.size() == 0){
-			ids.add(0L);
-		}
-		return ids;
-	}
-	
-	private List<Long> getDealersByStateId(String state){
-		List<Long> ids = jt.queryForList("Select dealer.id FROM dealer where dealer.state = '"+state+"'", Long.class);
-		if(ids.size() == 0){
-			ids.add(0L);
-		}
-		return ids;
-	}
-	
 	private Date getDate(Date end){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(end);

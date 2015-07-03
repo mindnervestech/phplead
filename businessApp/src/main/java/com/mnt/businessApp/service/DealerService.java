@@ -140,7 +140,7 @@ public class DealerService {
 	}*/
 
 	public List<ZoneVM> getZone() {
-		List<Map<String, Object>> rows = jt.queryForList("select * from zone");
+		List<Map<String, Object>> rows = jt.queryForList("select * from zone where zone.name != 'Corporate'");
 		List<ZoneVM> zoneList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
 			ZoneVM vm = new ZoneVM();
@@ -656,8 +656,7 @@ public class DealerService {
 
 	public Map getZoneStateProduct() {
 		AuthUser user = Utils.getLoggedInUser();
-		String sql = "select * from zone";
-		
+		String sql = "";
 		Map<String,List> dataList = new HashMap<String, List>();
 		if(!(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional") || 
 				user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") || user.getEntityName().equals("Admin") || user.getEntityName().equals("CEO") || user.getEntityName().equals("General Manager"))){
@@ -696,12 +695,7 @@ public class DealerService {
 	}
 
 	public List<ZoneVM> getStateByZone(String zone) {
-		String sql = "Select id,name from state WHERE state.zone_id = (SELECT id from zone WHERE zone.name = '"+zone+"')";
-		if(zone.equals("user")){
-			AuthUser authUser = Utils.getLoggedInUser();
-			sql = "Select id,name from state WHERE state.zone_id = (select user.zone_id from user where user.id = "+authUser.getEntityId()+")";
-		}
-		List<Map<String, Object>> rows = jt.queryForList(sql);
+		List<Map<String, Object>> rows = jt.queryForList(getStateByZoneSql(zone));
 		List<ZoneVM> stateList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
 			ZoneVM vm = new ZoneVM();
@@ -712,10 +706,12 @@ public class DealerService {
 		return stateList;
 	}
 	
-	/*public Map<String,Map<String, List<Long>>> getProductUserMapping() {
-		String sql = "select up.product_id,  entityName, id from user, user_product up where user.id = up.user_id";
-		String sql = "select up.product_id,  entityName, id from dealer, dealer_product up where dealer.id = up.dealer_id";
-		
-	}*/
+	public String getStateByZoneSql(String zone){
+		if(zone.equals("user")){
+			AuthUser authUser = Utils.getLoggedInUser();
+			return "Select id,name from state WHERE state.zone_id = (select user.zone_id from user where user.id = "+authUser.getEntityId()+")";
+		}
+		return "Select id,name from state WHERE state.zone_id = (SELECT id from zone WHERE zone.name = '"+zone+"')";
+	}
 	
 }

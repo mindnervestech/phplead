@@ -6,8 +6,8 @@ import java.util.Map;
 
 public class AllotmentEngineCache {
 
-    Map<String,Map<String, List<Long>>> zipCache = new HashMap<String,Map<String, List<Long>>>();
-	Map<String,Map<String, List<Long>>> productCache = new HashMap<String,Map<String, List<Long>>>();
+    public Map<String,Map<String, List<Long>>> zipCache = new HashMap<String,Map<String, List<Long>>>();
+    public Map<String,Map<String, List<Long>>> productCache = new HashMap<String,Map<String, List<Long>>>();
 	
 	private AllotmentEngineCache(Map<String, Map<String, List<Long>>> zipCache,
 			Map<String, Map<String, List<Long>>> productCache) {
@@ -47,7 +47,7 @@ public class AllotmentEngineCache {
 		
 	}
 	
-	public void invalidate() {
+	public static void invalidate() {
 		allotmentEngineCache = null;
 	}
 	

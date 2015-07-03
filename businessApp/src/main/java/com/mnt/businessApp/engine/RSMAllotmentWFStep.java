@@ -2,13 +2,14 @@ package com.mnt.businessApp.engine;
 
 public class RSMAllotmentWFStep extends AbstractAllotmentEngine {
 
-	public RSMAllotmentWFStep(String zip, String product) {
-		super(zip, product, "rsm");
+	public RSMAllotmentWFStep(String zip, String product, Long lead_id) {
+		super(zip, product, lead_id, "RSM");
+		System.out.println("RSM");
 	}
 
 	@Override
 	protected void assignLeadIfNoProductAndZipServicable() {
-		new SelloutManagerAllotmentWFStep(zip, product).startAssignment();
+		
 	}
 
 	@Override
@@ -18,6 +19,8 @@ public class RSMAllotmentWFStep extends AbstractAllotmentEngine {
 
 	@Override
 	protected void assignLeadIfSingleUser() {
+		
+		
 
 	}
 	

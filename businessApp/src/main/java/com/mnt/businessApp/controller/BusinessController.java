@@ -1,6 +1,7 @@
 package com.mnt.businessApp.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mnt.businessApp.engine.AllotmentEngineCache;
+import com.mnt.businessApp.engine.DealerAllotmentWFStep;
+import com.mnt.businessApp.service.AssignLeadsService;
 import com.mnt.businessApp.service.DashBoardService;
 import com.mnt.businessApp.service.DealerService;
 import com.mnt.businessApp.service.LeadService;
@@ -61,6 +65,9 @@ public class BusinessController {
 	
 	@Autowired
 	private DashBoardService dashBoardService;
+	
+	@Autowired
+	private AssignLeadsService assignLeadsService;
 
 	@Autowired
 	private MailService mailService;
@@ -268,28 +275,22 @@ public class BusinessController {
 	public @ResponseBody Map getZoneSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,
 			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product){
-		return dashBoardService.getZoneSplineBetweenDates(start, end, zone, state);
-	}
-	
-	@Transactional
-	@RequestMapping(value="/getStateSplineBetweenDates", method = RequestMethod.GET)
-	public @ResponseBody Map getStateSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
-			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end, @RequestParam("state") String state){
-		return dashBoardService.getZoneSplineBetweenDates(start, end, "state", state);
+		return dashBoardService.getZoneSplineBetweenDates(start, end, zone, state, product);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getProductSplineBetweenDates", method = RequestMethod.GET)
 	public @ResponseBody Map getProductSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
-			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end){
-		return dashBoardService.getProductSplineBetweenDates(start, end);
+			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product){
+		return dashBoardService.getProductSplineBetweenDates(start, end, zone, state, product);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getDealerSplineBetweenDates", method = RequestMethod.GET)
 	public @ResponseBody Map getDealerSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
-			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end){
-		return dashBoardService.getDealerSplineBetweenDates(start, end);
+			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end, @RequestParam("state") String state){
+		return dashBoardService.getDealerSplineBetweenDates(start, end, state);
 	}
 	
 	@Transactional
@@ -334,6 +335,28 @@ public class BusinessController {
 	@RequestMapping(value="/getDealersByDistrict/{district}",method = RequestMethod.GET)
 	public @ResponseBody List<ZoneVM> getDealersByDistrict(@PathVariable("district") Long district) {
 		return dealerService.getDealersByDistrict(district);
+	}
+	
+	@Transactional
+	@RequestMapping(value="/test",method = RequestMethod.GET)
+	public @ResponseBody Map test() {
+		Map<String, Map<String, Map<String, List<Long>>>> map = new HashMap<String, Map<String,Map<String,List<Long>>>>();
+		try{
+			AllotmentEngineCache allotmentEngineCache = AllotmentEngineCache.getInstance();
+			map.put("product", allotmentEngineCache.productCache);
+			map.put("zipCode", allotmentEngineCache.zipCache);
+		} catch (Exception e){
+			AllotmentEngineCache.invalidate();
+			AllotmentEngineCache.build(assignLeadsService.getZipCodeUserMapping(), assignLeadsService.getProductUserMapping());
+		}
+		return map;
+	}
+	
+
+	@Transactional
+	@RequestMapping(value="/assignDealer",method = RequestMethod.GET)
+	public @ResponseBody void assignDealer() {
+		assignLeadsService.assignDealer();
 	}
 
 }

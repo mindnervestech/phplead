@@ -1,5 +1,7 @@
 package com.mnt.report.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -7,6 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -22,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
+@RequestMapping(value="/api/report")
 public class ReportMDService {
 	
 	@Autowired
@@ -31,7 +38,7 @@ public class ReportMDService {
 	NamedParameterJdbcTemplate namedJdbcTemplate;
 
 	
-    @RequestMapping(value="report/run",method=RequestMethod.GET)
+    @RequestMapping(value="/run",method=RequestMethod.GET)
     @ResponseBody
     public JSONObject runReports(@RequestParam String filter) {
     	JSONObject resp = new JSONObject();
@@ -78,7 +85,7 @@ public class ReportMDService {
 			
 			resp.put("data" , rs);
 			
-			 //generateCSV(rs);
+			 generateCSV(rs);
 			 
 			 //generatePDF(rs);
 			 
@@ -206,7 +213,7 @@ public class ReportMDService {
 		 
 	}
 	
-	
+*/	
 	public void generateCSV(List<Map<String, Object>> rs){
 		 XSSFWorkbook workbook = new XSSFWorkbook();
 	     //Create a blank sheet
@@ -242,6 +249,7 @@ public class ReportMDService {
            FileOutputStream out = new FileOutputStream(new File("data.xlsx"));
            workbook.write(out);
            out.close();
+          // ftpClient.retrieveFile("/" + ftpFile.getName(), fos);
            System.out.println("data.xlsx written successfully on disk.");
        }
        catch (Exception e)
@@ -251,7 +259,7 @@ public class ReportMDService {
 		 
 	}
 	
-	*/
+	
 	/*
 	select B.DD_ISSUE_DATE from tbl_de_data A,tbl_parent_image B  WHERE 
 	(A.DC_AD_SIZE IN (:DC_AD_SIZEin) OR :DC_AD_SIZE IS NULL) AND
