@@ -703,6 +703,7 @@ public class LeadService {
 		Lead lead = new Lead();
 		lead.setDealer((Dealer) session.get(Dealer.class, vm.getDealer()));
 		lead.setDisposition1("New");
+		lead.setLastDispo1ModifiedDate(new Date());
 		lead.setLeadDetails(details);
 		lead.setOrigin("Walk-In");
 		session.save(lead);
