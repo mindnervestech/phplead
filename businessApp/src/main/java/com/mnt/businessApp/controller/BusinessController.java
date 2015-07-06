@@ -96,26 +96,34 @@ public class BusinessController {
 	
 	@Transactional
 	@RequestMapping(value="/getEscalatedLeads",method=RequestMethod.GET)
-	public @ResponseBody List<LeadDetailsVM> getEscalatedLeads() {
-		return leadService.getAllEscalatedLeadDetails();
+	public @ResponseBody List<LeadDetailsVM> getEscalatedLeads(@RequestParam(value="start", required=false)  @DateTimeFormat(pattern="MMddyyyy") Date start,
+			@RequestParam(value="end", required=false) @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam(value="dealer", required=false) Long dealer,
+			@RequestParam(value="zone", required=false) String zone, @RequestParam(value="state", required=false) String state, @RequestParam(value="product", required=false) Long product) {
+		return leadService.getAllEscalatedLeadDetails(start, end, zone, state, product, dealer);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getOpenLeads",method=RequestMethod.GET)
-	public @ResponseBody List<LeadDetailsVM> getOpenLeads() {
-		return leadService.getOpenLeads();
+	public @ResponseBody List<LeadDetailsVM> getOpenLeads(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
+			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam("dealer") Long dealer,
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product) {
+		return leadService.getOpenLeads(start, end, zone, state, product, dealer);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getWonLeads",method=RequestMethod.GET)
-	public @ResponseBody List<LeadDetailsVM> getWonLeads() {
-		return leadService.getWonLeads();
+	public @ResponseBody List<LeadDetailsVM> getWonLeads(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
+			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam("dealer") Long dealer,
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product) {
+		return leadService.getWonLeads(start, end, zone, state, product, dealer);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getLostLeads",method=RequestMethod.GET)
-	public @ResponseBody List<LeadDetailsVM> getLostLeads() {
-		return leadService.getLostLeads();
+	public @ResponseBody List<LeadDetailsVM> getLostLeads(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
+			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam("dealer") Long dealer,
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product) {
+		return leadService.getLostLeads(start, end, zone, state, product, dealer);
 	}
 	
 	@Transactional
@@ -335,6 +343,13 @@ public class BusinessController {
 	@RequestMapping(value="/getDealersByDistrict/{district}",method = RequestMethod.GET)
 	public @ResponseBody List<ZoneVM> getDealersByDistrict(@PathVariable("district") Long district) {
 		return dealerService.getDealersByDistrict(district);
+	}
+	
+
+	@Transactional
+	@RequestMapping(value="/getDealersByState/{state}",method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getDealersByState(@PathVariable("state") String state) {
+		return dealerService.getDealersByState(state);
 	}
 	
 	@Transactional

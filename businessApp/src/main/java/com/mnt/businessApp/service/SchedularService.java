@@ -55,13 +55,28 @@ public class SchedularService {
 	public void escalationScheduler() {
 		GeneralConfig generalConfig = (GeneralConfig) sessionFactory.getCurrentSession().get(GeneralConfig.class, 1l);
 		String dateInterval = "DATE_SUB(CURDATE(), INTERVAL "+generalConfig.getFirstEscalationTime()+" DAY)";
-		jt.update("UPDATE lead SET lead.disposition1 = 'Escalated',lead.escalatedLevel = 1, lead.escalatedDate = NOW() WHERE lead.disposition1 = 'New' and lead.uploadDate < "+dateInterval,
+		
+		jt.update("UPDATE lead SET lead.disposition1 = 'Escalated',lead.escalatedLevel = 1, lead.escalatedDate = NOW(), lead.lastDispo1ModifiedDate = NOW(), "
+				+ " lead.escalatedTo_id = (select  user.id from user, user_zipcode where user.id = user_zipcode.user_id and user.entityName='TSR' and user_zipcode.zipcode_id = " 
+				+ "	(Select leaddetails.pinCode from leaddetails where leaddetails.id = lead.id) LIMIT 1) WHERE lead.disposition1 = 'New' "
+				+ "and lead.uploadDate < "+dateInterval,
 				new Object[] {});
 		dateInterval = "DATE_SUB(CURDATE(), INTERVAL "+generalConfig.getSubsequentEscalationTime()+" DAY)";
-		jt.update("UPDATE lead SET lead.escalatedLevel = lead.escalatedLevel + 1, lead.escalatedDate = NOW() WHERE lead.disposition1 = 'Escalated' and lead.escalatedLevel < 4 and lead.escalatedDate <"+dateInterval,
+		jt.update("UPDATE lead SET lead.escalatedLevel = lead.escalatedLevel + 1, lead.escalatedDate = NOW(), lead.lastDispo1ModifiedDate = NOW(),"
+				+ " lead.escalatedTo_id = (select  user.id from user, user_zipcode where user.id = user_zipcode.user_id and user.entityName='RSM' and user_zipcode.zipcode_id = " 
+				+ "	(Select leaddetails.pinCode from leaddetails where leaddetails.id = lead.id) LIMIT 1) "
+				+ " WHERE lead.disposition1 = 'Escalated' and lead.escalatedLevel = 1 and lead.escalatedDate <"+dateInterval,
 				new Object[] {});
-		
-
+		jt.update("UPDATE lead SET lead.escalatedLevel = lead.escalatedLevel + 1, lead.escalatedDate = NOW(), lead.lastDispo1ModifiedDate = NOW(),"
+				+ " lead.escalatedTo_id = (select  user.id from user, user_zipcode where user.id = user_zipcode.user_id and user.entityName='Sellout Manager' and user_zipcode.zipcode_id = " 
+				+ "	(Select leaddetails.pinCode from leaddetails where leaddetails.id = lead.id) LIMIT 1) "
+				+ " WHERE lead.disposition1 = 'Escalated' and lead.escalatedLevel = 2 and lead.escalatedDate <"+dateInterval,
+				new Object[] {});
+		jt.update("UPDATE lead SET lead.escalatedLevel = lead.escalatedLevel + 1, lead.escalatedDate = NOW(), lead.lastDispo1ModifiedDate = NOW(),"
+				+ " lead.escalatedTo_id = (select  user.id from user, user_zipcode where user.id = user_zipcode.user_id and user.entityName='ZSM' and user_zipcode.zipcode_id = " 
+				+ "	(Select leaddetails.pinCode from leaddetails where leaddetails.id = lead.id) LIMIT 1) "
+				+ " WHERE lead.disposition1 = 'Escalated' and lead.escalatedLevel = 3 and lead.escalatedDate <"+dateInterval,
+				new Object[] {});
 	}
 
 	// upload the excel

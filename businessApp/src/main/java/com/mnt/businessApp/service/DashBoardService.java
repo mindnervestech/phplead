@@ -35,20 +35,6 @@ public class DashBoardService {
 	@Autowired
 	private JdbcTemplate jt;
 
-	private List<Map> getProgressBarByProducts(List<Map> list, int total,List<Long> ids) {
-		String sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id "
-				+ "and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted'))"
-				+ " and ld.product_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Open", "icon fa fa-folder-open", "warning", total,ids));
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and disposition2 = 'Won'"
-				+ " and ld.product_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Won", "icon fa fa-thumbs-up", "success", total,ids));
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and disposition2 = 'Lost'"
-				+ " and ld.product_id IN (:ids)";
-		list.add(getLeadProgressBarVM(sql, "Lost", "icon fa fa-thumbs-down", "danger", total,ids));
-		return list;
-	}
-
 	private Map getLeadProgressBarVM(String sql, String description, String iconClass, String type, int total,List<Long> ids) {
 		if(ids.size() == 0){
 			return null;

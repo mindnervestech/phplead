@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -249,7 +250,6 @@ public class ReportMDService {
            FileOutputStream out = new FileOutputStream(new File("data.xlsx"));
            workbook.write(out);
            out.close();
-          // ftpClient.retrieveFile("/" + ftpFile.getName(), fos);
            System.out.println("data.xlsx written successfully on disk.");
        }
        catch (Exception e)
