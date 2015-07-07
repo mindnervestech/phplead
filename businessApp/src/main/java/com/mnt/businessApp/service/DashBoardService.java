@@ -192,13 +192,12 @@ public class DashBoardService {
 			productSql = " and ld.product_id IN ("+product+")";
 		}
 		
-		
 		if(!zone.equals("0") && !state.equals("0")){
 			zoneState = "and d.zone = '"+zone+"' and d.state = '"+state+"'";
 			select = "SELECT COUNT(*) as count, d.state as name ";
 			gropBy = " GROUP BY d.state ORDER BY d.state asc";
 			all = "Select id, name from state where state.name = '"+state+"'";
-		} else if(!state.equals("0")){
+			} else if(!state.equals("0")){
 			zoneState = " and d.state = '"+state+"'";
 			select = "SELECT COUNT(*) as count, d.state as name ";
 			gropBy = " GROUP BY d.state ORDER BY d.state asc";
