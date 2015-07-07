@@ -713,5 +713,18 @@ public class DealerService {
 		}
 		return "Select id,name from state WHERE state.zone_id = (SELECT id from zone WHERE zone.name = '"+zone+"')";
 	}
+
+	public List<ZoneVM> getDealersByState(String state) {
+		String sql = "Select id,dealerName from dealer WHERE state = ?";
+		List<Map<String,Object>> rows = jt.queryForList(sql,new Object[] {state});
+		List<ZoneVM> vms = new ArrayList<ZoneVM>();
+		for(Map mapUser : rows) {
+			ZoneVM vm = new ZoneVM();
+			vm.id = (Long) mapUser.get("id");
+			vm.name = (String) mapUser.get("dealerName");
+			vms.add(vm);
+		}
+		return vms;
+	}
 	
 }

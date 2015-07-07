@@ -297,8 +297,10 @@ public class BusinessController {
 	@Transactional
 	@RequestMapping(value="/getDealerSplineBetweenDates", method = RequestMethod.GET)
 	public @ResponseBody Map getDealerSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
-			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end, @RequestParam("state") String state){
-		return dashBoardService.getDealerSplineBetweenDates(start, end, state);
+			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end, 
+			@RequestParam("zone") String zone, @RequestParam("state") String state,
+			@RequestParam("product") Long product,  @RequestParam("dealer") Long dealer){
+		return dashBoardService.getDealerSplineBetweenDates(start, end, zone, state, product, dealer);
 	}
 	
 	@Transactional

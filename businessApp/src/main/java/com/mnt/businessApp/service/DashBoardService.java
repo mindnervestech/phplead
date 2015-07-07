@@ -193,7 +193,12 @@ public class DashBoardService {
 		}
 		
 		
-		if(!state.equals("0")){
+		if(!zone.equals("0") && !state.equals("0")){
+			zoneState = "and d.zone = '"+zone+"' and d.state = '"+state+"'";
+			select = "SELECT COUNT(*) as count, d.state as name ";
+			gropBy = " GROUP BY d.state ORDER BY d.state asc";
+			all = "Select id, name from state where state.name = '"+state+"'";
+		} else if(!state.equals("0")){
 			zoneState = " and d.state = '"+state+"'";
 			select = "SELECT COUNT(*) as count, d.state as name ";
 			gropBy = " GROUP BY d.state ORDER BY d.state asc";
@@ -310,26 +315,39 @@ public class DashBoardService {
 		return vm;
 	}
 	
-	public Map getDealerSplineBetweenDates(Date start, Date end, String state) {
+	public Map getDealerSplineBetweenDates(Date start, Date end, String zone, String state, Long product, Long dealer) {
 		List<SplineVM> splineVMs = new ArrayList<>(); 
-		splineVMs.add(getSplineDataForDealer(start, end, " and disposition2 = 'Won' ", "Won", "#01c6ad", state));
-		splineVMs.add(getSplineDataForDealer(start, end, " and disposition2 = 'Lost' ", "Lost", "#FF0000", state));
-		splineVMs.add(getSplineDataForDealer(start, end, " and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted')) ", "Open", "#ffce54", state));
+		splineVMs.add(getSplineDataForDealer(start, end, " and disposition2 = 'Won' ", "Won", "#01c6ad", state, product, dealer));
+		splineVMs.add(getSplineDataForDealer(start, end, " and disposition2 = 'Lost' ", "Lost", "#FF0000", state, product, dealer));
+		splineVMs.add(getSplineDataForDealer(start, end, " and (disposition1 = 'New' or disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted')) ", "Open", "#ffce54", state, product, dealer));
 		Map<String, List<SplineVM>> map = new HashMap<>();
 		map.put("dataset", splineVMs);
 		return map;
 	}
 
-	private SplineVM getSplineDataForDealer(Date start, Date end, String query, String cat, String color, String state) {
+	private SplineVM getSplineDataForDealer(Date start, Date end, String query, String cat, String color, String state, Long product, Long dealer) {
 		AuthUser user = Utils.getLoggedInUser();
-		if(user.getEntityName().equals("Dealer")){
+		
+		if(product != 0 && dealer != 0){
+			query += " and ld.product_id = "+product+"  and l.dealer_id = "+dealer;
+		} else if(product != 0){
+			if(user.getEntityName().equals("Dealer")){
+				query = query + " and l.dealer_id IN ("+user.getEntityId()+") ";
+			} else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+				query = query + " and l.dealer_id IN (SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId()+") ";
+			} 
+			query += " and ld.product_id = "+product;
+		} else if(dealer != 0){
+			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+				query +=  "and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
+			}
+			query += "  and l.dealer_id = "+dealer;
+		} else if(user.getEntityName().equals("Dealer")){
 			query = query + " and l.dealer_id IN ("+user.getEntityId()+") ";
-		}
-		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+		} else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
 			query = query + " and l.dealer_id IN (SELECT d.dealer_id from dealer_user as d where d.user_id = "+user.getEntityId()+") "
 					+ " and ld.id = l.leadDetails_id and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
-		}
-		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
+		} else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
 			String stateSql = "";
 			if(!state.equals("0")){
