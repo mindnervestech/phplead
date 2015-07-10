@@ -117,13 +117,13 @@ public class LeadService {
 			}
 			return vms;
 		}
-		else if(user.getEntityName().equals("Sales Consultant")){
+		else if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and "
-					+ " ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";			
+					+ " ld.id = l.leadDetails_id and user_id = ?";			
 		}
 		else {
 			System.out.println("Unknown Role");
@@ -267,8 +267,8 @@ public class LeadService {
 		else if(user.getEntityName().equals("Dealer")){
 			proZone =  " and dealer_id = "+user.getEntityId();
 		}  
-		else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")  || user.getEntityName().equals("Sales Consultant")){
-			proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+		else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")  || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
+			proZone = " and user_id = "+user.getEntityId()+"";
 		}
 		else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
 			proZone = " and dealer_id IN ( select id  from dealer as d where zone = (Select zone.name from user,zone WHERE user.id = "+user.getEntityId()+" and zone.id = user.zone_id))";
@@ -409,13 +409,13 @@ public class LeadService {
 						System.out.println(sql);
 			return vms;
 		}
-		else if(user.getEntityName().equals("Sales Consultant")){
+		else if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 			sql = "Select ld.sr as srNo, ld.name as name, "
 					+ "l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+ "ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 					+ "l.disposition2 as dispo2,l.followUpDate as date ,d.dealerName as dealerName "
 					+ "FROM lead as l, leaddetails as ld, dealer as d, product as p  where p.id = ld.product_id and d.id = l.dealer_id and l.followUpDate IS NOT NULL "
-					+ "and ld.id = l.leadDetails_id and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = ? )";			
+					+ "and ld.id = l.leadDetails_id and user_id = ?";			
 		}
 		List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] {user.getEntityId()});
 		for(Map map : rows) {
@@ -441,8 +441,8 @@ public class LeadService {
 				proZone =" and dealer_id IN ( select id  from dealer as d where zone = '"+zone+"')";
 			}
 			if(dealer == 0){
-				if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
-					proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+				if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
+					proZone = " and user_id = "+user.getEntityId()+"";
 				}
 				if(user.getEntityName().equals("Dealer")){
 					proZone =" and dealer_id = "+user.getEntityId();
@@ -459,8 +459,8 @@ public class LeadService {
 		}
 		else if(user.getEntityName().equals("Dealer")){
 			proZone =  " and dealer_id = "+user.getEntityId();
-		}else if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
-			proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+		}else if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
+			proZone = " and user_id = "+user.getEntityId()+"";
 			proZone += " and ld.product_id IN (select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ) ";
 		} else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
 			proZone = " and (dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" ) "
@@ -521,8 +521,8 @@ public class LeadService {
 				proZone =" and dealer_id IN ( select id  from dealer as d where zone = '"+zone+"'";
 			}
 			if(dealer == 0){
-				if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
-					proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+				if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
+					proZone = " and user_id = "+user.getEntityId()+"";
 				}
 				if(user.getEntityName().equals("Dealer")){
 					proZone =" and dealer_id = "+user.getEntityId();
@@ -537,8 +537,8 @@ public class LeadService {
 			}
 		} else if(user.getEntityName().equals("Dealer")){
 			proZone =  " and dealer_id = "+user.getEntityId();
-		} else if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
-			proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+		} else if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
+			proZone = " and user_id = "+user.getEntityId()+"";
 			proZone += " and ld.product_id IN (select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ) ";
 		} else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
 			proZone = " and (dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" ) "
@@ -596,8 +596,8 @@ public class LeadService {
 				proZone =" and dealer_id IN ( select id  from dealer as d where zone = '"+zone+"'";
 			}
 			if(dealer == 0){
-				if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
-					proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+				if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
+					proZone = " and user_id = "+user.getEntityId()+"";
 				}
 				if(user.getEntityName().equals("Dealer")){
 					proZone =" and dealer_id = "+user.getEntityId();
@@ -613,8 +613,8 @@ public class LeadService {
 		}
 		else if(user.getEntityName().equals("Dealer")){
 			proZone =  " and dealer_id = "+user.getEntityId();
-		}else if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
-			proZone = " and dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" )";
+		}else if(user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
+			proZone = " and user_id = "+user.getEntityId()+"";
 			proZone += " and ld.product_id IN (select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ) ";
 		}else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
 			proZone = " and (dealer_id IN ( SELECT du.dealer_id from dealer_user as du where du.user_id = "+user.getEntityId()+" ) "
