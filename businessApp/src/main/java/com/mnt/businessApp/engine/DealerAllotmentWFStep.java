@@ -11,23 +11,24 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 
 	@Override
 	protected void assignLeadIfNoProductAndZipServicable() {
-		SelloutManagerAllotmentWFStep allotmentWFStep = new SelloutManagerAllotmentWFStep(zip, product, lead_id);
+		SelloutConultantAllotmentWFStep allotmentWFStep = new SelloutConultantAllotmentWFStep(zip, product, lead_id);
 		allotmentWFStep.jt = jt;
+		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
 	}
 
 	@Override
 	protected void assignLeadIfMultipleUser() {
 		Long total = jt.queryForLong("SELECT COUNT(*) FROM lead as l, leaddetails where lead.leadDetails_id = leaddetails.id "
-				+ " and (l.disposition1 = 'New' or l.disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted')) "
+				+ " and l.status = 'Open' "
 				+ " and leaddetails.pinCode = '"+zip+"' and leaddetails.product_id = "+product);
 		for(Long dealer : userPresent){
-			Long count = jt.queryForLong("SELECT COUNT(*) FROM lead as l, leaddetails where lead.leadDetails_id = leaddetails.id"
-					+ " and (l.disposition1 = 'New' or l.disposition2 IN('Call Back','Quote Sent','Visiting Store','Not Contacted')) "
-					+ " and leaddetails.pinCode = '"+zip+"' and leaddetails.product_id = "+product+" and dealer_id = "+dealer);
-			Long persecntage = jt.queryForLong("SELECT dc.percentage from dealerconfiguration dc where dc.dealer_id = "+dealer+" and dc.zipCode_id = "+zip);
+			Long count = jt.queryForLong("SELECT COUNT(*) FROM lead as l, leaddetails, user where lead.leadDetails_id = leaddetails.id"
+					+ " and l.status = 'Open' "
+					+ " and leaddetails.pinCode = '"+zip+"' and leaddetails.product_id = "+product+" and user_id = "+dealer+" and user.id = user_id and user.entityName = 'Dealer'");
+			Long persecntage = jt.queryForLong("SELECT uz.percentage from user_zipcode uz where uz.user_id = "+dealer+" and uz.zipCodes_id = "+zip);
 			if(persecntage > ((count*100)/total)){
-				jt.update("UPDATE lead SET lead.dealer_id = "+dealer+", lead.user_id = NULL where lead.id = "+lead_id);
+				jt.update("UPDATE lead SET lead.user_id = "+dealer+" where lead.id = "+lead_id);
 				break;
 			}
 		}
@@ -35,13 +36,14 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 
 	@Override
 	protected void assignLeadIfSingleUser() {
-		jt.update("UPDATE lead SET lead.dealer_id = "+userPresent.get(0)+", lead.user_id = NULL where lead.id = "+lead_id);
+		jt.update("UPDATE lead SET lead.user_id = "+userPresent.get(0)+" where lead.id = "+lead_id);
 	}
 
 	@Override
 	protected void assignLeadIfNoProductServicable() {
-		SelloutManagerAllotmentWFStep allotmentWFStep = new SelloutManagerAllotmentWFStep(zip, product, lead_id);
+		SelloutConultantAllotmentWFStep allotmentWFStep = new SelloutConultantAllotmentWFStep(zip, product, lead_id);
 		allotmentWFStep.jt = jt;
+		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
 		
 	}
@@ -50,6 +52,7 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 	protected void assignLeadIfNoZipServicable() {
 		SelloutManagerAllotmentWFStep allotmentWFStep = new SelloutManagerAllotmentWFStep(zip, product, lead_id);
 		allotmentWFStep.jt = jt;
+		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
 	}
 

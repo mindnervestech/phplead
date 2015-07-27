@@ -11,10 +11,12 @@ public abstract class AbstractAllotmentEngine {
 	String zip; String product; String userType;
 	public Long lead_id;
 	public JdbcTemplate jt;
+	public String status;
 	
 	protected List<Long> userPresent;
 	protected List<Long> userZipPresent;
 	protected List<Long> userProductPresent;
+	
 	
 	// Maybe we need to have lead object in constructor
 	public AbstractAllotmentEngine(String zip, String product, Long lead_id, String userType) {

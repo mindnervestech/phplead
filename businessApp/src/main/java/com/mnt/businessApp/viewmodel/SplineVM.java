@@ -1,13 +1,8 @@
 package com.mnt.businessApp.viewmodel;
 
 import java.util.List;
-import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
-import com.mnt.entities.authentication.District;
-import com.mnt.entities.businessApp.State;
-import com.mnt.entities.businessApp.Zone;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SplineVM {

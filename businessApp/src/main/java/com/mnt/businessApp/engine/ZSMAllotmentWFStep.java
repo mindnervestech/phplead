@@ -1,18 +1,14 @@
 package com.mnt.businessApp.engine;
 
-public class TSRAllotmentWFStep extends AbstractAllotmentEngine {
+public class ZSMAllotmentWFStep extends AbstractAllotmentEngine {
 
-	public TSRAllotmentWFStep(String zip, String product, Long lead_id) {
+	public ZSMAllotmentWFStep(String zip, String product, Long lead_id) {
 		super(zip, product,lead_id, "TSR");
 		System.out.println("TSR");
 	}
 
 	@Override
 	protected void assignLeadIfNoProductAndZipServicable() {
-		RSMAllotmentWFStep allotmentWFStep = new RSMAllotmentWFStep(zip, product, lead_id);
-		allotmentWFStep.jt = jt;
-		allotmentWFStep.status = status;
-		allotmentWFStep.startAssignment();
 	}
 
 	@Override
@@ -36,18 +32,10 @@ public class TSRAllotmentWFStep extends AbstractAllotmentEngine {
 	
 	@Override
 	protected void assignLeadIfNoProductServicable() {
-		RSMAllotmentWFStep allotmentWFStep = new RSMAllotmentWFStep(zip, product, lead_id);
-		allotmentWFStep.jt = jt;
-		allotmentWFStep.status = status;
-		allotmentWFStep.startAssignment();
 	}
 
 	@Override
 	protected void assignLeadIfNoZipServicable() {
-		RSMAllotmentWFStep allotmentWFStep = new RSMAllotmentWFStep(zip, product, lead_id);
-		allotmentWFStep.jt = jt;
-		allotmentWFStep.status = status;
-		allotmentWFStep.startAssignment();
 	}
 
 }

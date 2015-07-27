@@ -25,14 +25,12 @@ public class AssignLeadsService
 	private JdbcTemplate jt;
 	
 	public Map<String,Map<String, List<Long>>> getProductUserMapping() {
-		String sql = "select up.products_id as product , entityName, user.id from user, user_product up   where user.id = up.user_id and entityName IN ('RSM', 'TSR', 'Sales Consultant') UNION ";
-		sql += " select up.products_id as product, 'Dealer' as entityName, dealer.id from dealer, dealer_product up where dealer.id = up.dealer_id ";
+		String sql = "select up.products_id as product , entityName, user.id from user, user_product up   where user.id = up.user_id and entityName IN ('RSM', 'TSR', 'Sales Consultant', 'Dealer', 'ZSM', 'Sales Executive', 'Sellout Manager')  ";
 		return getUserMapping(sql);
 	}
 
 	public Map<String,Map<String, List<Long>>> getZipCodeUserMapping() {
-		String sql = "select up.zipcode_id as product , entityName, user.id from user, user_zipcode up where user.id = up.user_id and entityName IN ('RSM', 'TSR', 'Sales Consultant') UNION ";
-		sql += " select up.zipCode_id as product, 'Dealer' as entityName, dealer.id from dealer, dealerconfiguration up where dealer.id = up.dealer_id ";
+		String sql = "select up.zipCodes_id as product , entityName, user.id from user, user_zipcode up where user.id = up.user_id and entityName IN ('RSM', 'TSR', 'Sales Consultant', 'Dealer', 'ZSM', 'Sales Executive', 'Sellout Manager')  ";
 		return getUserMapping(sql);
 	}
 	
@@ -60,8 +58,8 @@ public class AssignLeadsService
 	public void assignDealer(){
 		DealerAllotmentWFStep allotmentWFStep = new DealerAllotmentWFStep("603502", "5", 81);
 		allotmentWFStep.jt = jt;
+		allotmentWFStep.status = "assignment";
 		allotmentWFStep.startAssignment();
-		
 	}
 	
 	

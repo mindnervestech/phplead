@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import com.mnt.entities.businessApp.User;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserVM {
 
@@ -13,17 +15,35 @@ public class UserVM {
 	public String gender;
 	public String birthday;
 	public String phone;
-	public ZoneVM zone;
+	public String zone;
 	public ZoneVM role;
 	public String address;
-	public ZoneVM state;
-	public ZoneVM district;
+	public String state;
+	public String district;
 	public String postCode;
 	public List<ProductVM> products;
 	public Boolean selected;
 	public String status;
 	public Long dealer;
+	public List<PinsVM> pins;
+	public String customerGroup;
 	
+	public UserVM(){}
+	
+	public UserVM(User user) {
+		this.id = user.getId();
+		this.name = user.getName();
+		this.address = user.getAddress();
+		this.birthday = user.getBirthday();
+		this.district = user.getDistrict();
+		this.email = user.getEmail();
+		this.gender = user.getGender();
+		this.phone = user.getPhone();
+		this.postCode = user.getPostCode();
+		this.state = user.getState();
+		this.zone = user.getZone();
+		this.customerGroup = user.getCustomerGroup();
+	}
 	public Long getId() {
 		return id;
 	}
@@ -60,12 +80,6 @@ public class UserVM {
 	public void setBirthday(String birthday) {
 		this.birthday = birthday;
 	}
-	public ZoneVM getZone() {
-		return zone;
-	}
-	public void setZone(ZoneVM zone) {
-		this.zone = zone;
-	}
 	public ZoneVM getRole() {
 		return role;
 	}
@@ -78,17 +92,11 @@ public class UserVM {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	public ZoneVM getState() {
+	public String getState() {
 		return state;
 	}
-	public void setState(ZoneVM state) {
+	public void setState(String state) {
 		this.state = state;
-	}
-	public ZoneVM getDistrict() {
-		return district;
-	}
-	public void setDistrict(ZoneVM district) {
-		this.district = district;
 	}
 	public String getPostCode() {
 		return postCode;
@@ -119,5 +127,33 @@ public class UserVM {
 	}
 	public void setDealer(Long dealer) {
 		this.dealer = dealer;
+	}
+	public String getZone() {
+		return zone;
+	}
+	public void setZone(String zone) {
+		this.zone = zone;
+	}
+	public String getDistrict() {
+		return district;
+	}
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+
+	public List<PinsVM> getPins() {
+		return pins;
+	}
+
+	public void setPins(List<PinsVM> pins) {
+		this.pins = pins;
+	}
+
+	public String getCustomerGroup() {
+		return customerGroup;
+	}
+
+	public void setCustomerGroup(String customerGroup) {
+		this.customerGroup = customerGroup;
 	}
 }

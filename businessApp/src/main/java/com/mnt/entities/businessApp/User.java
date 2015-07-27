@@ -3,15 +3,11 @@ package com.mnt.entities.businessApp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-
-import com.mnt.entities.authentication.District;
 
 @Entity
 public class User {
@@ -28,21 +24,16 @@ public class User {
 	public String postCode;
 	public Boolean status = true;
 	public String entityName;
-	
-	@ManyToOne
-	public Zone zone;
-	
-	@ManyToOne
-	public State state;
-	
-	@ManyToOne
-	public District district;
-
-	@ManyToMany(cascade=CascadeType.ALL, mappedBy = "user")
-	public List<Dealer> dealer;
+	public String zone;
+	public String state;
+	public String district;
+	public String customerGroup;
 	
 	@ManyToMany
 	public List<Product> products;
+	
+	@ManyToMany
+	public List<ZipCode> zipCodes;
 	
 	public Long getId() {
 		return id;
@@ -92,45 +83,11 @@ public class User {
 	public void setProducts(List<Product> products) {
 		this.products = products;
 	}
-	public Zone getZone() {
-		return zone;
-	}
-	public void setZone(Zone zone) {
-		this.zone = zone;
-	}
-	public State getState() {
-		return state;
-	}
-	public void setState(State state) {
-		this.state = state;
-	}
-	public District getDistrict() {
-		return district;
-	}
-	public void setDistrict(District district) {
-		this.district = district;
-	}
 	public String getPostCode() {
 		return postCode;
 	}
 	public void setPostCode(String postCode) {
 		this.postCode = postCode;
-	}
-	public List<Dealer> getDealers() {
-		return dealer;
-	}
-	public void setDealers(List<Dealer> dealers) {
-		this.dealer = dealers;
-	}
-	public void addDealer(Dealer dealer) {
-		if(this.dealer == null){
-			this.dealer = new ArrayList<>();
-		}
-		this.dealer.add(dealer);
-	}
-	public void updateDealer(Dealer dealer) {
-		this.dealer = new ArrayList<>();
-		this.dealer.add(dealer);
 	}
 	public Boolean getStatus() {
 		return status;
@@ -141,14 +98,56 @@ public class User {
 	public String getEntityName() {
 		return entityName;
 	}
-	public void setEntityName(String role) {
-		this.entityName = role;
+	public void setEntityName(String entityName) {
+		this.entityName = entityName;
 	}
-	public List<Dealer> getDealer() {
-		return dealer;
+	public String getZone() {
+		return zone;
 	}
-	public void setDealer(List<Dealer> dealer) {
-		this.dealer = dealer;
+	public void setZone(String zone) {
+		this.zone = zone;
+	}
+	public String getState() {
+		return state;
+	}
+	public void setState(String state) {
+		this.state = state;
+	}
+	public String getDistrict() {
+		return district;
+	}
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+	public List<ZipCode> getZipCodes() {
+		return zipCodes;
+	}
+	public void setZipCodes(List<ZipCode> zipCodes) {
+		this.zipCodes = zipCodes;
+	}
+	public String getCustomerGroup() {
+		return customerGroup;
+	}
+	public void setCustomerGroup(String customerGroup) {
+		this.customerGroup = customerGroup;
+	}
+	public void addZipCode(ZipCode zipCode) {
+		if(this.zipCodes == null){
+			this.zipCodes = new ArrayList<>();
+		}
+		System.out.println("zipcode contains "+this.zipCodes.contains(zipCode));
+		if(this.zipCodes.contains(zipCode)){
+		} else {
+			this.zipCodes.add(zipCode);
+		}
+	}
+	public void addProducts(Product product) {
+		if(this.products == null){
+			this.products = new ArrayList<>();
+		}
+		if(!this.products.contains(product))
+			this.products.add(product);
+		
 	}
 	
 }

@@ -27,24 +27,27 @@ public class Lead {
 	public LeadDetails leadDetails;
 	
 	@ManyToOne(cascade = CascadeType.ALL,fetch=FetchType.EAGER)
-	public Dealer dealer;
-	
-	@ManyToOne(cascade = CascadeType.ALL,fetch=FetchType.EAGER)
 	public User user;
 	
 	public String disposition1;
 	
 	public String disposition2;
 	
+	public String disposition3;
+	
 	public Date	uploadDate;
 	
 	public Date	lastDispo1ModifiedDate;
 	
-	public String escalatedLevel;
+	public Integer escalatedLevel = 0;
 	
 	public Date escalatedDate;
 	
 	public String origin;
+	
+	public String modalNo;
+	
+	public String brand;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	public User escalatedTo;
@@ -56,6 +59,10 @@ public class Lead {
 	public Date followUpDate;
 	
 	public String reason;
+	
+	public String zone;
+	
+	public String status;
 
 	public Long getId() {
 		return id;
@@ -79,14 +86,6 @@ public class Lead {
 
 	public void setLeadDetails(LeadDetails leadDetails) {
 		this.leadDetails = leadDetails;
-	}
-
-	public Dealer getDealer() {
-		return dealer;
-	}
-
-	public void setDealer(Dealer dealer) {
-		this.dealer = dealer;
 	}
 
 	public String getDisposition1() {
@@ -144,11 +143,11 @@ public class Lead {
 		this.activityStream.add(activityStream);
 	}
 
-	public String getEscalatedLevel() {
+	public Integer getEscalatedLevel() {
 		return escalatedLevel;
 	}
 
-	public void setEscalatedLevel(String escalatedLevel) {
+	public void setEscalatedLevel(Integer escalatedLevel) {
 		this.escalatedLevel = escalatedLevel;
 	}
 
@@ -190,6 +189,46 @@ public class Lead {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public String getZone() {
+		return zone;
+	}
+
+	public void setZone(String zone) {
+		this.zone = zone;
+	}
+
+	public String getDisposition3() {
+		return disposition3;
+	}
+
+	public void setDisposition3(String disposition3) {
+		this.disposition3 = disposition3;
+	}
+
+	public String getModalNo() {
+		return modalNo;
+	}
+
+	public void setModalNo(String modalNo) {
+		this.modalNo = modalNo;
+	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	
 	

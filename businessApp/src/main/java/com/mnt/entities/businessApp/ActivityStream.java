@@ -20,9 +20,13 @@ public class ActivityStream {
 	
 	public String newDisposition2;
 	
+	public String newDisposition3;
+	
 	public String oldDisposition1;
 	
 	public String oldDisposition2;
+	
+	public String oldDisposition3;
 	
 	public String reason;
 	
@@ -93,6 +97,22 @@ public class ActivityStream {
 
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
+	}
+
+	public String getNewDisposition3() {
+		return newDisposition3;
+	}
+
+	public void setNewDisposition3(String newDisposition3) {
+		this.newDisposition3 = newDisposition3;
+	}
+
+	public String getOldDisposition3() {
+		return oldDisposition3;
+	}
+
+	public void setOldDisposition3(String oldDisposition3) {
+		this.oldDisposition3 = oldDisposition3;
 	}
 	
 	

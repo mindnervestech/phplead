@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -22,12 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.mnt.businessApp.engine.SelloutExecutiveAllotmentWFStep;
 import com.mnt.businessApp.viewmodel.UserInfoVM;
 import com.mnt.entities.businessApp.ActivityStream;
-import com.mnt.entities.businessApp.Dealer;
-import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Lead;
-import com.mnt.entities.businessApp.LeadAgeing;
 import com.mnt.entities.businessApp.LeadDetails;
 import com.mnt.entities.businessApp.Product;
 
@@ -53,30 +52,13 @@ public class SchedularService {
 	}
 	
 	public void escalationScheduler() {
-		GeneralConfig generalConfig = (GeneralConfig) sessionFactory.getCurrentSession().get(GeneralConfig.class, 1l);
-		String dateInterval = "DATE_SUB(CURDATE(), INTERVAL "+generalConfig.getFirstEscalationTime()+" DAY)";
-		
-		jt.update("UPDATE lead SET lead.disposition1 = 'Escalated',lead.escalatedLevel = 1, lead.escalatedDate = NOW(), lead.lastDispo1ModifiedDate = NOW(), "
-				+ " lead.escalatedTo_id = (select  user.id from user, user_zipcode where user.id = user_zipcode.user_id and user.entityName='TSR' and user_zipcode.zipcode_id = " 
-				+ "	(Select leaddetails.pinCode from leaddetails where leaddetails.id = lead.id) LIMIT 1) WHERE lead.disposition1 = 'New' "
-				+ "and lead.uploadDate < "+dateInterval,
-				new Object[] {});
-		dateInterval = "DATE_SUB(CURDATE(), INTERVAL "+generalConfig.getSubsequentEscalationTime()+" DAY)";
-		jt.update("UPDATE lead SET lead.escalatedLevel = lead.escalatedLevel + 1, lead.escalatedDate = NOW(), lead.lastDispo1ModifiedDate = NOW(),"
-				+ " lead.escalatedTo_id = (select  user.id from user, user_zipcode where user.id = user_zipcode.user_id and user.entityName='RSM' and user_zipcode.zipcode_id = " 
-				+ "	(Select leaddetails.pinCode from leaddetails where leaddetails.id = lead.id) LIMIT 1) "
-				+ " WHERE lead.disposition1 = 'Escalated' and lead.escalatedLevel = 1 and lead.escalatedDate <"+dateInterval,
-				new Object[] {});
-		jt.update("UPDATE lead SET lead.escalatedLevel = lead.escalatedLevel + 1, lead.escalatedDate = NOW(), lead.lastDispo1ModifiedDate = NOW(),"
-				+ " lead.escalatedTo_id = (select  user.id from user, user_zipcode where user.id = user_zipcode.user_id and user.entityName='Sellout Manager' and user_zipcode.zipcode_id = " 
-				+ "	(Select leaddetails.pinCode from leaddetails where leaddetails.id = lead.id) LIMIT 1) "
-				+ " WHERE lead.disposition1 = 'Escalated' and lead.escalatedLevel = 2 and lead.escalatedDate <"+dateInterval,
-				new Object[] {});
-		jt.update("UPDATE lead SET lead.escalatedLevel = lead.escalatedLevel + 1, lead.escalatedDate = NOW(), lead.lastDispo1ModifiedDate = NOW(),"
-				+ " lead.escalatedTo_id = (select  user.id from user, user_zipcode where user.id = user_zipcode.user_id and user.entityName='ZSM' and user_zipcode.zipcode_id = " 
-				+ "	(Select leaddetails.pinCode from leaddetails where leaddetails.id = lead.id) LIMIT 1) "
-				+ " WHERE lead.disposition1 = 'Escalated' and lead.escalatedLevel = 3 and lead.escalatedDate <"+dateInterval,
-				new Object[] {});
+		List<Map<String, Object>> rows = jt.queryForList("select ld.pinCode as zipcode, l.id as id, ld.product_id as product from lead l, leaddetails ld where ld.id = l.leadDetails_id");
+		for(Map<String, Object> row : rows){
+			SelloutExecutiveAllotmentWFStep allotmentWFStep = new SelloutExecutiveAllotmentWFStep((String) row.get("zipcode"), (String) row.get("product"), (Long) row.get("id"));
+			allotmentWFStep.jt = jt;
+			allotmentWFStep.status = "escalation";
+			allotmentWFStep.startAssignment();
+		}
 	}
 
 	// upload the excel
@@ -503,6 +485,7 @@ public class SchedularService {
 					lead.setLeadDetails(leadDetails);
 					lead.setUploadDate(new Date());
 					lead.setDisposition1("New");
+					lead.setStatus("Open");
 					lead.setOrigin("Call-center");
 					sessionFactory.getCurrentSession().save(lead);
 					
@@ -555,12 +538,6 @@ public class SchedularService {
 		}
 		
 		return product;
-	}
-
-	private void assignDealer(Lead lead) {
-		Dealer dealer = new Dealer();
-		sessionFactory.getCurrentSession().save(dealer);
-		lead.setDealer(dealer);
 	}
 
 	@SuppressWarnings("deprecation")

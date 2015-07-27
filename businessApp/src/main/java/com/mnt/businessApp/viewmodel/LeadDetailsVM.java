@@ -17,6 +17,8 @@ public class LeadDetailsVM {
 	public String state;
 	public String disposition1;
 	public String disposition2;
+	public String disposition3;
+	public String status;
 	public String esacaletedTo;
 	public Date followUpDate;
 	private String dealerName;
@@ -35,6 +37,8 @@ public class LeadDetailsVM {
 		this.state = (String) map.get("state");
 		this.disposition1 = (String) map.get("dispo1");
 		this.disposition2 = (String) map.get("dispo2");
+		this.disposition3 = (String) map.get("dispo3");
+		this.status = (String) map.get("status");
 		this.followUpDate = (Date) map.get("date");
 		this.dealerName = (String) map.get("dealerName");
 	}
@@ -160,6 +164,26 @@ public class LeadDetailsVM {
 
 	public void setState(String state) {
 		this.state = state;
+	}
+
+
+	public String getDisposition3() {
+		return disposition3;
+	}
+
+
+	public void setDisposition3(String disposition3) {
+		this.disposition3 = disposition3;
+	}
+
+
+	public String getStatus() {
+		return status;
+	}
+
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	
 

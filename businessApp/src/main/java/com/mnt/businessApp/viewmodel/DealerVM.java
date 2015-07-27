@@ -3,11 +3,10 @@ package com.mnt.businessApp.viewmodel;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.User;
 
 public class DealerVM {
-
+/*
 	public Long id;
 	public String code;
 	public String name;
@@ -103,12 +102,12 @@ public class DealerVM {
 	public void setZone(ZoneVM zone) {
 		this.zone = zone;
 	}
-	/*public ZoneVM getTerritory() {
+	public ZoneVM getTerritory() {
 		return territory;
 	}
 	public void setTerritory(ZoneVM territory) {
 		this.territory = territory;
-	}*/
+	}
 	public List<PinsVM> getPins() {
 		return pins;
 	}

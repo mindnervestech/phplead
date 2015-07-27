@@ -13,6 +13,8 @@ public class LeadVM {
 	public Long leadNumber;
 	public String disposition1;
 	public String disposition2;
+	public String disposition3;
+	public String status;
 	public Date	uploadDate;
 	public String	title;
 	public String	name;
@@ -33,6 +35,8 @@ public class LeadVM {
 	public Boolean isLost = false;
 	public Boolean isCompleated = false;
 	public Long dealer;
+	public String modalNo;
+	public String brand;
 	public LeadVM() {}
 	
 	public LeadVM(Lead lead) {
@@ -55,7 +59,8 @@ public class LeadVM {
 		this.areaofInterest2 = lead.getLeadDetails().getAreaofInterest2();
 		this.remarks1 = lead.getLeadDetails().getRemarks1();
 		this.followUpDate = lead.getFollowUpDate();
-		if(lead.getDisposition2() != null && (lead.getDisposition2().equals("Won") || lead.getDisposition2().equals("Lost"))){
+		this.status = lead.getStatus();
+		if (lead.getStatus().equals("Won") || lead.getStatus().equals("Lost")){
 			this.isCompleated = true;
 		}
 	}
@@ -250,6 +255,30 @@ public class LeadVM {
 
 	public void setDealer(Long dealer) {
 		this.dealer = dealer;
+	}
+
+	public String getDisposition3() {
+		return disposition3;
+	}
+
+	public void setDisposition3(String disposition3) {
+		this.disposition3 = disposition3;
+	}
+
+	public String getModalNo() {
+		return modalNo;
+	}
+
+	public void setModalNo(String modalNo) {
+		this.modalNo = modalNo;
+	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
 	}
 
 }

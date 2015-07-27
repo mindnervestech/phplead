@@ -25,15 +25,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mnt.businessApp.engine.AllotmentEngineCache;
-import com.mnt.businessApp.engine.DealerAllotmentWFStep;
 import com.mnt.businessApp.service.AssignLeadsService;
 import com.mnt.businessApp.service.DashBoardService;
 import com.mnt.businessApp.service.DealerService;
 import com.mnt.businessApp.service.LeadService;
 import com.mnt.businessApp.service.MailService;
+import com.mnt.businessApp.service.ReadExcelService;
 import com.mnt.businessApp.service.SchedularService;
 import com.mnt.businessApp.viewmodel.DealerConfigurationVM;
-import com.mnt.businessApp.viewmodel.DealerVM;
 import com.mnt.businessApp.viewmodel.GeneralConfigVM;
 import com.mnt.businessApp.viewmodel.LeadDetailsVM;
 import com.mnt.businessApp.viewmodel.LeadHistoryVM;
@@ -71,7 +70,10 @@ public class BusinessController {
 
 	@Autowired
 	private MailService mailService;
-
+	
+	@Autowired
+	private ReadExcelService readExcelService;
+	
 	@Autowired
 	private JavaMailSender mailSender;
 
@@ -215,14 +217,14 @@ public class BusinessController {
 	
 	@Transactional
 	@RequestMapping(value="/saveDealer", method = RequestMethod.POST)
-	public @ResponseBody void saveDealer(ModelMap model,@RequestBody DealerVM dealerVM,HttpServletRequest request){
-		dealerService.saveDealer(dealerVM);		   
+	public @ResponseBody void saveDealer(ModelMap model,@RequestBody UserVM userVM,HttpServletRequest request){
+		dealerService.saveDealer(userVM);		   
 	}
 	
 	@Transactional
 	@RequestMapping(value="/updateDealer", method = RequestMethod.POST)
-	public @ResponseBody void updateDealer(ModelMap model,@RequestBody DealerVM dealerVM,HttpServletRequest request){
-		dealerService.updateDealer(dealerVM);
+	public @ResponseBody void updateDealer(ModelMap model,@RequestBody UserVM userVM,HttpServletRequest request){
+		dealerService.updateDealer(userVM);
 	
 	}	
 	
@@ -349,12 +351,6 @@ public class BusinessController {
 	
 
 	@Transactional
-	@RequestMapping(value="/getDealersByState/{state}",method = RequestMethod.GET)
-	public @ResponseBody List<ZoneVM> getDealersByState(@PathVariable("state") String state) {
-		return dealerService.getDealersByState(state);
-	}
-	
-	@Transactional
 	@RequestMapping(value="/test",method = RequestMethod.GET)
 	public @ResponseBody Map test() {
 		Map<String, Map<String, Map<String, List<Long>>>> map = new HashMap<String, Map<String,Map<String,List<Long>>>>();
@@ -374,6 +370,25 @@ public class BusinessController {
 	@RequestMapping(value="/assignDealer",method = RequestMethod.GET)
 	public @ResponseBody void assignDealer() {
 		assignLeadsService.assignDealer();
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getBrands",method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getBrands() {
+		return leadService.getBrands();
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getModalNumbers",method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getModalNumbers(@RequestParam("brand") String brand) {
+		return leadService.getModalNumbers(brand);
+	}
+	
+	@Transactional
+	@RequestMapping(value="/readExcel",method=RequestMethod.GET)
+	public @ResponseBody String readExcel() {
+		readExcelService.readExcel();
+		return "HERE";
 	}
 
 }
