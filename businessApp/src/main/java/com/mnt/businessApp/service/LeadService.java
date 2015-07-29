@@ -102,6 +102,7 @@ public class LeadService {
 				sessionFactory.getCurrentSession().update(ageing);
 			}
 		}
+		sessionFactory.getCurrentSession().flush();
 		lead.setDisposition1(vm.getDisposition1());
 		lead.setDisposition2(vm.getDisposition2());
 		lead.setReason(vm.getReason());
@@ -117,8 +118,8 @@ public class LeadService {
 			lead.setModalNo(vm.getModalNo());
 			break;
 		case "Lost":
-		case "Not Interested":
 			lead.setStatus("Lost");
+		case "Not Interested":
 			lead.setDisposition3(vm.getDisposition3());
 			break;
 		default:
@@ -128,6 +129,10 @@ public class LeadService {
 		if(lead.getDisposition2().equals("Call back/Follow up") || 
 				(lead.getDisposition2().equals("Interested") && (lead.getDisposition3().equals("Call back-want to purchase later") || lead.getDisposition3().equals("Call back-evaluating")))){
 			lead.setFollowUpDate(vm.getFollowUpDate());
+		}
+		Integer notInterestedCount = jt.queryForObject("Select count(*) from activitystream where activitystream.newDisposition2 = 'Not Interested' and activitystream.lead_id = "+vm.getId(),Integer.class);
+		if(notInterestedCount > 5){
+			lead.setStatus("Lost");
 		}
 		lead.setLastDispo1ModifiedDate(new Date());
 		sessionFactory.getCurrentSession().update(lead);
@@ -160,7 +165,7 @@ public class LeadService {
 
 	public List<LeadDetailsVM> getAllEscalatedLeadDetails(Date start, Date end, String zone, String state, Long product, Long dealer) {
 		AuthUser user = Utils.getLoggedInUser();
-		String escalationSql = " and status = 'Escalated' ";
+		String escalationSql = " and l.status = 'Escalated' ";
 		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager") || 
 				user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") ||  user.getEntityName().equals("Sales Executive")) {
 			escalationSql +=" and l.escalatedTo_id =  "+user.getEntityId();

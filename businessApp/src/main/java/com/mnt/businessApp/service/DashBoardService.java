@@ -83,7 +83,7 @@ public class DashBoardService {
 			if(dealer != 0){
 				proZone += " and l.user_id = "+dealer;
 				if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")|| user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
-					proZone += " and (l.user_id = "+dealer+"  or ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) ) ";
+					proZone += " and ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) ";
 				} 
 			} 
 			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")|| user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
@@ -163,7 +163,7 @@ public class DashBoardService {
 		String zoneState = "";
 		String select = "SELECT COUNT(*) as count, l.zone as name ";
 		String gropBy = " GROUP BY l.zone ORDER BY l.zone asc";
-		String all = "Select DISTINCT(zipcode.zone) as name from zipcode ORDER BY name asc";
+		String all = "Select DISTINCT(zipcode.zone) as name from zipcode where zipcode.zone is not null ORDER BY name asc";
 		if(product == 0){
 			if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 				productSql = " and ld.product_id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
@@ -315,8 +315,10 @@ public class DashBoardService {
 	private SplineVM getSplineDataForDealer(Date start, Date end, String query, String cat, String color, String state, Long product, Long dealer) {
 		AuthUser user = Utils.getLoggedInUser();
 		
-		if(product != 0 && dealer != 0){
+		if(product != 0 && dealer != 0 && !state.equals("0")){
 			query += " and ld.product_id = "+product+"  and l.user_id = "+dealer;
+			if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager"))
+				query += " and ld.state = '"+state+"' and l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" )";
 		} else if(product != 0){
 			if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 				if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
@@ -330,7 +332,10 @@ public class DashBoardService {
 			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 				query +=  "and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
 			}
-			query += "  and l.user_id = "+dealer;
+			query += " and l.user_id = "+dealer;
+		} else if(!state.equals("0")){
+			if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager"))
+				query += " and ld.state = '"+state+"' and l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" )";
 		} else if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 			query += " and ld.product_id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
 			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
@@ -342,6 +347,9 @@ public class DashBoardService {
 			User user1 = (User) sessionFactory.getCurrentSession().get(User.class, user.getEntityId());
 			query += " and ( l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" )";
 			query += " or l.user_id = "+user.getEntityId()+" ) ";
+		}
+		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
+			query += " and ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) ";
 		}
 		return getDealerSplineVM(start, end, cat, color, query);
 	}

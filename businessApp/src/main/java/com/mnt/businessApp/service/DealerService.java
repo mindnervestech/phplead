@@ -184,16 +184,14 @@ public class DealerService {
 
 	public List<ZoneVM> getPinCodes(String query) {
 
-		String sql = "select * from zipcode WHERE id LIKE '"+query+"%' or town LIKE '%"+query+"%'";
+		String sql = "select * from zipcode WHERE id LIKE '"+query+"%' or town LIKE '"+query+"%'";
 
 		List<Map<String, Object>> rows = jt.queryForList(sql);
 		List<ZoneVM> pinsList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
-			
 			ZoneVM vm = new ZoneVM();
+			vm.id = (Long) map.get("id");
 			vm.name = (String) map.get("town");
-			//vm.pin = (Long) map.get("id");
-			
 			pinsList.add(vm);
 		}
 
