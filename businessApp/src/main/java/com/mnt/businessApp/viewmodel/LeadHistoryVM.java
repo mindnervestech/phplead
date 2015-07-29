@@ -3,15 +3,19 @@ package com.mnt.businessApp.viewmodel;
 import java.util.Date;
 
 import com.mnt.entities.businessApp.ActivityStream;
+import com.mnt.entities.businessApp.LeadDetails;
 
 public class LeadHistoryVM {
 	public Long number;
 	public Date	date;
 	public String newDisposition1;
 	public String newDisposition2;
+	public String newDisposition3;
 	public String oldDisposition1;
 	public String oldDisposition2;
+	public String oldDisposition3;
 	public String reason;
+	public String status;
 	
 	public LeadHistoryVM(ActivityStream activityStream) {
 		this.number = activityStream.getId();
@@ -19,9 +23,11 @@ public class LeadHistoryVM {
 		this.date = activityStream.getCreatedDate();
 		this.newDisposition1 = activityStream.getNewDisposition1();
 		this.newDisposition2 = activityStream.getNewDisposition2();
+		this.newDisposition3 = activityStream.getNewDisposition3();
 		this.oldDisposition1 = activityStream.getOldDisposition1();
 		this.oldDisposition2 = activityStream.getOldDisposition2();
-		
+		this.oldDisposition3 = activityStream.getOldDisposition3();
+		this.status = activityStream.getLead().getStatus();
 	}
 
 	public Long getNumber() {
@@ -80,5 +86,29 @@ public class LeadHistoryVM {
 		this.oldDisposition2 = oldDisposition2;
 	}
 
+	public String getNewDisposition3() {
+		return newDisposition3;
+	}
 
+	public void setNewDisposition3(String newDisposition3) {
+		this.newDisposition3 = newDisposition3;
+	}
+
+	public String getOldDisposition3() {
+		return oldDisposition3;
+	}
+
+	public void setOldDisposition3(String oldDisposition3) {
+		this.oldDisposition3 = oldDisposition3;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	
 }

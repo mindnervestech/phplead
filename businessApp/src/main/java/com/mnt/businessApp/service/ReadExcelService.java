@@ -656,7 +656,6 @@ public class ReadExcelService {
 
 
 	private ZipCode getZipCodeByID(long numericCellValue) {
-		
 		Session session = sessionFactory.getCurrentSession();
 		Query query;
 		query = session.createQuery("from ZipCode where id ="+numericCellValue);

@@ -204,7 +204,7 @@ public class BusinessController {
 	
 	@Transactional
 	@RequestMapping(value="/getPincodes", method = RequestMethod.GET)
-	public @ResponseBody List<PinsVM> getPincodes(ModelMap model ,HttpServletRequest request){
+	public @ResponseBody List<ZoneVM> getPincodes(ModelMap model ,HttpServletRequest request){
 		String query = request.getParameter("query");
 		return dealerService.getPinCodes(query);
 	}	

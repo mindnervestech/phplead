@@ -182,15 +182,18 @@ public class DealerService {
 	}
 
 
-	public List<PinsVM> getPinCodes(String query) {
+	public List<ZoneVM> getPinCodes(String query) {
 
-		String sql = "select * from zipcode WHERE id LIKE '"+query+"%' or town LIKE '"+query+"%'";
+		String sql = "select * from zipcode WHERE id LIKE '"+query+"%' or town LIKE '%"+query+"%'";
 
 		List<Map<String, Object>> rows = jt.queryForList(sql);
-		List<PinsVM> pinsList = new ArrayList<PinsVM>();
+		List<ZoneVM> pinsList = new ArrayList<ZoneVM>();
 		for(Map map : rows) {
-			PinsVM vm = new PinsVM();
-			vm.pin = (Long) map.get("id");
+			
+			ZoneVM vm = new ZoneVM();
+			vm.name = (String) map.get("town");
+			//vm.pin = (Long) map.get("id");
+			
 			pinsList.add(vm);
 		}
 
@@ -700,7 +703,7 @@ public class DealerService {
 			AuthUser authUser = Utils.getLoggedInUser();
 			return "Select DISTINCT(zipcode.state) as name from zipcode where zipcode.zone = (select user.zone from user where user.id = "+authUser.getEntityId()+")";
 		}
-		return "Select DISTINCT(zipcode.state) as name from zipcode whezonere zipcode. = '"+zone+"'";
+		return "Select DISTINCT(zipcode.state) as name from zipcode where zipcode.zone = '"+zone+"'";
 	}
 
 	

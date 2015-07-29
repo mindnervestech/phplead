@@ -17,7 +17,7 @@ public class PinsVM {
 
 	public void setPin(Long pin) {
 		this.pin = pin;
-	}
+	}	
 	
 	
 }

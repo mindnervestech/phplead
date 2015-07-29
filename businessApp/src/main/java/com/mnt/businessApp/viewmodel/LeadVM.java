@@ -60,6 +60,8 @@ public class LeadVM {
 		this.remarks1 = lead.getLeadDetails().getRemarks1();
 		this.followUpDate = lead.getFollowUpDate();
 		this.status = lead.getStatus();
+		this.brand = lead.getBrand();
+		this.modalNo = lead.getModalNo();
 		if (lead.getStatus().equals("Won") || lead.getStatus().equals("Lost")){
 			this.isCompleated = true;
 		}
@@ -281,4 +283,13 @@ public class LeadVM {
 		this.brand = brand;
 	}
 
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	
 }

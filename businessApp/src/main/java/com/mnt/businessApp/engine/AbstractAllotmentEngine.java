@@ -17,7 +17,6 @@ public abstract class AbstractAllotmentEngine {
 	protected List<Long> userZipPresent;
 	protected List<Long> userProductPresent;
 	
-	
 	// Maybe we need to have lead object in constructor
 	public AbstractAllotmentEngine(String zip, String product, Long lead_id, String userType) {
 		super();

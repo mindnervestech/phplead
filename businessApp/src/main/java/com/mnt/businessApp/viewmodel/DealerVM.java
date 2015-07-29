@@ -185,5 +185,5 @@ public class DealerVM {
 
 	public void setProducts(List<ProductVM> products) {
 		this.products = products;
-	}
+	}*/
 }

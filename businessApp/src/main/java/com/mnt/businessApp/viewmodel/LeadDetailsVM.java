@@ -56,6 +56,7 @@ public class LeadDetailsVM {
 		this.disposition2 = lead.getDisposition2();
 		this.esacaletedTo = lead.getEscalatedTo().getName();
 		this.followUpDate = lead.getFollowUpDate();
+		this.status = lead.getStatus();
 	}
 
 	public Long getId() {
