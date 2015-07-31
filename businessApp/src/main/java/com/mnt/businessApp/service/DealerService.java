@@ -184,7 +184,7 @@ public class DealerService {
 
 	public List<ZoneVM> getPinCodes(String query) {
 
-		String sql = "select * from zipcode WHERE id LIKE '"+query+"%' or town LIKE '"+query+"%'";
+		String sql = "select * from zipcode WHERE id LIKE '"+query+"%' or town LIKE '%"+query+"%'";
 
 		List<Map<String, Object>> rows = jt.queryForList(sql);
 		List<ZoneVM> pinsList = new ArrayList<ZoneVM>();
@@ -206,7 +206,6 @@ public class DealerService {
 		List results = query.list();
 		Role role = (Role) results.get(0);
 		
-		
 		User user = new User();
 		user.name = userVM.getName();
 		user.email = userVM.getEmail();
@@ -222,8 +221,6 @@ public class DealerService {
 		user.setStatus(true);
 		session.save(user);
 		
-		
-
 		String randomStr = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		Random rnd = new Random();
 
