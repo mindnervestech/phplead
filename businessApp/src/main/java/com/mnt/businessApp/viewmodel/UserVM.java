@@ -26,6 +26,7 @@ public class UserVM {
 	public String status;
 	public Long dealer;
 	public List<PinsVM> pins;
+	public List<ZoneVM> ids;
 	public String customerGroup;
 	private List<String> productlist;
 	
@@ -164,5 +165,12 @@ public class UserVM {
 
 	public void setProductlist(List<String> productlist) {
 		this.productlist = productlist;
+	}
+	public List<ZoneVM> getIds() {
+		return ids;
+	}
+
+	public void setIds(List<ZoneVM> ids) {
+		this.ids = ids;
 	}
 }

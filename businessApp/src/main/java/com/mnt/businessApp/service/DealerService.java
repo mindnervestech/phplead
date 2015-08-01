@@ -92,7 +92,8 @@ public class DealerService {
 				products.add(pvm);
 			}
 			vm.products = products;
-			vm.setPins(getAllDealerConfig(user.getId()));
+			vm.setIds(getAllDealerConfig(user.getId()));
+			//vm.setPins(getAllDealerConfig(user.getId()));
 			vms.add(vm);
 		}
 		return vms;
@@ -260,15 +261,15 @@ public class DealerService {
 		jt.update("DELETE FROM user_product WHERE User_id = ?", new Object[] {id});
 	}
 	
-	public List<PinsVM> getAllDealerConfig(Long id){
+	public List<ZoneVM> getAllDealerConfig(Long id){
 		String sql = "select * from user_zipcode WHERE user_id = ?";
 
 		List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] { id});
-		List<PinsVM> vms = new ArrayList<PinsVM>();
+		List<ZoneVM> vms = new ArrayList<ZoneVM>();
 		Map<String,List> dataList = new HashMap<String, List>();
 		for(Map map : rows) {
-			PinsVM vm = new PinsVM();
-			vm.pin = (Long) map.get("zipCodes_id");
+			ZoneVM vm = new ZoneVM();
+			vm.id = (Long) map.get("zipCodes_id");
 			vms.add(vm);
 		}
 		return vms;
@@ -290,9 +291,9 @@ public class DealerService {
 		user.customerGroup = userVM.getCustomerGroup();
 		user.setEntityName("Dealer");
 		user.setStatus(true);
-		List<ZipCode> codes = new ArrayList<>();		
-		for(PinsVM vm : userVM.getPins()){
-			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getPin()));
+		List<ZipCode> codes = new ArrayList<>();
+		for(ZoneVM vm : userVM.getIds()){
+			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));
 		}
 		user.setZipCodes(codes);
 		
@@ -338,9 +339,9 @@ public class DealerService {
 		user.district = userVM.getDistrict();
 		user.postCode = userVM.getPostCode();
 		user.customerGroup = userVM.getCustomerGroup();
-		List<ZipCode> codes = new ArrayList<>();		
-		for(PinsVM vm : userVM.getPins()){
-			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getPin()));
+		List<ZipCode> codes = new ArrayList<>();
+		for(ZoneVM vm : userVM.getIds()){
+			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));
 		}
 		user.setZipCodes(codes);
 		for(ProductVM productVM : userVM.getProducts()) {

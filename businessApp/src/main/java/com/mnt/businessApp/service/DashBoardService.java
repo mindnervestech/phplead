@@ -164,14 +164,19 @@ public class DashBoardService {
 		String select = "SELECT COUNT(*) as count, l.zone as name ";
 		String gropBy = " GROUP BY l.zone ORDER BY l.zone asc";
 		String all = "Select DISTINCT(zipcode.zone) as name from zipcode where zipcode.zone is not null ORDER BY name asc";
+		
 		if(product == 0){
 			if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
-				productSql = " and ld.product_id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+				productSql = "SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId();
+			} else 
+			if(user.getEntityName().equals("General Manager") || user.getEntityName().equals("CEO") || user.getEntityName().equals("Admin")){
+				productSql = "select id from product";
+			} else {
+				return vm; 
 			}
 		} else {
-			productSql = " and ld.product_id IN ("+product+")";
+			productSql = ""+product;
 		}
-		
 		
 		if(!zone.equals("0") && !state.equals("0")){
 			zoneState = "and l.zone = '"+zone+"' and ld.state = '"+state+"'";
@@ -189,15 +194,20 @@ public class DashBoardService {
 			gropBy = " GROUP BY ld.state ORDER BY ld.state asc";
 			all = "Select DISTINCT(zipcode.state) as name from zipcode where zipcode.zone = '"+zone+"' ORDER BY name asc";
 		}  
-		
+
 		
 		List<Map<String, Object>> rows = jt.queryForList(select+" from lead as l, leaddetails as ld, product as p "
 				+ " where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
 				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"' "
-				+ " and ld.product_id = p.id and ld.id = l.leadDetails_id  "
-				+ productSql + zoneState + query + gropBy);
+				+ " and ld.product_id = p.id and ld.product_id IN ("+productSql+") and ld.id = l.leadDetails_id  "
+				+ zoneState + query + gropBy);
 		
-				
+		System.out.println("SQL1 : " + select +" from lead as l, leaddetails as ld, product as p "
+				+ " where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
+				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"' "
+				+ " and ld.product_id = p.id and ld.product_id IN ("+productSql+") and ld.id = l.leadDetails_id  "
+				+ productSql + zoneState + query + gropBy);	
+		
 		List<Map<String, Object>>  allProducts = jt.queryForList(all);
 		List<ZoneVM> productList = new ArrayList<ZoneVM>();
 		int i = 0;
@@ -268,10 +278,10 @@ public class DashBoardService {
 				+ zoneState + query
 				+ " GROUP BY ld.product_id ORDER BY ld.product_id asc");
 		
-		System.out.println("Product :: "+"SELECT COUNT(*) as count, p.id as id from lead as l, leaddetails as ld, product as p, "
-				+ " dealer as d where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
+		System.out.println("Product :: "+"SELECT COUNT(*) as count, p.id as id from lead as l, leaddetails as ld, product as p "
+				+ " where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
 				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"' "
-				+ " and ld.product_id = p.id and ld.product_id IN ("+productSql+") and ld.id = l.leadDetails_id and l.dealer_id = d.id"
+				+ " and ld.product_id = p.id and ld.product_id IN ("+productSql+") and ld.id = l.leadDetails_id "
 				+ zoneState + query
 				+ " GROUP BY ld.product_id ORDER BY ld.product_id asc");
 		
