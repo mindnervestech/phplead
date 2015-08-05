@@ -2,31 +2,47 @@ package com.mnt.report.service;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.annotation.Retention;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
-import org.apache.commons.net.ftp.FTPClient;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.SessionFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 
 @Controller
 @RequestMapping(value="/api/report")
@@ -39,6 +55,119 @@ public class ReportMDService {
 	NamedParameterJdbcTemplate namedJdbcTemplate;
 
 	
+	@RequestMapping(value="/reports/drildownreport",method=RequestMethod.POST)
+	@ResponseBody
+	public JSONObject drildownreport(@RequestBody String report) {
+		JSONObject resp = new JSONObject();
+		try {
+			JSONParser parser = new JSONParser();
+			JSONObject jsonObject = (JSONObject)parser.parse(report);
+			System.out.println("id:"+((JSONObject)jsonObject.get("searchCriteria")).get("id"));
+			final Map<String,Object> mdResult = jt.queryForMap("Select columns,query,hiddenpivotcol from reportmd where id =" + ((JSONObject)jsonObject.get("searchCriteria")).get("id"));
+			String columns = mdResult.get("columns").toString();
+			JSONArray colArr = ((JSONArray)parser.parse(columns));
+			JSONObject filterObj = (JSONObject)jsonObject.get("filters");
+			String drilFilter = "";
+			for(String filterKey:((Set<String>)filterObj.keySet())) {
+				for(Object column :colArr) {
+					JSONObject colObj = (JSONObject)column;
+					if(colObj.get("data").equals(filterKey)) {
+						if(drilFilter.isEmpty()) 
+							drilFilter += colObj.get("column")+"='"+filterObj.get(filterKey)+"' ";
+						else 
+							drilFilter += "and "+ colObj.get("column")+"='"+filterObj.get(filterKey)+"' ";
+					}
+				}
+			}
+			System.out.println("drilFilter:"+drilFilter);
+			String query = mdResult.get("query").toString();	
+			String[] namedParameters =  query.split(":");
+			Map<String, Object> parameters = new HashMap<String, Object>();
+			
+			// This is imp to set all named params to null 
+			for(String param : namedParameters) {
+				for(int i = 0 ; i < param.length() ; i++) {
+					if(param.charAt(i) == ' ' || param.charAt(i) == ')' || param.charAt(i) == '\n' || param.charAt(i) == '\t'|| param.charAt(i) == '\r') {
+						parameters.put(param.substring(0, i), null);
+						break;
+					}
+				}
+			}
+			
+			for(Object key : ((JSONObject)jsonObject.get("searchCriteria")).keySet()){
+				Object value = ((JSONObject)jsonObject.get("searchCriteria")).get(key);
+				if (value instanceof String) {
+					if(!value.equals(""))
+						parameters.put(key.toString(), value);
+				}
+				
+				if (value instanceof JSONArray) {
+					JSONArray jsonArray1 = (JSONArray) value;
+				    int len = jsonArray1.size();
+				    if(len > 0) {
+				      List<String> inValues = new ArrayList<String>();
+				      for (int i=0;i<len;i++){ 
+				    	inValues.add(jsonArray1.get(i).toString());
+				      }
+				      parameters.put(key.toString()+"in", inValues);
+				      parameters.put(key.toString(), "");
+				    }
+				}
+			}
+			if(query.indexOf("and")!=-1 || query.indexOf("AND")!=-1) {
+				query +=" and "+drilFilter;
+			} else {
+				query += drilFilter;
+			}
+			System.out.println("final query:"+query);
+			List<Map<String, Object>> rs = namedJdbcTemplate.queryForList(query,parameters);
+			resp.put("data" , rs);
+			 
+			JSONArray columns1 = ((JSONArray)new JSONParser().parse(mdResult.get("columns").toString()));
+			resp.put("columns" , columns1);
+			
+			JSONArray hiddenpivotcol = ((JSONArray)new JSONParser().parse(mdResult.get("hiddenpivotcol").toString()));
+			resp.put("hiddenpivotcol",hiddenpivotcol);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return resp;
+	}
+	@RequestMapping(value="/saveTemplate",method=RequestMethod.POST)
+	@ResponseBody
+	public JSONObject saveTemplate(@RequestBody final ReportTemplateVM reportTemplateVM) {
+		JSONObject resp = new JSONObject();
+		try {
+			final Map<String,Object> mdResult = jt.queryForMap("Select query,columns,hiddenpivotcol,jsonForm,jsonSchema from reportmd where id =" + reportTemplateVM.parentId);//.query("Select query from reportmd where id = ?",new Object[]{id},);		
+			KeyHolder keyHolder=new GeneratedKeyHolder();
+			jt.update(new PreparedStatementCreator(){
+		    public PreparedStatement createPreparedStatement(    Connection connection) throws SQLException {
+		      PreparedStatement ps=connection.prepareStatement("Insert into reportmd(columns,description,jsonForm,jsonSchema,name,query,hiddenpivotcol,pivotConfig,searchCriteria) values(?,?,?,?,?,?,?,?,?)",new String[]{"id"});
+		      int index=1;
+		      ps.setString(index++,mdResult.get("columns").toString());
+		      if(reportTemplateVM.data==null)
+		    	  ps.setString(index++,"Saved table template");
+		      else
+		    	  ps.setString(index++,"Saved pivot template");
+		      ps.setString(index++,mdResult.get("jsonForm").toString());
+		      ps.setString(index++,mdResult.get("jsonSchema").toString());
+		      ps.setString(index++,reportTemplateVM.templateName);
+		      ps.setString(index++,mdResult.get("query").toString());
+		      ps.setString(index++,mdResult.get("hiddenpivotcol").toString());
+		      if(reportTemplateVM.data==null)
+		    	  ps.setNull(index++, java.sql.Types.NULL);
+		      else
+		    	  ps.setString(index++,reportTemplateVM.data);
+		      ps.setString(index++,reportTemplateVM.searchCriteria);
+		      return ps;
+		    }
+		  }
+		,keyHolder);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resp;
+	}
     @RequestMapping(value="/run",method=RequestMethod.GET)
     @ResponseBody
     public JSONObject runReports(@RequestParam String filter) {
@@ -86,7 +215,7 @@ public class ReportMDService {
 			
 			resp.put("data" , rs);
 			
-			 generateCSV(rs);
+			 //generateCSV(rs);
 			 
 			 //generatePDF(rs);
 			 
@@ -102,6 +231,26 @@ public class ReportMDService {
     	return resp;
     }
     
+    @RequestMapping(value="/deleteReport",method=RequestMethod.GET)
+    @ResponseBody
+    @Transactional
+    public List<ReportMDVM> deleteReport(@RequestParam("id") final Long id) {
+    	try {
+			KeyHolder keyHolder=new GeneratedKeyHolder();
+			jt.update(new PreparedStatementCreator(){
+		    public PreparedStatement createPreparedStatement(    Connection connection) throws SQLException {
+		      PreparedStatement ps=connection.prepareStatement("delete from reportmd where id=?",new String[]{"id"});
+		      int index=1;
+		      ps.setLong(index++,id);
+		      return ps;
+		    }
+		  }
+		,keyHolder);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	return getReports();
+    }
 	@RequestMapping(value="reports/md",method=RequestMethod.GET)
 	@ResponseBody
 	@Transactional
@@ -119,6 +268,11 @@ public class ReportMDService {
 				reportMD.jsonSchema = ((JSONObject)new JSONParser().parse(arg0.getString("jsonSchema")));
 				reportMD.name = (arg0.getString("name"));
 				reportMD.description = (arg0.getString("description"));
+				System.out.println("jkds:"+arg0.getString("pivotConfig"));
+				if(arg0.getString("pivotConfig")!=null) 
+					reportMD.pivotConfig = ((JSONObject)new JSONParser().parse(arg0.getString("pivotConfig")));
+				if(arg0.getString("searchCriteria")!=null) 
+					reportMD.searchCriteria = arg0.getString("searchCriteria");
 				return reportMD;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -154,6 +308,8 @@ public class ReportMDService {
 	public static class  ReportMDVM {
 		public JSONArray jsonForm;
 		public JSONObject jsonSchema;
+		public JSONObject pivotConfig;
+		public String searchCriteria;
 		public String name;
 		public String description;
 		public Long id;
