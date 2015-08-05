@@ -170,7 +170,7 @@ public class LeadService {
 				user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") ||  user.getEntityName().equals("Sales Executive")) {
 			escalationSql +=" and l.escalatedTo_id =  "+user.getEntityId();
 		}
-		return getLeadDetailVM(null, null, escalationSql, "0", "0", 0L, 0L);
+		return getLeadDetailVM(start, end, escalationSql, "0", "0", 0L, 0L);
 	}
 
 	public List<LeadDetailsVM> getFollowUpLeads() {
@@ -204,28 +204,32 @@ public class LeadService {
 		if(start != null)
 			date = " and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
 					+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"' ";
-		if(product != 0 || !zone.equals("0") || !state.equals("0") || dealer != 0){
-			if(dealer !=0){
-				userQuery =" and user_id = "+dealer;
-			} else if(!zone.equals("0") && !state.equals("0")){
-				userQuery =" and user_id IN ( select id  from user where zone = '"+zone+"' and state = '"+state+"') ";
-			} else if(!state.equals("0")){
-				userQuery = " and user_id IN ( select id  from user where state = '"+state+"')";
+		if(dealer != 0 || product != 0 || !zone.equals("0") || !state.equals("0")){
+			if(!zone.equals("0") && !state.equals("0")){
+				userQuery += " and l.zone = '"+zone+"' and ld.state = '"+state+"'";
 			} else if(!zone.equals("0")){
-				userQuery =" and user_id IN ( select id  from user where zone = '"+zone+"')";
-			}
-			if(dealer == 0){
-				if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")){
-					userQuery = " and user_id = "+user.getEntityId()+"";
-				}
+				userQuery += " and l.zone = '"+zone+"'";
+			} else if(!state.equals("0")){
+				if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager"))
+				userQuery += " and ld.state = '"+state+"' and l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" )";
 			}
 			if(product != 0 ){
 				userQuery += " and ld.product_id ="+product;
 			} else {
-				if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
-					userQuery += " and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
+				if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+					sql = "select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+					userQuery += " and ld.product_id IN ("+sql+")";
 				}
 			}
+			if(dealer != 0){
+				userQuery += " and l.user_id = "+dealer;
+				if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")|| user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
+					userQuery += " and ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) ";
+				} 
+			} 
+			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")|| user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
+				userQuery += " and (l.user_id = "+user.getEntityId()+"  or ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) ) ";
+			} 
 		} else if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("Sales Executive")){
 			userQuery = " and user_id = "+user.getEntityId()+"";
 		} else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){

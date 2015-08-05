@@ -1,10 +1,10 @@
 package com.mnt.entities.report;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 
 @Entity
 
@@ -18,7 +18,7 @@ public class ReportMD {
 	@Column(length=500)
 	private String description;
 	
-	@Column(name="query",length=500)
+	@Column(name="query")
 	private String sql;
 	
 	
@@ -35,8 +35,55 @@ public class ReportMD {
 	@Column(length=500)
 	private String columns;
 	
-	@Column(length=500)
-	private String hiddenpivotcol;
+	private Date emailSendDate;
+	
+	private String frequency;
+	
+	private Boolean isMail;
+	
+	private String userName;
+	
+	private String userEmail;
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserEmail() {
+		return userEmail;
+	}
+
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
+	}
+
+	public Date getEmailSendDate() {
+		return emailSendDate;
+	}
+
+	public void setEmailSendDate(Date emailSendDate) {
+		this.emailSendDate = emailSendDate;
+	}
+
+	public String getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(String frequency) {
+		this.frequency = frequency;
+	}
+
+	public Boolean getIsMail() {
+		return isMail;
+	}
+
+	public void setIsMail(Boolean isMail) {
+		this.isMail = isMail;
+	}
 
 	public Long getId() {
 		return id;
@@ -100,14 +147,6 @@ public class ReportMD {
 
 	public void setColumns(String columns) {
 		this.columns = columns;
-	}
-
-	public String getHiddenpivotcol() {
-		return hiddenpivotcol;
-	}
-
-	public void setHiddenpivotcol(String hiddenpivotcol) {
-		this.hiddenpivotcol = hiddenpivotcol;
 	}
 	
 	
