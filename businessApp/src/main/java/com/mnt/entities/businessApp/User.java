@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 
 @Entity
 public class User {
@@ -34,6 +36,9 @@ public class User {
 	
 	@ManyToMany
 	public List<ZipCode> zipCodes;
+	
+	@OneToOne
+	public User dealer;
 	
 	public Long getId() {
 		return id;
@@ -131,6 +136,12 @@ public class User {
 	public void setCustomerGroup(String customerGroup) {
 		this.customerGroup = customerGroup;
 	}
+	public User getDealer() {
+		return dealer;
+	}
+	public void setDealer(User dealer) {
+		this.dealer = dealer;
+	}
 	public void addZipCode(ZipCode zipCode) {
 		if(this.zipCodes == null){
 			this.zipCodes = new ArrayList<>();
@@ -149,5 +160,6 @@ public class User {
 			this.products.add(product);
 		
 	}
+	
 	
 }

@@ -160,12 +160,14 @@ public class DealerService {
 
 	public Map getDetailsForUser() {
 		Map<String,List> dataList = new HashMap<String, List>();
+		List<ZoneVM> zoneList = getZone();
 		dataList.put("zoneList", getZone());
 		dataList.put("stateList", getStates());
 		dataList.put("districtList", getDistricts());
 		dataList.put("roleList", getRoles());
 		dataList.put("productList", getProductList());
 		dataList.put("userList", getUserDetails());
+		dataList.put("dealerList", getDealers(zoneList));
 		return dataList;
 	}
 
@@ -220,6 +222,9 @@ public class DealerService {
 		user.district = userVM.getDistrict();
 		user.setEntityName(role.getName());
 		user.setStatus(true);
+		System.out.println("User : " + userVM.user);
+		User dealer = (User) sessionFactory.getCurrentSession().get(User.class,userVM.user);
+		user.setDealer(dealer);
 		session.save(user);
 		
 		String randomStr = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -498,6 +503,7 @@ public class DealerService {
 			vm.zone = (String) row.get("zone");
 			vm.state =  (String) row.get("state");
 			vm.district =  (String) row.get("district");
+			vm.user = (Long) row.get("user_id");
 			sql = "Select * from userrole as ur,  roles as r where r.role_id = ur.role_id and ur.user_id = (Select au.auth_id from authusers as au where au.entityId = "+(Long) row.get("id")+")";
 			List<Map<String, Object>> roles=  jt.queryForList(sql);
 			if(roles.size() != 0){

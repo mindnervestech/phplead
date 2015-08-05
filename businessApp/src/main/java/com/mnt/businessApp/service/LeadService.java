@@ -231,13 +231,13 @@ public class LeadService {
 				userQuery += " and (l.user_id = "+user.getEntityId()+"  or ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) ) ";
 			} 
 		} else if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("Sales Executive")){
-			userQuery = " and user_id = "+user.getEntityId()+"";
+			userQuery = " and l.user_id = "+user.getEntityId()+"";
 		} else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 			query += " and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
-			userQuery = "and (user_id = "+user.getEntityId()+"";
+			userQuery = "and (l.user_id = "+user.getEntityId()+"";
 			userQuery += " or ld.pinCode IN (Select uz.zipCodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) )";
 		} else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
-			userQuery = " and ( user_id = "+user.getEntityId()+"";
+			userQuery = " and (l.user_id = "+user.getEntityId()+"";
 			userQuery += " or l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" ) )";
 		} else {
 			userQuery = "";
@@ -251,6 +251,8 @@ public class LeadService {
 				+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date , u.name as dealerName"
 				+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id"
 				+" and ld.id = l.leadDetails_id and u.id = l.user_id "+query+userQuery+date;
+		System.out.println("SQL : " + sql);
+		
 		List<Map<String, Object>> rows = jt.queryForList(sql);
 		for(Map map : rows) {
 			vms.add(new LeadDetailsVM(map));
@@ -287,7 +289,7 @@ public class LeadService {
 			dealerList.add(vm);
 			return dealerList;
 		} 
-		
+		System.out.println("Ress : " + usersql);
 		List<Map<String, Object>> rows = jt.queryForList(usersql);
 		for(Map map : rows) {
 			ReassignUserVM vm = new ReassignUserVM();
@@ -304,8 +306,8 @@ public class LeadService {
 		}
 		return dealerList;
 	}
-
-
+	
+	
 
 	private List<ZoneVM> getProductList() {
 		String sql = "select * from product";

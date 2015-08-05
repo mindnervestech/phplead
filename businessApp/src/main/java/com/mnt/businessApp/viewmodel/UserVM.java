@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.User;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,6 +30,7 @@ public class UserVM {
 	public List<ZoneVM> ids;
 	public String customerGroup;
 	private List<String> productlist;
+	public Long user;
 	
 	public UserVM(){}
 	
@@ -166,6 +168,7 @@ public class UserVM {
 	public void setProductlist(List<String> productlist) {
 		this.productlist = productlist;
 	}
+
 	public List<ZoneVM> getIds() {
 		return ids;
 	}
@@ -173,4 +176,14 @@ public class UserVM {
 	public void setIds(List<ZoneVM> ids) {
 		this.ids = ids;
 	}
+
+	public Long getUser() {
+		return user;
+	}
+
+	public void setUser(Long user) {
+		this.user = user;
+	}
+	
+		
 }

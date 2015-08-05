@@ -1,5 +1,6 @@
 package com.mnt.businessApp.viewmodel;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class SaveUserVM {
@@ -19,6 +20,7 @@ public class SaveUserVM {
 	public String state;
 	public String city;
 	public Long dealer;
+	public Long user;
 	
 	public String getName() {
 		return name;
@@ -103,5 +105,11 @@ public class SaveUserVM {
 	}
 	public void setDealer(Long dealer) {
 		this.dealer = dealer;
+	}
+	public Long getUser() {
+		return user;
+	}
+	public void setUser(Long user) {
+		this.user = user;
 	}
 }
