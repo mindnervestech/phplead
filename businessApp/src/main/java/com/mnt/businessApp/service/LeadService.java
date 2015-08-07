@@ -166,6 +166,34 @@ public class LeadService {
 	public List<LeadDetailsVM> getAllEscalatedLeadDetails(Date start, Date end, String zone, String state, Long product, Long dealer) {
 		AuthUser user = Utils.getLoggedInUser();
 		String escalationSql = " and l.status = 'Escalated' ";
+		if(start!=null){
+			
+			if(dealer != 0 || product != 0 || !zone.equals("0") || !state.equals("0")){
+				if(!zone.equals("0") && !state.equals("0")){
+					escalationSql += " and l.zone = '"+zone+"' and ld.state = '"+state+"'";
+				} else if(!zone.equals("0")){
+					escalationSql += " and l.zone = '"+zone+"'";
+				} else if(!state.equals("0")){
+					escalationSql += " and ld.state = '"+state+"' and l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" )";
+				}
+				if(product != 0 ){
+					escalationSql += " and ld.product_id ="+product;
+				} 
+				if(dealer != 0){
+					escalationSql += " and l.user_id = "+dealer;	
+				}  
+			} 
+
+			/*if(product != 0 ){
+				escalationSql += " and ld.product_id ="+product;
+			}
+			if(dealer != 0){
+				escalationSql += " and l.user_id = "+dealer;
+			}
+			if(!state.equals("0")){
+				escalationSql += " and ld.state = '"+state+"' and l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" )";
+			}*/
+		}
 		if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager") || 
 				user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") ||  user.getEntityName().equals("Sales Executive")) {
 			escalationSql +=" and l.escalatedTo_id =  "+user.getEntityId();

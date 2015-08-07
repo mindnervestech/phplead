@@ -52,6 +52,7 @@ public class DealerService {
 		dataList.put("districtList", getDistricts());
 		dataList.put("productList", getProductList());
 		dataList.put("dealerList", getDealers(zoneList));
+		dataList.put("userList", getUserDetails());
 		return dataList;
 	}
 
@@ -69,6 +70,7 @@ public class DealerService {
 			query = session.createQuery("FROM User where zone = '"+user2.getZone()+"' and entityName = 'Dealer'");
 		}
 		else if(authUser.getEntityName().equals("Admin") || authUser.getEntityName().equals("CEO") || authUser.getEntityName().equals("General Manager")){
+			User user2 = (User) sessionFactory.getCurrentSession().get(User.class, authUser.getEntityId());
 			query = session.createQuery("FROM User where entityName = 'Dealer'");
 		}
 		else {
@@ -79,6 +81,13 @@ public class DealerService {
 		
 		for (User user : users){
 			UserVM vm = new UserVM(user);
+			
+			String sql1 = "Select * FROM user as u where u.entityName = 'Dealer'";		
+			List<Map<String, Object>> rows1=  jt.queryForList(sql1);    
+			for(Map row : rows1) {
+				vm.status =  (Boolean) row.get("status") == false  ? "Inactive" : "Active";
+			}
+			
 			String sql = "Select * from product pp left join (select products_id from user_product up where user_id = ?) a on pp.id = a.products_id";
 			List<Map<String, Object>> rows = jt.queryForList(sql,new Object[] {user.getId()});
 			List<ProductVM> products = new ArrayList<ProductVM>();
@@ -464,7 +473,7 @@ public class DealerService {
 				vm.zipCode = zipCode;
 				vm.dealerName = (String) map.get("name");
 				vm.dealerAddress = (String) map.get("address");
-				vm.percentage = (Float) map.get("percentage");
+				vm.percentage =  (Float) map.get("percentage");
 				if(map.get("percentage") == null){
 					vm.percentage = percentage;
 				}

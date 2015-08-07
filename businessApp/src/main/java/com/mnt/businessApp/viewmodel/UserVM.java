@@ -184,6 +184,5 @@ public class UserVM {
 	public void setUser(Long user) {
 		this.user = user;
 	}
-	
 		
 }
