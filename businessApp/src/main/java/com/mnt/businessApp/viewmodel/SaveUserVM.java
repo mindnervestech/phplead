@@ -20,7 +20,7 @@ public class SaveUserVM {
 	public String state;
 	public String city;
 	public Long dealer;
-	public Long user;
+	public String user;
 	
 	public String getName() {
 		return name;
@@ -106,10 +106,10 @@ public class SaveUserVM {
 	public void setDealer(Long dealer) {
 		this.dealer = dealer;
 	}
-	public Long getUser() {
+	public String getUser() {
 		return user;
 	}
-	public void setUser(Long user) {
+	public void setUser(String user) {
 		this.user = user;
 	}
 }

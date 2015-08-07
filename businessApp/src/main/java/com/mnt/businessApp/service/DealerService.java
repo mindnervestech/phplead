@@ -212,6 +212,7 @@ public class DealerService {
 
 
 	public List<UserVM> saveUser(SaveUserVM userVM) {
+		AuthUser authUser1 = Utils.getLoggedInUser();
 		Session session = sessionFactory.getCurrentSession();
 		Query query = session.createQuery("FROM Role Where role_id = :id"); 
 		query.setParameter("id", userVM.getRole());
@@ -231,9 +232,11 @@ public class DealerService {
 		user.district = userVM.getDistrict();
 		user.setEntityName(role.getName());
 		user.setStatus(true);
-		System.out.println("User : " + userVM.user);
-		User dealer = (User) sessionFactory.getCurrentSession().get(User.class,userVM.user);
-		user.setDealer(dealer);
+		if(authUser1.getEntityName().equals("General Manager") || authUser1.getEntityName().equals("Sellout-Regional")){
+			System.out.println("User : " + Long.valueOf(userVM.user));
+			User dealer = (User) sessionFactory.getCurrentSession().get(User.class,Long.valueOf(userVM.user));
+			user.setUser(dealer);
+		}
 		session.save(user);
 		
 		String randomStr = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -410,6 +413,7 @@ public class DealerService {
 
 
 	public List<UserVM> updateUser(UserVM userVM) {
+		AuthUser authUser1 = Utils.getLoggedInUser();
 		User user = (User)sessionFactory.getCurrentSession().get(User.class, userVM.getId());
 		user.name = userVM.getName();
 		user.email = userVM.getEmail();
@@ -421,6 +425,12 @@ public class DealerService {
 		user.state = userVM.getState();
 		user.district = userVM.getDistrict();
 		user.postCode = userVM.getPostCode();
+		if(authUser1.getEntityName().equals("General Manager") || authUser1.getEntityName().equals("Sellout-Regional")){
+			System.out.println("User : " + Long.valueOf(userVM.user));
+			User dealer = (User) sessionFactory.getCurrentSession().get(User.class,Long.valueOf(userVM.user));
+			user.setUser(dealer);
+		}
+		
 		removeAlluserProductMapping(userVM.getId());
 		for(ProductVM productVM : userVM.getProducts()) {
 			if(productVM.getSelected() == true){
@@ -506,7 +516,7 @@ public class DealerService {
 			vm.phone = (String) row.get("phone");
 			vm.postCode = (String) row.get("postCode");
 			if(!user.getEntityName().equals("Admin"))
-			vm.dealer = (Long) row.get("dealer_id");
+			//vm.dealer = (Long) row.get("dealer_id");
 			vm.products = new ArrayList<ProductVM>();
 			vm.status =  (Boolean) row.get("status") == false  ? "Inactive" : "Active";			
 			vm.zone = (String) row.get("zone");

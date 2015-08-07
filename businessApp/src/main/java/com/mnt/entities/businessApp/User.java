@@ -38,7 +38,7 @@ public class User {
 	public List<ZipCode> zipCodes;
 	
 	@OneToOne
-	public User dealer;
+	public User user;
 	
 	public Long getId() {
 		return id;
@@ -136,11 +136,12 @@ public class User {
 	public void setCustomerGroup(String customerGroup) {
 		this.customerGroup = customerGroup;
 	}
-	public User getDealer() {
-		return dealer;
+	
+	public User getUser() {
+		return user;
 	}
-	public void setDealer(User dealer) {
-		this.dealer = dealer;
+	public void setUser(User user) {
+		this.user = user;
 	}
 	public void addZipCode(ZipCode zipCode) {
 		if(this.zipCodes == null){
