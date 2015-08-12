@@ -52,7 +52,6 @@ public class DealerService {
 		dataList.put("districtList", getDistricts());
 		dataList.put("productList", getProductList());
 		dataList.put("dealerList", getDealers(zoneList));
-		dataList.put("userList", getUserDetails());
 		return dataList;
 	}
 
@@ -324,7 +323,6 @@ public class DealerService {
 			}
 		}
 		
-
 		String randomStr = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		Random rnd = new Random();
 
