@@ -206,7 +206,7 @@ public class DashBoardService {
 				+ " where l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
 				+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"' "
 				+ " and ld.product_id = p.id and ld.product_id IN ("+productSql+") and ld.id = l.leadDetails_id  "
-				+ productSql + zoneState + query + gropBy);	
+				 + zoneState + query + gropBy);	
 		
 		List<Map<String, Object>>  allProducts = jt.queryForList(all);
 		List<ZoneVM> productList = new ArrayList<ZoneVM>();
@@ -217,7 +217,7 @@ public class DashBoardService {
 			innerlist.add(row.get("name"));
 			if(i < rows.size()){
 				Map data = rows.get(i);
-				if(data.get("name").equals(row.get("name"))){
+				if(data.get("name").toString().toLowerCase().equals(row.get("name").toString().toLowerCase())){
 					innerlist.add(data.get("count"));
 					i++;
 				} else {
