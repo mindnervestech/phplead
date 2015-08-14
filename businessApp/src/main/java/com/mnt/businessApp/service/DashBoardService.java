@@ -169,7 +169,7 @@ public class DashBoardService {
 			if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
 				productSql = "SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId();
 			} else 
-			if(user.getEntityName().equals("General Manager") || user.getEntityName().equals("CEO") || user.getEntityName().equals("Admin")){
+			if(user.getEntityName().equals("General Manager") || user.getEntityName().equals("CEO") || user.getEntityName().equals("Admin") || user.getEntityName().equals("Sellout Manager") || user.getEntityName().equals("ZSM")){
 				productSql = "select id from product";
 			} else {
 				return vm; 
