@@ -11,11 +11,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mnt.businessApp.engine.AllotmentEngineCache;
 
-@Configuration
 @EnableScheduling
 public class EscalationSchedular {
 
@@ -30,10 +31,11 @@ public class EscalationSchedular {
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 	
-	@Scheduled(cron = "0 0 0 * * *")
+	//@Scheduled(fixedRate = 60 * 1000)
 	@Transactional
 	public void onSchedule() {
-		System.out.println("The time is now " + dateFormat.format(new Date()));
+		
+		System.out.println("The time is now :::  " + dateFormat.format(new Date()));
 		Map<String, Map<String, Map<String, List<Long>>>> map = new HashMap<String, Map<String,Map<String,List<Long>>>>();
 		try{
 			AllotmentEngineCache allotmentEngineCache = AllotmentEngineCache.getInstance();

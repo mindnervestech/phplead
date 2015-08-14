@@ -2,6 +2,7 @@ package com.mnt.businessApp.service;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -22,6 +23,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.mnt.businessApp.engine.SelloutExecutiveAllotmentWFStep;
@@ -63,7 +65,6 @@ public class SchedularService {
 			GeneralConfig config = (GeneralConfig) sessionFactory.getCurrentSession().get(GeneralConfig.class, 1L);
 			Integer escalationTime = Integer.valueOf(config.getFirstEscalationTime());
 			Calendar cal = Calendar.getInstance();
-			cal.setTime(new Date());
 			cal.add(Calendar.DATE, -escalationTime);
 			allotmentWFStep.configDate =   cal.getTime();
 			allotmentWFStep.startAssignment();

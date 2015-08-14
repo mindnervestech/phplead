@@ -1,6 +1,7 @@
 package com.mnt.businessApp.engine;
 
-import java.util.Calendar;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Lead;
 import com.mnt.entities.businessApp.LeadAgeing;
 
@@ -57,12 +57,10 @@ public abstract class AbstractAllotmentEngine {
 		if(zipPresent != null && productPresent != null) {
 			userPresent = getQualifiedCadidates();
 			if(userPresent != null) { // serviceable user found for both Z and P
-				System.out.println("GOT USER :: "+userType +" :: "+userPresent.size());
-				updateLeadAgeing();updateLeadAgeing();
+				updateLeadAgeing();
 				if(userPresent.size() == 1) {
 					assignLeadIfSingleUser();
 				} else {
-					System.out.println(userPresent.size()+" ::::: userPresent ::::: ");
 					assignLeadIfMultipleUser();
 					//TODO: Assign based on configuration
 				}
@@ -90,9 +88,9 @@ public abstract class AbstractAllotmentEngine {
 	}
 
 	protected void updateLeadAgeing(){
-		try{
 			Lead lead = (Lead) session.get(Lead.class, lead_id);
-			if(lead.getLastDispo1ModifiedDate().getTime()/ 3600000 < configDate.getTime()) {
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+			if(dateFormat.format(lead.getLastDispo1ModifiedDate()).compareTo(dateFormat.format(configDate)) > 0) {
 				return;
 			}
 			LeadAgeing ageing = getLeadAgeing(lead.getId(), "Escalated");
@@ -100,10 +98,7 @@ public abstract class AbstractAllotmentEngine {
 			Integer hours = (int) (secs / 3600);    
 			ageing.setAgeing(ageing.getAgeing() + hours);
 			ageing.setProduct(lead.getLeadDetails().getProduct().getName());
-			session.update(ageing);}
-		catch(Exception e){
-			e.printStackTrace();
-		}
+			session.update(ageing);
 	}
 
 	private LeadAgeing getLeadAgeing(Long id, String disposition1) {
