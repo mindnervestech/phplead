@@ -258,7 +258,7 @@ public class LeadService {
 			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")|| user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 				userQuery += " and (l.user_id = "+user.getEntityId()+"  or ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) ) ";
 			} 
-		} else if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("Sales Executive")){
+		} else if(user.getEntityName().equals("Dealer") ){
 			userQuery = " and l.user_id = "+user.getEntityId()+"";
 		} else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 			query += " and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
