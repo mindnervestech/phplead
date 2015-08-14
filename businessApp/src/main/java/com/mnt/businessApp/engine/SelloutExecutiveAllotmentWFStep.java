@@ -1,5 +1,11 @@
 package com.mnt.businessApp.engine;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.hibernate.Session;
+
 public class SelloutExecutiveAllotmentWFStep extends AbstractAllotmentEngine {
 
 	public SelloutExecutiveAllotmentWFStep(String zip, String product, Long lead_id) {
@@ -10,6 +16,8 @@ public class SelloutExecutiveAllotmentWFStep extends AbstractAllotmentEngine {
 	@Override
 	protected void assignLeadIfNoProductAndZipServicable() {
 		TSRAllotmentWFStep allotmentWFStep = new TSRAllotmentWFStep(zip, product, lead_id);
+		allotmentWFStep.session = session;
+		allotmentWFStep.configDate = configDate;
 		allotmentWFStep.jt = jt;
 		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
@@ -28,7 +36,7 @@ public class SelloutExecutiveAllotmentWFStep extends AbstractAllotmentEngine {
 			String dateInterval = " DATE_SUB(CURDATE(), INTERVAL (Select generalconfig.firstEscalationTime from generalconfig where id = 1) DAY )";
 			jt.update("UPDATE lead SET lead.status = 'Escalated', lead.disposition1 = 'Escalated',lead.escalatedLevel = lead.escalatedLevel + 1, lead.escalatedDate = NOW(), lead.lastDispo1ModifiedDate = NOW(), "
 					+ " lead.escalatedTo_id = "+userPresent.get(0)+" WHERE "
-					+ " lead.disposition1 = 'New' and lead.id = "+lead_id+"and lead.lastDispo1ModifiedDate < "+dateInterval,
+					+ " lead.disposition1 = 'New' and lead.id = "+lead_id+" and lead.lastDispo1ModifiedDate < "+dateInterval,
 					new Object[] {});
 		}
 
@@ -37,6 +45,8 @@ public class SelloutExecutiveAllotmentWFStep extends AbstractAllotmentEngine {
 	@Override
 	protected void assignLeadIfNoProductServicable() {
 		TSRAllotmentWFStep allotmentWFStep = new TSRAllotmentWFStep(zip, product, lead_id);
+		allotmentWFStep.session = session;
+		allotmentWFStep.configDate = configDate;
 		allotmentWFStep.jt = jt;
 		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
@@ -45,6 +55,8 @@ public class SelloutExecutiveAllotmentWFStep extends AbstractAllotmentEngine {
 	@Override
 	protected void assignLeadIfNoZipServicable() {
 		TSRAllotmentWFStep allotmentWFStep = new TSRAllotmentWFStep(zip, product, lead_id);
+		allotmentWFStep.session = session;
+		allotmentWFStep.configDate = configDate;
 		allotmentWFStep.jt = jt;
 		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();

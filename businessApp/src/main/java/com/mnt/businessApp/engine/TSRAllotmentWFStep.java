@@ -11,6 +11,8 @@ public class TSRAllotmentWFStep extends AbstractAllotmentEngine {
 	protected void assignLeadIfNoProductAndZipServicable() {
 		RSMAllotmentWFStep allotmentWFStep = new RSMAllotmentWFStep(zip, product, lead_id);
 		allotmentWFStep.jt = jt;
+		allotmentWFStep.session = session;
+		allotmentWFStep.configDate = configDate;
 		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
 	}
@@ -38,6 +40,8 @@ public class TSRAllotmentWFStep extends AbstractAllotmentEngine {
 	protected void assignLeadIfNoProductServicable() {
 		RSMAllotmentWFStep allotmentWFStep = new RSMAllotmentWFStep(zip, product, lead_id);
 		allotmentWFStep.jt = jt;
+		allotmentWFStep.session = session;
+		allotmentWFStep.configDate = configDate;
 		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
 	}
@@ -46,6 +50,8 @@ public class TSRAllotmentWFStep extends AbstractAllotmentEngine {
 	protected void assignLeadIfNoZipServicable() {
 		RSMAllotmentWFStep allotmentWFStep = new RSMAllotmentWFStep(zip, product, lead_id);
 		allotmentWFStep.jt = jt;
+		allotmentWFStep.session = session;
+		allotmentWFStep.configDate = configDate;
 		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
 	}

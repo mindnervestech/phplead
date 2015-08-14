@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-import com.mnt.entities.businessApp.Dealer;
 import com.mnt.entities.businessApp.User;
 
 @JsonIgnoreProperties(ignoreUnknown = true)

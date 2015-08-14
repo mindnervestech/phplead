@@ -2,6 +2,7 @@ package com.mnt.businessApp.service;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import com.mnt.businessApp.engine.SelloutExecutiveAllotmentWFStep;
 import com.mnt.businessApp.viewmodel.UserInfoVM;
 import com.mnt.entities.businessApp.ActivityStream;
+import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Lead;
 import com.mnt.entities.businessApp.LeadDetails;
 import com.mnt.entities.businessApp.Product;
@@ -54,9 +56,16 @@ public class SchedularService {
 	public void escalationScheduler() {
 		List<Map<String, Object>> rows = jt.queryForList("select ld.pinCode as zipcode, l.id as id, ld.product_id as product from lead l, leaddetails ld where ld.id = l.leadDetails_id");
 		for(Map<String, Object> row : rows){
-			SelloutExecutiveAllotmentWFStep allotmentWFStep = new SelloutExecutiveAllotmentWFStep((String) row.get("zipcode"), (String) row.get("product"), (Long) row.get("id"));
+			SelloutExecutiveAllotmentWFStep allotmentWFStep = new SelloutExecutiveAllotmentWFStep((String) row.get("zipcode"), (String) row.get("product").toString(), (Long) row.get("id"));
 			allotmentWFStep.jt = jt;
+			allotmentWFStep.session = sessionFactory.getCurrentSession();
 			allotmentWFStep.status = "escalation";
+			GeneralConfig config = (GeneralConfig) sessionFactory.getCurrentSession().get(GeneralConfig.class, 1L);
+			Integer escalationTime = Integer.valueOf(config.getFirstEscalationTime());
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(new Date());
+			cal.add(Calendar.DATE, -escalationTime);
+			allotmentWFStep.configDate =   cal.getTime();
 			allotmentWFStep.startAssignment();
 		}
 	}
@@ -261,7 +270,7 @@ public class SchedularService {
 					if (c != null) {
 						switch (c.getCellType()) {
 						case Cell.CELL_TYPE_NUMERIC:
-							leadDetails.pinCode = c.getNumericCellValue()+"";
+							leadDetails.pinCode = Long.valueOf((long) c.getNumericCellValue())+"";
 							break;
 						case Cell.CELL_TYPE_STRING:
 							leadDetails.pinCode = c.getStringCellValue();
@@ -482,6 +491,7 @@ public class SchedularService {
 
 					sessionFactory.getCurrentSession().save(leadDetails);
 					Lead lead = new Lead();
+					lead.setZone(getZoneFromState(leadDetails.state));
 					lead.setLeadDetails(leadDetails);
 					lead.setUploadDate(new Date());
 					lead.setDisposition1("New");
@@ -522,6 +532,16 @@ public class SchedularService {
 		}
 
 
+	}
+
+	private String getZoneFromState(String state) {
+		try{
+			String name = (String)jt.queryForObject(
+					"Select DISTINCT(zipcode.zone) from zipcode where zipcode.state = ?", new Object[] { state.toUpperCase() }, String.class);
+			return name;
+		} catch(Exception e){
+			return null;
+		}
 	}
 
 	private Product getProductByName(String productName) {

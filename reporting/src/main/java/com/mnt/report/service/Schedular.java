@@ -30,7 +30,7 @@ public class Schedular {
 
 	@Autowired
 	private VelocityEngine velocityEngine;
-
+	
 	@Autowired
 	JdbcTemplate jt;
 
@@ -39,6 +39,7 @@ public class Schedular {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		System.out.println("The time is now " + dateFormat.format(new Date()));
 		getSchedularData();
+		
 	}
 
 

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.mnt.businessApp.engine.AllotmentEngineCache;
 import com.mnt.businessApp.engine.DealerAllotmentWFStep;
+import com.mnt.businessApp.engine.SelloutExecutiveAllotmentWFStep;
 
 
 @Service
@@ -56,10 +57,13 @@ public class AssignLeadsService
 	}
 	
 	public void assignDealer(){
-		DealerAllotmentWFStep allotmentWFStep = new DealerAllotmentWFStep("603502", "5", 81);
-		allotmentWFStep.jt = jt;
-		allotmentWFStep.status = "assignment";
-		allotmentWFStep.startAssignment();
+		List<Map<String, Object>> rows = jt.queryForList("select ld.pinCode as zipcode, l.id as id, ld.product_id as product from lead l, leaddetails ld where ld.id = l.leadDetails_id");
+		for(Map<String, Object> row : rows){
+			DealerAllotmentWFStep allotmentWFStep = new DealerAllotmentWFStep((String) row.get("zipcode"), (String) row.get("product").toString(), (Long) row.get("id"));
+			allotmentWFStep.jt = jt;
+			allotmentWFStep.status = "assignment";
+			allotmentWFStep.startAssignment();
+		}
 	}
 	
 	

@@ -416,6 +416,7 @@ public class ReportMDService {
 					}
 				}
 			}
+			System.out.println("Query :: "+mdResult.get("query").toString());
 			List<Map<String, Object>> rs = namedJdbcTemplate.queryForList(mdResult.get("query").toString(),parameters);
 
 			XSSFWorkbook workbook = new XSSFWorkbook();

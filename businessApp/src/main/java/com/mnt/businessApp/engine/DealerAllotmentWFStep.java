@@ -6,7 +6,6 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 	
 	public DealerAllotmentWFStep(String zip, String product, long lead_id) {
 		super(zip, product, lead_id, "Dealer");
-		System.out.println("Dealer");
 	}
 
 	@Override
@@ -19,13 +18,13 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 
 	@Override
 	protected void assignLeadIfMultipleUser() {
-		Long total = jt.queryForLong("SELECT COUNT(*) FROM lead as l, leaddetails where lead.leadDetails_id = leaddetails.id "
+		Long total = jt.queryForLong("SELECT COUNT(*) FROM lead as l, leaddetails where l.leadDetails_id = leaddetails.id "
 				+ " and l.status = 'Open' "
 				+ " and leaddetails.pinCode = '"+zip+"' and leaddetails.product_id = "+product);
 		for(Long dealer : userPresent){
-			Long count = jt.queryForLong("SELECT COUNT(*) FROM lead as l, leaddetails, user where lead.leadDetails_id = leaddetails.id"
+			Long count = jt.queryForLong("SELECT COUNT(*) FROM lead as l, leaddetails, user where l.leadDetails_id = leaddetails.id"
 					+ " and l.status = 'Open' "
-					+ " and leaddetails.pinCode = '"+zip+"' and leaddetails.product_id = "+product+" and user_id = "+dealer+" and user.id = user_id and user.entityName = 'Dealer'");
+					+ " and leaddetails.pinCode = '"+zip+"' and leaddetails.product_id = "+product+" and l.user_id = "+dealer+" and user.id = l.user_id and user.entityName = 'Dealer'");
 			Long persecntage = jt.queryForLong("SELECT uz.percentage from user_zipcode uz where uz.user_id = "+dealer+" and uz.zipCodes_id = "+zip);
 			if(persecntage > ((count*100)/total)){
 				jt.update("UPDATE lead SET lead.user_id = "+dealer+" where lead.id = "+lead_id);

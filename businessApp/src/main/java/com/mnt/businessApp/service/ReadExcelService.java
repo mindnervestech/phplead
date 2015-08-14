@@ -89,6 +89,9 @@ public class ReadExcelService {
 						AuthUser authUser = new AuthUser();
 						//Pincodes (Cell A)
 						Cell c = row.getCell(0);
+						if( row.getCell(0) == null){
+							continue;
+						}
 						switch (c.getCellType()) {
 						case Cell.CELL_TYPE_NUMERIC:
 							//System.out.println(" Pincode : " + (long) c.getNumericCellValue());
