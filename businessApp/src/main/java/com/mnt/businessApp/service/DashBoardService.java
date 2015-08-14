@@ -348,7 +348,7 @@ public class DashBoardService {
 				query += " and ld.state = '"+state+"' and l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" )";
 		} else if(user.getEntityName().equals("Dealer") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 			query += " and ld.product_id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
-			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")|| user.getEntityName().equals("Sales Executive")){
 				query += "and (l.user_id = "+user.getEntityId()+"  or ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) )";
 			} else {
 				query += " and l.user_id = "+user.getEntityId()+" ";

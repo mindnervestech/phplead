@@ -260,6 +260,7 @@ public class LeadService {
 			} 
 		} else if(user.getEntityName().equals("Dealer") ){
 			userQuery = " and l.user_id = "+user.getEntityId()+"";
+			query += " and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
 		} else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
 			query += " and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
 			userQuery = "and (l.user_id = "+user.getEntityId()+"";
