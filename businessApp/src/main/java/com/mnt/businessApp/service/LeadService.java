@@ -87,20 +87,34 @@ public class LeadService {
 		activityStream.setCreatedDate(new Date());
 		sessionFactory.getCurrentSession().save(activityStream);
 		if(lead.getDisposition2() == null || (!lead.getDisposition2().equals("Won") && !lead.getDisposition2().equals("Lost"))){
-			LeadAgeing ageing = getLeadAgeing(lead.getId(), vm.getDisposition1());
-			long secs = (new Date().getTime() - lead.getLastDispo1ModifiedDate().getTime()) / 1000;
-			Integer hours = (int) (secs / 3600);    
-			ageing.setAgeing(ageing.getAgeing() + hours);
+			LeadAgeing ageing;
+			long secs ;
+			Integer hours;
+			if(vm.getDisposition2().equals("Already Purchased")){
+				if(vm.getBrand().equals("Bosch") || vm.getBrand().equals("Siemens")){
+					ageing = getLeadAgeing(lead.getId(),"Won");
+				} else {
+					ageing = getLeadAgeing(lead.getId(),"Lost");
+				}
+				secs = (new Date().getTime() - lead.getUploadDate().getTime() ) / 1000;
+				hours = (int) (secs / 3600);
+				ageing.setIsCurrent(false);
+			} else {
+				ageing = getLeadAgeing(lead.getId(), lead.getDisposition1());
+				secs = (new Date().getTime() - lead.getLastDispo1ModifiedDate().getTime()) / 1000;
+				hours =  (int) ((secs / 3600)+ageing.getAgeing()) ;
+				LeadAgeing currentAgeing = getLeadAgeing(lead.getId(), vm.getDisposition1());
+				currentAgeing.setAgeing(0L);
+				currentAgeing.setProduct(lead.getLeadDetails().getProduct().getName());
+				currentAgeing.setIsCurrent(true);
+				sessionFactory.getCurrentSession().update(currentAgeing);
+				if(ageing.getStatus() != currentAgeing.getStatus()){
+					ageing.setIsCurrent(false);
+				}
+			}
+			ageing.setAgeing(Long.valueOf(hours));
 			ageing.setProduct(lead.getLeadDetails().getProduct().getName());
 			sessionFactory.getCurrentSession().update(ageing);
-			if(vm.getDisposition2().equals("Won") || vm.getDisposition2().equals("Lost")){
-				ageing = getLeadAgeing(lead.getId(), vm.getDisposition2());
-				secs = (new Date().getTime() - lead.getUploadDate().getTime() ) / 1000;
-				hours = (int) (secs / 3600);  
-				ageing.setAgeing(Long.valueOf(hours));
-				ageing.setProduct(lead.getLeadDetails().getProduct().getName());
-				sessionFactory.getCurrentSession().update(ageing);
-			}
 		}
 		sessionFactory.getCurrentSession().flush();
 		lead.setDisposition1(vm.getDisposition1());

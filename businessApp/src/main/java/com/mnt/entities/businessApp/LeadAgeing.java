@@ -14,15 +14,13 @@ public class LeadAgeing {
 	
 	public Long lead_id;
 	
-	public Long dealer_id;
-	
-	public String zone;
-	
 	public String product;
 	
 	public String status;
 	
 	public Long ageing;
+	
+	public Boolean isCurrent;
 	
 	public Long getId() {
 		return id;
@@ -38,22 +36,6 @@ public class LeadAgeing {
 
 	public void setLead_id(Long lead_id) {
 		this.lead_id = lead_id;
-	}
-
-	public Long getDealer_id() {
-		return dealer_id;
-	}
-
-	public void setDealer_id(Long dealer_id) {
-		this.dealer_id = dealer_id;
-	}
-
-	public String getZone() {
-		return zone;
-	}
-
-	public void setZone(String zone) {
-		this.zone = zone;
 	}
 
 	public String getProduct() {
@@ -78,6 +60,14 @@ public class LeadAgeing {
 
 	public void setAgeing(Long ageing) {
 		this.ageing = ageing;
+	}
+
+	public Boolean getIsCurrent() {
+		return isCurrent;
+	}
+
+	public void setIsCurrent(Boolean isCurrent) {
+		this.isCurrent = isCurrent;
 	}
 	
 	
