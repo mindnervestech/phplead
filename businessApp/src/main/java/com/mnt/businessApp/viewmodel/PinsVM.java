@@ -19,5 +19,4 @@ public class PinsVM {
 		this.pin = pin;
 	}	
 	
-	
 }

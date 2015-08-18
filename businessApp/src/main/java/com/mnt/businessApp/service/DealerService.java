@@ -411,6 +411,11 @@ public class DealerService {
 
 
 	public List<UserVM> updateUser(UserVM userVM) {
+		Query query = sessionFactory.getCurrentSession().createQuery("FROM Role Where role_id = :id"); 
+		query.setParameter("id", userVM.getRole().getRoleId());
+		List results = query.list();
+		Role role = (Role) results.get(0);
+		
 		AuthUser authUser1 = Utils.getLoggedInUser();
 		User user = (User)sessionFactory.getCurrentSession().get(User.class, userVM.getId());
 		user.name = userVM.getName();
@@ -423,6 +428,7 @@ public class DealerService {
 		user.state = userVM.getState();
 		user.district = userVM.getDistrict();
 		user.postCode = userVM.getPostCode();
+		user.setEntityName(role.getName());
 		if(authUser1.getEntityName().equals("General Manager") || authUser1.getEntityName().equals("Sellout-Regional")){
 			System.out.println("User : " + Long.valueOf(userVM.user));
 			User dealer = (User) sessionFactory.getCurrentSession().get(User.class,Long.valueOf(userVM.user));
@@ -436,6 +442,16 @@ public class DealerService {
 						new Object[] {user.getId(), productVM.getId()});
 			}
 		}
+		query = sessionFactory.getCurrentSession().createQuery("FROM AuthUser Where entityId = :id"); 
+		query.setParameter("id", userVM.getId());
+		results = query.list();
+		AuthUser authUser = (AuthUser) results.get(0);
+		authUser.setEntityName(role.getName());
+		List<Role> roles = new ArrayList<>();
+		roles.add(role);
+		authUser.setRoles(roles);
+		sessionFactory.getCurrentSession().update(authUser);
+		
 		sessionFactory.getCurrentSession().update(user);
 		sessionFactory.getCurrentSession().flush();
 		return getUserDetails();
