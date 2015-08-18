@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+	   xmlns="http://www.springframework.org/schema/mvc" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+       http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+		                   http://www.springframework.org/schema/context 
+		                   http://www.springframework.org/schema/context/spring-context.xsd
+		     http://www.springframework.org/schema/security
+			   http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<!-- <annotation-driven /> -->
+	<context:component-scan base-package="com.mnt.authentication" />
+	
+    <sec:http pattern="/**/*.ico" security="none"/>
+    <sec:http pattern="/**/*.css" security="none"/>
+    <sec:http pattern="/**/*.js" security="none"/>
+    <sec:http pattern="/**/*.png" security="none"/>
+    <sec:http pattern="/**/*.gif" security="none"/>
+    <sec:http pattern="/**/login.html" security="none"/>
+    
+    <sec:http auto-config="true" use-expressions="true">
+    
+    <sec:access-denied-handler ref="accessDeniedHandler"/>
+   
+    <sec:form-login login-page="/"
+		    default-target-url="/welcome.html"
+		    always-use-default-target="false"/>
+    <sec:logout 
+        logout-success-url="/"
+		delete-cookies="JSESSIONID" 
+		logout-url="/j_spring_security_logout" 
+		invalidate-session="true" />
+	<sec:expression-handler ref="webExpressionHandler"/>	
+  </sec:http>
+
+  <sec:authentication-manager>
+    <sec:authentication-provider user-service-ref="userDetailsService"/>
+  </sec:authentication-manager>
+  <!-- Ref: 
+  #http://www.mkyong.com/spring-security/spring-security-limit-login-attempts-example/
+  http://krams915.blogspot.in/2010/12/spring-security-mvc-integration-using_26.html
+  https://raibledesigns.com/rd/entry/implementing_ajax_authentication_using_jquery
+   --> 
+  <beans:bean id="authenticationProvider"
+    class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+  	<beans:property name="userDetailsService" ref="userDetailsService"/>
+  	<!-- <property name="saltSource" ref bean="saltSource"/>
+  	<property name="passwordEncoder" ref="passwordEncoder"/> -->
+ </beans:bean> 
+
+  <!-- <sec:authentication-manager/> 
+  <beans:bean id="authenticationManager" class="com.mnt.authentication.CustomAuthenticationManager"/>
+  -->
+   
+  <sec:global-method-security pre-post-annotations="enabled" >
+        <sec:expression-handler ref="expressionHandler"/>
+        
+  </sec:global-method-security>
+
+  <beans:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <beans:property name="permissionEvaluator" ref="permissionEvaluator"/>
+  </beans:bean>
+  
+  <!--Thanks to  http://forum.spring.io/forum/spring-projects/security/97058-haspermission-in-sec-authorize -->
+  <beans:bean id="webExpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler">
+        <beans:property name="permissionEvaluator" ref="permissionEvaluator"/>
+  </beans:bean>
+  
+  <beans:bean id="permissionEvaluator" class="com.mnt.authentication.PermissionEvaluatorImpl"></beans:bean>
+  
+  <beans:bean id="loginHandler" class="com.mnt.authentication.LoginHandlerImpl"></beans:bean>
+  
+  <beans:bean id="authenticationHelper" class="com.mnt.authentication.AuthenticationHelperImpl"></beans:bean>
+  
+  <beans:bean id="userDetailsService" class="com.mnt.authentication.UserDetailsService"></beans:bean>
+  
+</beans:beans>
