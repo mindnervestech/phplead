@@ -175,7 +175,7 @@ public class ReadExcelService {
 							switch (c.getCellType()) {
 							case Cell.CELL_TYPE_STRING:
 								//System.out.println(" Email Address : " + c.getStringCellValue());
-								//user.setEmail(c.getStringCellValue());
+								user.setEmail(c.getStringCellValue());
 								break;
 							}
 						}
@@ -228,7 +228,7 @@ public class ReadExcelService {
 							switch (c.getCellType()) {
 							case Cell.CELL_TYPE_STRING:
 								//System.out.println(" Email Address : " + c.getStringCellValue());
-								//user.setEmail(c.getStringCellValue());
+								user.setEmail(c.getStringCellValue());
 								break;
 							}
 						}
@@ -642,7 +642,7 @@ public class ReadExcelService {
 				authUser.setPassword("12345");
 				sessionFactory.getCurrentSession().update(authUser);
 				sessionFactory.getCurrentSession().flush();
-				jt.update("INSERT INTO userrole (user_id, role_id) VALUES (?, (select roles.role_id FROM roles where roles.name = ?))",
+				jt.update("INSERT INTO userrole (user_id, role_id) values (?, (select roles.role_id FROM roles where roles.name = ?))",
 						new Object[] {authUser.getId(), role});
 			}
 			user.addProducts(getProductByName(product));

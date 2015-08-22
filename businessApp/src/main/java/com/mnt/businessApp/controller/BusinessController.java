@@ -83,7 +83,7 @@ public class BusinessController {
 	@Autowired
     private JdbcTemplate jt;
 	
-	@Transactional
+	//@Transactional
 	@RequestMapping(value="/uploadLeads",method=RequestMethod.GET)
 	public @ResponseBody String home() {
 		schedularService.uploadandStoreExcel();
@@ -127,6 +127,16 @@ public class BusinessController {
 			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product) {
 		return leadService.getLostLeads(start, end, zone, state, product, dealer);
 	}
+	
+	
+	@Transactional
+	@RequestMapping(value="/getOverviewLeads",method=RequestMethod.GET)
+	public @ResponseBody List<LeadDetailsVM> getOverviewLeads(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
+			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam("dealer") Long dealer,
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product) {
+		return leadService.getOverviewLeads(start, end, zone, state, product, dealer);
+	}
+	
 	
 	@Transactional
 	@RequestMapping(value="/getFollowUpLeads",method=RequestMethod.GET)

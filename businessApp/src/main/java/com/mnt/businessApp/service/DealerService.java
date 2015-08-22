@@ -336,6 +336,10 @@ public class DealerService {
 		authUser.setEntityId(user.getId());
 		authUser.setUsername(userVM.getEmail());
 		authUser.setEntityName("Dealer");
+		Role role = (Role) sessionFactory.getCurrentSession().get(Role.class, 9);
+		List<Role> roles = new ArrayList<>();
+		roles.add(role);
+		authUser.setRoles(roles);
 		authUser.setName(user.getName());
 		sessionFactory.getCurrentSession().save(authUser);
 	}
@@ -736,9 +740,9 @@ public class DealerService {
 	public String getStateByZoneSql(String zone){
 		if(zone.equals("user")){
 			AuthUser authUser = Utils.getLoggedInUser();
-			return "Select DISTINCT(zipcode.state) as name from zipcode where zipcode.zone = (select user.zone from user where user.id = "+authUser.getEntityId()+")";
+			return "Select DISTINCT(ld.state) as name from lead l, leaddetails ld where ld.id = l.leadDetails_id and l.zone = (select user.zone from user where user.id = "+authUser.getEntityId()+")";
 		}
-		return "Select DISTINCT(zipcode.state) as name from zipcode where zipcode.zone = '"+zone+"'";
+		return "Select DISTINCT(ld.state) as name from lead l, leaddetails ld where ld.id = l.leadDetails_id and l.zone ='"+zone+"'";
 	}
 
 	

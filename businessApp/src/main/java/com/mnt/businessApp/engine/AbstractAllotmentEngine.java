@@ -39,6 +39,7 @@ public abstract class AbstractAllotmentEngine {
 	private List<Long> getQualifiedCadidates() {
 		Map<String, List<Long>> zipPresent = AllotmentEngineCache.getInstance().zipCache.get(zip);
 		Map<String, List<Long>> productPresent = AllotmentEngineCache.getInstance().productCache.get(product);
+		
 		if(zipPresent != null && productPresent != null) {
 			List<Long> userZipPresent = zipPresent.get(userType);
 			List<Long> userProductPresent = productPresent.get(userType);
@@ -52,12 +53,15 @@ public abstract class AbstractAllotmentEngine {
 	}
 
 	public void startAssignment() {
+		System.out.println("USERTYPE :: "+userType);
 		Map<String, List<Long>> zipPresent = AllotmentEngineCache.getInstance().zipCache.get(zip);
 		Map<String, List<Long>> productPresent = AllotmentEngineCache.getInstance().productCache.get(product);
 		if(zipPresent != null && productPresent != null) {
 			userPresent = getQualifiedCadidates();
 			if(userPresent != null) { // serviceable user found for both Z and P
-				updateLeadAgeing();
+				if(this.status != "assignment"){
+					updateLeadAgeing();
+				}
 				if(userPresent.size() == 1) {
 					assignLeadIfSingleUser();
 				} else {
@@ -67,7 +71,6 @@ public abstract class AbstractAllotmentEngine {
 			} else {
 				userZipPresent = zipPresent.get(userType);
 				userProductPresent = productPresent.get(userType);
-
 				if(userZipPresent == null && userProductPresent != null) { // serviceable user found only for P
 					assignLeadIfNoZipServicable();
 					//TODO: Find Near dealer and assign
@@ -82,9 +85,23 @@ public abstract class AbstractAllotmentEngine {
 					assignLeadIfNoProductAndZipServicable();
 					//TODO: Find Near dealer and assign
 				}
+				
+				if(userZipPresent != null && userProductPresent != null) { // serviceable dealers not found at all
+					assignLeadIfNoProductAndZipServicable();
+					//TODO: Find Near dealer and assign
+				}
+				
 
 			}
+		} else {
+			assignLeadToZoneUser();
 		}
+	}
+
+	private void assignLeadToZoneUser() {
+		System.out.println("lead id"+lead_id);
+		jt.update("Update lead set lead.user_id = (select user.id from user where user.entityName = 'Sellout Manager' and lead.zone = user.zone  order by user.id limit 1) where lead.id = "+lead_id);
+		
 	}
 
 	protected void updateLeadAgeing(){

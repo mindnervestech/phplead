@@ -137,6 +137,13 @@
 			<version>3.10-FINAL</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>com.mnt.bsh</groupId>
+  			<artifactId>businessApp</artifactId>
+  			<version>0.0.1-SNAPSHOT</version>	
+		</dependency>
+		
+		
 
 	</dependencies>
 	

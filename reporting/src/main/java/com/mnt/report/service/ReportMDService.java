@@ -47,6 +47,10 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;*/
 
+
+import com.mnt.businessApp.service.Utils;
+import com.mnt.entities.authentication.AuthUser;
+
 @Controller
 @RequestMapping(value="/api/report")
 public class ReportMDService {
@@ -175,7 +179,6 @@ public class ReportMDService {
 	@ResponseBody
 	public JSONObject runReports(@RequestParam String filter) {
 		JSONObject resp = new JSONObject();
-
 		try {
 			JSONObject jsonObject = (JSONObject)new JSONParser().parse(filter);
 			Long id = Long.parseLong(jsonObject.get("id").toString());
@@ -259,8 +262,8 @@ public class ReportMDService {
 	@Transactional
 	public List<ReportMDVM> getReports() {
 		//return sessionFactory.getCurrentSession().createQuery("FROM ReportMD1").list();
-
-		return jt.query("Select * from reportmd", new RowMapper<ReportMDVM>(){
+		AuthUser user = Utils.getLoggedInUser();
+		return jt.query("Select * from reportmd where access Like '%"+user.getEntityName()+"%'", new RowMapper<ReportMDVM>(){
 
 			public ReportMDVM mapRow(ResultSet arg0, int arg1)
 					throws SQLException {

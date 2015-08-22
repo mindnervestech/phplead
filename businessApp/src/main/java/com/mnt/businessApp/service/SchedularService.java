@@ -2,7 +2,6 @@ package com.mnt.businessApp.service;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -21,9 +20,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.mnt.businessApp.engine.SelloutExecutiveAllotmentWFStep;
@@ -31,6 +31,7 @@ import com.mnt.businessApp.viewmodel.UserInfoVM;
 import com.mnt.entities.businessApp.ActivityStream;
 import com.mnt.entities.businessApp.GeneralConfig;
 import com.mnt.entities.businessApp.Lead;
+import com.mnt.entities.businessApp.LeadAgeing;
 import com.mnt.entities.businessApp.LeadDetails;
 import com.mnt.entities.businessApp.Product;
 
@@ -74,7 +75,7 @@ public class SchedularService {
 	// upload the excel
 	public void uploadandStoreExcel() {
 
-		File excelfile = new File("E://leads.xlsx");
+		File excelfile = new File("F://Leads with call centre feedback.(13082015 manipulated).xls");
 		String filename = excelfile.getName();
 		Workbook wb_xssf; //Declare XSSF WorkBook
 		Workbook wb_hssf;//Declare HSSf WorkBook
@@ -278,7 +279,8 @@ public class SchedularService {
 							break;
 						}
 					}
-					c = row.getCell(14);
+					/*
+					 c = row.getCell(14);
 					if (c != null) {
 						switch (c.getCellType()) {
 						case Cell.CELL_TYPE_STRING:
@@ -286,6 +288,7 @@ public class SchedularService {
 							break;
 						}
 					}
+					*/
 
 					c = row.getCell(15);
 					if (c != null) {
@@ -489,41 +492,88 @@ public class SchedularService {
 							break;
 						}
 					}
-
-					sessionFactory.getCurrentSession().save(leadDetails);
+					Transaction tx = null;
+					Session session = sessionFactory.openSession();
+					try{
+						tx = session.beginTransaction();
+						 c = row.getCell(14);
+							if (c != null) {
+								switch (c.getCellType()) {
+								case Cell.CELL_TYPE_STRING:
+									leadDetails.product = getProductByName(c.getStringCellValue(),session);
+									break;
+								}
+						    }
+						session.save(leadDetails);
+						tx.commit();
+					} catch(ConstraintViolationException e){
+						tx.rollback();
+						session.clear();
+						System.out.println("here ==== 1");
+						
+						
+						
+						LeadDetails oldLeadDetails = getLeadDetailsBySrNo(leadDetails.sr,session);
+						 
+						if(oldLeadDetails.categorization.equals("Warm") || oldLeadDetails.categorization.equals("Hot") || oldLeadDetails.categorization.equals("Cold")){
+							session.close();
+							continue;
+						}
+						Transaction tx1 = session.beginTransaction();
+						
+						Lead oldLead = getLeadByLeadDetails(oldLeadDetails.id,session);
+						
+						deleteActivityByLeadId(oldLead.id);
+						deleteLeadByLeadDetailId(oldLeadDetails.id);
+						deleteLeadDetalById(oldLeadDetails.id);
+						
+						//session.delete(oldLeadDetails);
+						//session.delete(oldLead);
+						//tx1.commit();
+						
+						//tx1 = session.beginTransaction();
+						session.save(leadDetails);
+						tx1.commit();
+						System.out.println("here ==== 2");
+						
+					}
+					System.out.println("here ==== 3");
+					
+					tx = session.beginTransaction();
 					Lead lead = new Lead();
 					lead.setZone(getZoneFromState(leadDetails.state));
 					lead.setLeadDetails(leadDetails);
 					lead.setUploadDate(new Date());
+					lead.setLastDispo1ModifiedDate(new Date());
 					lead.setDisposition1("New");
 					lead.setStatus("Open");
 					lead.setOrigin("Call-center");
-					sessionFactory.getCurrentSession().save(lead);
+					session.save(lead);
 					
-					ActivityStream activityStream = new ActivityStream();
-					activityStream.setNewDisposition1("New");
-					activityStream.setLead(lead);
-					activityStream.setCreatedDate(new Date());
-					sessionFactory.getCurrentSession().save(activityStream);
-					
-					
-					
-					/*LeadAgeing ageing = new LeadAgeing();
-					ageing.setAgeing(0L);
-					ageing.setStatus("New");
-					ageing.setZone(lead.getDealer().getZone());
-					ageing.setProduct(leadDetails.getProduct().getName());
-					ageing.setDealer_id(lead.getDealer().getId());
-					ageing.setLead_id(lead.getId());
-					*/
-					
+					if(leadDetails.categorization.equals("Warm") || leadDetails.categorization.equals("Hot") || leadDetails.categorization.equals("Cold")){
+						ActivityStream activityStream = new ActivityStream();
+						activityStream.setNewDisposition1("New");
+						activityStream.setLead(lead);
+						activityStream.setCreatedDate(new Date());
+						session.save(activityStream);
 
+						LeadAgeing ageing = new LeadAgeing();
+						Long secs = (leadDetails.getFirstCallDate().getTime() - leadDetails.getUploadDate().getTime()) / 1000;
+						Long hours = (Long)(secs / 3600) ;
+						ageing.setAgeing(hours);
+						ageing.setStatus("Call Center Ageing");
+						ageing.setProduct(leadDetails.getProduct().getName());
+						ageing.setLead_id(lead.getId());
+						ageing.setIsCurrent(false);
+						session.save(ageing);
+					}
 					if (leadDetails.filter != null) {
 						System.out.println("storeExcelFile"
 								);
 						newRows = newRows + 1;
 					}
-
+					tx.commit();
+					session.close();
 
 				}
 			}
@@ -533,6 +583,35 @@ public class SchedularService {
 		}
 
 
+	}
+
+	private void deleteLeadDetalById(Long id) {
+		jt.update("Delete from leaddetails where leaddetails.id = ?",
+				new Object[] {id});
+	}
+
+	private void deleteActivityByLeadId(Long id) {
+		jt.update("Delete from activitystream where lead_id = ?",
+				new Object[] {id});
+	}
+	
+	private void deleteLeadByLeadDetailId(Long id) {
+		jt.update("Delete from lead where lead.leadDetails_id = ?",
+				new Object[] {id});
+	}
+
+	private LeadDetails getLeadDetailsBySrNo(Long sr, Session session) {
+		
+		Query query = session.createQuery("From LeadDetails where sr = "+sr);
+		List list = query.list();
+		return list.size() == 0 ? null : (com.mnt.entities.businessApp.LeadDetails) list.get(0); 
+	}
+	
+    private Lead getLeadByLeadDetails(Long leadDetailId, Session session) {
+		
+		Query query = session.createQuery("From Lead where leadDetails.id = "+leadDetailId);
+		List list = query.list();
+		return list.size() == 0 ? null : (com.mnt.entities.businessApp.Lead) list.get(0); 
 	}
 
 	private String getZoneFromState(String state) {
@@ -545,8 +624,8 @@ public class SchedularService {
 		}
 	}
 
-	private Product getProductByName(String productName) {
-		Session session = sessionFactory.getCurrentSession();
+	private Product getProductByName(String productName,Session session) {
+		
 		Query query = session.createQuery("From Product where name = '"+productName+"'");
 		List<Product> products = query.list();  
 		Product product;
@@ -561,13 +640,20 @@ public class SchedularService {
 		return product;
 	}
 
-	@SuppressWarnings("deprecation")
 	private static Date dateTime(Date date, Date time) {
-		System.out.println(date.getYear()+"  "+time.getMinutes());
-		return new Date(
-				date.getYear(), date.getMonth(), date.getDay(), 
-				time.getHours(), time.getMinutes(), time.getSeconds()
-				);
+		
+		Calendar calendarA = Calendar.getInstance();
+		calendarA.setTime(date);
+
+		Calendar calendarB = Calendar.getInstance();
+		calendarB.setTime(time);
+
+		calendarA.set(Calendar.HOUR_OF_DAY, calendarB.get(Calendar.HOUR_OF_DAY));
+		calendarA.set(Calendar.MINUTE, calendarB.get(Calendar.MINUTE));
+		calendarA.set(Calendar.SECOND, calendarB.get(Calendar.SECOND));
+		calendarA.set(Calendar.MILLISECOND, calendarB.get(Calendar.MILLISECOND));
+		
+		return calendarA.getTime();
 	}
 	
 }

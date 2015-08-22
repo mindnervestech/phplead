@@ -237,6 +237,10 @@ public class LeadService {
 		return getLeadDetailVM(start, end," and l.status = 'Lost' ", zone, state, product, dealer);
 	}
 	
+	public List<LeadDetailsVM> getOverviewLeads(Date start, Date end, String zone, String state, Long product, Long dealer) {
+		return getLeadDetailVM(start, end," and l.user_id is null ", zone, state, product, dealer);
+	}
+	
 	private List<LeadDetailsVM> getLeadDetailVM(Date start, Date end, String query, String zone, String state, Long product, Long dealer ){
 		List<LeadDetailsVM> vms = new ArrayList<>();
 		AuthUser user = Utils.getLoggedInUser();
@@ -318,7 +322,7 @@ public class LeadService {
 		AuthUser user = Utils.getLoggedInUser();
 		List<ReassignUserVM> dealerList = new ArrayList<ReassignUserVM>();
 		String usersql = "";
-		if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+		if(user.getEntityName().equals("Sellout Manager") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
 			usersql = "Select * from user where( user.id In (Select DISTINCT(a.User_id) from user_zipcode as a, user_zipcode as b where"
 					+" a.zipCodes_id = b.zipCodes_id and b.User_id = "+user.getEntityId()+")" 
 					+" and user.entityName In ('RSM', 'TSR', 'Dealer', 'Sales Consultant', 'Sales Executive'))"

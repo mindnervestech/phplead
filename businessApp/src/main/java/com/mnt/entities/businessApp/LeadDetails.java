@@ -2,6 +2,7 @@ package com.mnt.entities.businessApp;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,7 +14,7 @@ import javax.persistence.Table;
 @Table(name="leadDetails")
 public class LeadDetails {
 	
-	
+	@Column(unique=true)
 	public Long srNo;
 	
 	@Id
@@ -22,6 +23,7 @@ public class LeadDetails {
 	public String	filter;
 	public Date	uploadDate;
 	public Date	firstCallDate;
+	@Column(unique=true)
 	public Long 	sr;
 	public String	title;
 	public String	name;

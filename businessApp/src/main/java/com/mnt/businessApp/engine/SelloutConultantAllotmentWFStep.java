@@ -4,12 +4,11 @@ public class SelloutConultantAllotmentWFStep extends AbstractAllotmentEngine {
 
 	public SelloutConultantAllotmentWFStep(String zip, String product, Long lead_id) {
 		super(zip, product, lead_id, "Sales Consultant");
-		System.out.println("Sales Consultant");
 	}
 
 	@Override
 	protected void assignLeadIfNoProductAndZipServicable() {
-		TSRAllotmentWFStep allotmentWFStep = new TSRAllotmentWFStep(zip, product, lead_id);
+		SelloutExecutiveAllotmentWFStep allotmentWFStep = new SelloutExecutiveAllotmentWFStep(zip, product, lead_id);
 		allotmentWFStep.jt = jt;
 		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
@@ -27,7 +26,7 @@ public class SelloutConultantAllotmentWFStep extends AbstractAllotmentEngine {
 	
 	@Override
 	protected void assignLeadIfNoProductServicable() {
-		TSRAllotmentWFStep allotmentWFStep = new TSRAllotmentWFStep(zip, product, lead_id);
+		SelloutExecutiveAllotmentWFStep allotmentWFStep = new SelloutExecutiveAllotmentWFStep(zip, product, lead_id);
 		allotmentWFStep.jt = jt;
 		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();

@@ -26,12 +26,12 @@ public class AssignLeadsService
 	private JdbcTemplate jt;
 	
 	public Map<String,Map<String, List<Long>>> getProductUserMapping() {
-		String sql = "select up.products_id as product , entityName, user.id from user, user_product up   where user.id = up.user_id and entityName IN ('RSM', 'TSR', 'Sales Consultant', 'Dealer', 'ZSM', 'Sales Executive', 'Sellout Manager')  ";
+		String sql = "select up.products_id as product , entityName, user.id from user, user_product up   where user.id = up.user_id and entityName IN ('RSM', 'Sellout-Regional', 'Sales Consultant', 'Dealer', 'ZSM', 'Sales Executive', 'Sellout Manager')  ";
 		return getUserMapping(sql);
 	}
 
 	public Map<String,Map<String, List<Long>>> getZipCodeUserMapping() {
-		String sql = "select up.zipCodes_id as product , entityName, user.id from user, user_zipcode up where user.id = up.user_id and entityName IN ('RSM', 'TSR', 'Sales Consultant', 'Dealer', 'ZSM', 'Sales Executive', 'Sellout Manager')  ";
+		String sql = "select up.zipCodes_id as product , entityName, user.id from user, user_zipcode up where user.id = up.user_id and entityName IN ('RSM', 'Sellout-Regional', 'Sales Consultant', 'Dealer', 'ZSM', 'Sales Executive', 'Sellout Manager')  ";
 		return getUserMapping(sql);
 	}
 	
@@ -57,7 +57,7 @@ public class AssignLeadsService
 	}
 	
 	public void assignDealer(){
-		List<Map<String, Object>> rows = jt.queryForList("select ld.pinCode as zipcode, l.id as id, ld.product_id as product from lead l, leaddetails ld where ld.id = l.leadDetails_id");
+		List<Map<String, Object>> rows = jt.queryForList("select ld.pinCode as zipcode, l.id as id, ld.product_id as product from lead l, leaddetails ld where ld.id = l.leadDetails_id and ld.categorization IN ('Warm', 'Hot', 'Cold')");
 		for(Map<String, Object> row : rows){
 			DealerAllotmentWFStep allotmentWFStep = new DealerAllotmentWFStep((String) row.get("zipcode"), (String) row.get("product").toString(), (Long) row.get("id"));
 			allotmentWFStep.jt = jt;

@@ -45,6 +45,9 @@ public class DashBoardService {
 		Map<String, DashBoardProgressBarVm> map = new HashMap<>();
 		DashBoardProgressBarVm vm = new DashBoardProgressBarVm();
 		vm.setActualValue(actualValue+"");
+		if(description.equalsIgnoreCase("Overview")){
+			vm.setActualValue(actualValue+"/"+total);
+		}
 		vm.setDescription(description+" Leads");
 		vm.setIconClass(iconClass);
 		vm.setType(type);
@@ -133,6 +136,14 @@ public class DashBoardService {
 				+ proZone+sqlDate;
 		System.out.println("lost :: "+sql);
 		list.add(getLeadProgressBarVM(sql, "Lost", "icon fa fa-thumbs-down", "danger", total));
+		
+		if(user.getEntityName().equals("Admin")){
+			sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and l.user_id is null  "
+					+ proZone+sqlDate;
+			System.out.println("lost :: "+sql);
+			list.add(getLeadProgressBarVM(sql, "Overview", "icon fa fa-thumbs-up", "success", total));
+		}
+		
 		return list;
 	}
 	
@@ -182,17 +193,17 @@ public class DashBoardService {
 			zoneState = "and l.zone = '"+zone+"' and ld.state = '"+state+"'";
 			select = "SELECT COUNT(*) as count, ld.state as name ";
 			gropBy = " GROUP BY ld.state ORDER BY ld.state asc";
-			all = "Select DISTINCT(zipcode.state) as name from zipcode where zipcode.state = '"+state+"'";
+			all = "Select DISTINCT(leaddetails.state) as name from leaddetails where leaddetails.state = '"+state+"'";
 		} else if(!state.equals("0")){
 			zoneState = " and ld.state = '"+state+"'";
 			select = "SELECT COUNT(*) as count, ld.state as name ";
 			gropBy = " GROUP BY ld.state ORDER BY ld.state asc";
-			all = "Select DISTINCT(zipcode.state) as name from zipcode where zipcode.state = '"+state+"'";
+			all = "Select DISTINCT(leaddetails.state) as name from leaddetails where leaddetails.state = '"+state+"'";
 		} else if(!zone.equals("0")){
 			zoneState = " and l.zone = '"+zone+"'";
 			select = "SELECT COUNT(*) as count, ld.state as name ";
 			gropBy = " GROUP BY ld.state ORDER BY ld.state asc";
-			all = "Select DISTINCT(zipcode.state) as name from zipcode where zipcode.zone = '"+zone+"' ORDER BY name asc";
+			all = "Select DISTINCT(ld.state) as name from lead l, leaddetails ld where l.leadDetails_id = ld.id and l.zone = '"+zone+"' ORDER BY name asc";
 		}  
 
 		

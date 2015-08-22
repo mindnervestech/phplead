@@ -3,8 +3,7 @@ package com.mnt.businessApp.engine;
 public class ZSMAllotmentWFStep extends AbstractAllotmentEngine {
 
 	public ZSMAllotmentWFStep(String zip, String product, Long lead_id) {
-		super(zip, product,lead_id, "TSR");
-		System.out.println("TSR");
+		super(zip, product,lead_id, "ZSM");
 	}
 
 	@Override
