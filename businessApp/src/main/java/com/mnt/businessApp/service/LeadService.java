@@ -82,6 +82,12 @@ public class LeadService {
 		activityStream.setOldDisposition1(lead.getDisposition1());
 		activityStream.setOldDisposition2(lead.getDisposition2());
 		activityStream.setOldDisposition3(lead.getDisposition3());
+		Integer notInterestedCount = jt.queryForObject("Select count(*) from activitystream where activitystream.newDisposition1 = 'Tried Contacted' and activitystream.lead_id = "+lead.getId(),Integer.class);
+		if(notInterestedCount >= 5){
+			activityStream.setNewDisposition2("Lost");
+			vm.setDisposition2("Lost");
+			vm.setBrand("");
+		}
 		activityStream.setLead(lead);
 		activityStream.setReason(vm.getReason());
 		activityStream.setCreatedDate(new Date());
@@ -90,7 +96,7 @@ public class LeadService {
 			LeadAgeing ageing;
 			long secs ;
 			Integer hours;
-			if(vm.getDisposition2().equals("Already Purchased")){
+			if(vm.getDisposition2().equals("Already Purchased") || vm.getDisposition2().equals("Lost")){
 				if(vm.getBrand().equals("Bosch") || vm.getBrand().equals("Siemens")){
 					ageing = getLeadAgeing(lead.getId(),"Won");
 				} else {
@@ -143,10 +149,6 @@ public class LeadService {
 		if(lead.getDisposition2().equals("Call back/Follow up") || 
 				(lead.getDisposition2().equals("Interested") && (lead.getDisposition3().equals("Call back-want to purchase later") || lead.getDisposition3().equals("Call back-evaluating")))){
 			lead.setFollowUpDate(vm.getFollowUpDate());
-		}
-		Integer notInterestedCount = jt.queryForObject("Select count(*) from activitystream where activitystream.newDisposition2 = 'Not Interested' and activitystream.lead_id = "+vm.getId(),Integer.class);
-		if(notInterestedCount > 5){
-			lead.setStatus("Lost");
 		}
 		lead.setLastDispo1ModifiedDate(new Date());
 		sessionFactory.getCurrentSession().update(lead);
