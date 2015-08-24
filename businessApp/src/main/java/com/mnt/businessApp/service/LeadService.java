@@ -43,7 +43,7 @@ public class LeadService {
 	private JdbcTemplate jt;
 
 	public List<LeadDetailsVM> getAllLeadDetails() {
-		return getLeadDetailVM(null, null, "", "0", "0", 0L, 0L);
+		return getLeadDetailVM(null, null, " and u.id = l.user_id ", "0", "0", 0L, 0L);
 	}
 	public LeadVM getLeadVMById(Long id) {
 		Lead lead = getLeadById(id);
@@ -181,7 +181,7 @@ public class LeadService {
 
 	public List<LeadDetailsVM> getAllEscalatedLeadDetails(Date start, Date end, String zone, String state, Long product, Long dealer) {
 		AuthUser user = Utils.getLoggedInUser();
-		String escalationSql = " and l.status = 'Escalated' ";
+		String escalationSql = " and u.id = l.user_id and l.status = 'Escalated' ";
 		if(start!=null){
 			
 			if(dealer != 0 || product != 0 || !zone.equals("0") || !state.equals("0")){
@@ -223,20 +223,20 @@ public class LeadService {
 		String sql = "";
 		String userSql = "";
 
-		return getLeadDetailVM(null, null, " and l.followUpDate IS NOT NULL ", "0", "0", 0L, 0L);
+		return getLeadDetailVM(null, null, " and l.followUpDate IS NOT NULL and u.id = l.user_id ", "0", "0", 0L, 0L);
 
 	}
 
 	public List<LeadDetailsVM> getOpenLeads(Date start, Date end, String zone, String state, Long product, Long dealer) {
-		return  getLeadDetailVM(start, end, " and l.status = 'Open' ", zone, state, product, dealer);
+		return  getLeadDetailVM(start, end, " and l.status = 'Open' and u.id = l.user_id", zone, state, product, dealer);
 	}
 
 	public List<LeadDetailsVM> getWonLeads(Date start, Date end, String zone, String state, Long product, Long dealer) {
-		return getLeadDetailVM(start, end, " and l.status = 'Won' ", zone, state, product, dealer);
+		return getLeadDetailVM(start, end, " and l.status = 'Won' and u.id = l.user_id", zone, state, product, dealer);
 	}
 
 	public List<LeadDetailsVM> getLostLeads(Date start, Date end, String zone, String state, Long product, Long dealer) {
-		return getLeadDetailVM(start, end," and l.status = 'Lost' ", zone, state, product, dealer);
+		return getLeadDetailVM(start, end," and l.status = 'Lost' and u.id = l.user_id", zone, state, product, dealer);
 	}
 	
 	public List<LeadDetailsVM> getOverviewLeads(Date start, Date end, String zone, String state, Long product, Long dealer) {
@@ -299,7 +299,7 @@ public class LeadService {
 				+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
 				+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date , u.name as dealerName"
 				+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id"
-				+" and ld.id = l.leadDetails_id and u.id = l.user_id "+query+userQuery+date;
+				+" and ld.id = l.leadDetails_id "+query+userQuery+date;
 		System.out.println("SQL : " + sql);
 		
 		List<Map<String, Object>> rows = jt.queryForList(sql);
