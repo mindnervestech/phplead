@@ -214,6 +214,14 @@ public class ReportMDService {
 						}
 						parameters.put(key.toString()+"in", inValues);
 						parameters.put(key.toString(), "");
+					} else {
+						if(key.toString().equalsIgnoreCase("PRODUCT_PT")) {
+							TitleMapHelper.PRODUCT_PT(jt);
+						}
+						if(key.toString().equalsIgnoreCase("ZONE_PT")) {
+							TitleMapHelper.ZONE_PT(jt);
+						}
+					    
 					}
 				}
 			}

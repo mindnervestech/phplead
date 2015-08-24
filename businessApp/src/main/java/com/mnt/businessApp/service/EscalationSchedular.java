@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mnt.businessApp.engine.AllotmentEngineCache;
 
 @EnableScheduling
+@Configuration
 public class EscalationSchedular {
 
 	@Autowired
@@ -31,13 +32,13 @@ public class EscalationSchedular {
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 	
-	//@Scheduled(fixedRate = 60 * 1000)
+	@Scheduled(fixedRate = 60000)
 	@Transactional
 	public void onSchedule() {
 		
 		System.out.println("The time is now :::  " + dateFormat.format(new Date()));
 		Map<String, Map<String, Map<String, List<Long>>>> map = new HashMap<String, Map<String,Map<String,List<Long>>>>();
-		try{
+		/*try{
 			AllotmentEngineCache allotmentEngineCache = AllotmentEngineCache.getInstance();
 			map.put("product", allotmentEngineCache.productCache);
 			map.put("zipCode", allotmentEngineCache.zipCache);
@@ -45,7 +46,7 @@ public class EscalationSchedular {
 			AllotmentEngineCache.invalidate();
 			AllotmentEngineCache.build(assignLeadsService.getZipCodeUserMapping(), assignLeadsService.getProductUserMapping());
 		}
-		schedularService.escalationScheduler();
+		schedularService.escalationScheduler();*/
 	}
 
 }
