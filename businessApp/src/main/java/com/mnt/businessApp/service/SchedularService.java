@@ -245,38 +245,21 @@ public class SchedularService {
 						}
 					}
 
-					c = row.getCell(11);
-					if (c != null) {
-						switch (c.getCellType()) {
-						case Cell.CELL_TYPE_NUMERIC:
-							leadDetails.state = c.getNumericCellValue() + "";
-							break;
-						case Cell.CELL_TYPE_STRING:
-							leadDetails.state = c.getStringCellValue();
-							break;
-						}
-					}
-
-					c = row.getCell(12);
-					if (c != null) {
-						switch (c.getCellType()) {
-						case Cell.CELL_TYPE_NUMERIC:
-							leadDetails.city = c.getNumericCellValue() + "";
-							break;
-						case Cell.CELL_TYPE_STRING:
-							leadDetails.city = c.getStringCellValue();
-							break;
-						}
-					}
 					c = row.getCell(13);
 					if (c != null) {
+						ZipCode zipcode = null;
 						switch (c.getCellType()) {
 						case Cell.CELL_TYPE_NUMERIC:
-							leadDetails.pinCode = Long.valueOf((long) c.getNumericCellValue())+"";
+							zipcode = (ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, Long.valueOf((long) c.getNumericCellValue()));
 							break;
 						case Cell.CELL_TYPE_STRING:
-							leadDetails.pinCode = c.getStringCellValue();
+							zipcode = (ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, Long.valueOf(Long.parseLong(c.getStringCellValue())));
 							break;
+						}
+						if(zipcode != null){
+							leadDetails.pinCode = zipcode.getId()+"";
+							leadDetails.state = zipcode.getState();
+							leadDetails.city = zipcode.getDistrict();
 						}
 					}
 					/*

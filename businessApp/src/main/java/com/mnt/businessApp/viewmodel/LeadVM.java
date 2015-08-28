@@ -37,6 +37,7 @@ public class LeadVM {
 	public Long dealer;
 	public String modalNo;
 	public String brand;
+	public String lms;
 	public LeadVM() {}
 	
 	public LeadVM(Lead lead) {
@@ -57,6 +58,7 @@ public class LeadVM {
 		this.categorization = lead.getLeadDetails().getCategorization();
 		this.areaofInterest1 = lead.getLeadDetails().getAreaofInterest1();
 		this.areaofInterest2 = lead.getLeadDetails().getAreaofInterest2();
+		this.lms = lead.getLeadDetails().getLms();
 		this.remarks1 = lead.getLeadDetails().getRemarks1();
 		this.followUpDate = lead.getFollowUpDate();
 		this.status = lead.getStatus();

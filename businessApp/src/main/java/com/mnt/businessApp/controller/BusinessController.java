@@ -100,32 +100,32 @@ public class BusinessController {
 	@RequestMapping(value="/getEscalatedLeads",method=RequestMethod.GET)
 	public @ResponseBody List<LeadDetailsVM> getEscalatedLeads(@RequestParam(value="start", required=false)  @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam(value="end", required=false) @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam(value="dealer", required=false) Long dealer,
-			@RequestParam(value="zone", required=false) String zone, @RequestParam(value="state", required=false) String state, @RequestParam(value="product", required=false) Long product) {
-		return leadService.getAllEscalatedLeadDetails(start, end, zone, state, product, dealer);
+			@RequestParam(value="zone", required=false) String zone, @RequestParam(value="state", required=false) String state, @RequestParam(value="product", required=false) Long product, @RequestParam("brand") String brand ){
+		return leadService.getAllEscalatedLeadDetails(start, end, zone, state, product, dealer, brand);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getOpenLeads",method=RequestMethod.GET)
 	public @ResponseBody List<LeadDetailsVM> getOpenLeads(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam("dealer") Long dealer,
-			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product) {
-		return leadService.getOpenLeads(start, end, zone, state, product, dealer);
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product, @RequestParam("brand") String brand ){
+		return leadService.getOpenLeads(start, end, zone, state, product, dealer, brand);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getWonLeads",method=RequestMethod.GET)
 	public @ResponseBody List<LeadDetailsVM> getWonLeads(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam("dealer") Long dealer,
-			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product) {
-		return leadService.getWonLeads(start, end, zone, state, product, dealer);
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product, @RequestParam("brand") String brand ){
+		return leadService.getWonLeads(start, end, zone, state, product, dealer, brand);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getLostLeads",method=RequestMethod.GET)
 	public @ResponseBody List<LeadDetailsVM> getLostLeads(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam("dealer") Long dealer,
-			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product) {
-		return leadService.getLostLeads(start, end, zone, state, product, dealer);
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product, @RequestParam("brand") String brand ){
+		return leadService.getLostLeads(start, end, zone, state, product, dealer, brand);
 	}
 	
 	
@@ -133,8 +133,8 @@ public class BusinessController {
 	@RequestMapping(value="/getOverviewLeads",method=RequestMethod.GET)
 	public @ResponseBody List<LeadDetailsVM> getOverviewLeads(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,  @RequestParam("dealer") Long dealer,
-			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product) {
-		return leadService.getOverviewLeads(start, end, zone, state, product, dealer);
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product, @RequestParam("brand") String brand ){
+		return leadService.getOverviewLeads(start, end, zone, state, product, dealer, brand);
 	}
 	
 	
@@ -294,16 +294,16 @@ public class BusinessController {
 	@RequestMapping(value="/getZoneSplineBetweenDates", method = RequestMethod.GET)
 	public @ResponseBody Map getZoneSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,
-			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product){
-		return dashBoardService.getZoneSplineBetweenDates(start, end, zone, state, product);
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product, @RequestParam("brand") String brand ){
+		return dashBoardService.getZoneSplineBetweenDates(start, end, zone, state, product, brand);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getProductSplineBetweenDates", method = RequestMethod.GET)
 	public @ResponseBody Map getProductSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,
-			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product){
-		return dashBoardService.getProductSplineBetweenDates(start, end, zone, state, product);
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product, @RequestParam("brand") String brand ){
+		return dashBoardService.getProductSplineBetweenDates(start, end, zone, state, product, brand);
 	}
 	
 	@Transactional
@@ -311,16 +311,16 @@ public class BusinessController {
 	public @ResponseBody Map getDealerSplineBetweenDates(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end, 
 			@RequestParam("zone") String zone, @RequestParam("state") String state,
-			@RequestParam("product") Long product,  @RequestParam("dealer") Long dealer){
-		return dashBoardService.getDealerSplineBetweenDates(start, end, zone, state, product, dealer);
+			@RequestParam("product") Long product,  @RequestParam("dealer") Long dealer, @RequestParam("brand") String brand ){
+		return dashBoardService.getDealerSplineBetweenDates(start, end, zone, state, product, dealer, brand);
 	}
 	
 	@Transactional
 	@RequestMapping(value="/getDashboardProgressbarAll", method = RequestMethod.GET)
 	public @ResponseBody List<Map> getDashboardProgressbarAll(@RequestParam("start") @DateTimeFormat(pattern="MMddyyyy") Date start,
 			@RequestParam("end") @DateTimeFormat(pattern="MMddyyyy") Date end,
-			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product,  @RequestParam("dealer") Long dealer){
-		return dashBoardService.getDashboardProgressbar(start, end, zone, state, product, dealer);
+			@RequestParam("zone") String zone, @RequestParam("state") String state, @RequestParam("product") Long product,  @RequestParam("dealer") Long dealer, @RequestParam("brand") String brand ){
+		return dashBoardService.getDashboardProgressbar(start, end, zone, state, product, dealer, brand);
 	}
 	
 	@Transactional

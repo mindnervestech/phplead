@@ -21,6 +21,7 @@ public class LeadDetailsVM {
 	public String status;
 	public String esacaletedTo;
 	public Date followUpDate;
+	public String lms;
 	private String dealerName;
 	public LeadDetailsVM() {
 	}
@@ -41,6 +42,7 @@ public class LeadDetailsVM {
 		this.status = (String) map.get("status");
 		this.followUpDate = (Date) map.get("date");
 		this.dealerName = (String) map.get("dealerName");
+		this.lms = (String) map.get("lms");
 	}
 
 	public LeadDetailsVM(Lead lead) {

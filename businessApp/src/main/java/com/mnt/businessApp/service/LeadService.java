@@ -43,8 +43,9 @@ public class LeadService {
 	private JdbcTemplate jt;
 
 	public List<LeadDetailsVM> getAllLeadDetails() {
-		return getLeadDetailVM(null, null, " and u.id = l.user_id ", "0", "0", 0L, 0L);
+		return getLeadDetailVM(null, null, " and u.id = l.user_id ", "0", "0", 0L, 0L, "0");
 	}
+	
 	public LeadVM getLeadVMById(Long id) {
 		Lead lead = getLeadById(id);
 		LeadVM leadVM = new LeadVM(lead); 
@@ -179,7 +180,7 @@ public class LeadService {
 		return leadHistoryVMs;
 	}
 
-	public List<LeadDetailsVM> getAllEscalatedLeadDetails(Date start, Date end, String zone, String state, Long product, Long dealer) {
+	public List<LeadDetailsVM> getAllEscalatedLeadDetails(Date start, Date end, String zone, String state, Long product, Long dealer, String brand) {
 		AuthUser user = Utils.getLoggedInUser();
 		String escalationSql = " and u.id = l.user_id and l.status = 'Escalated' ";
 		if(start!=null){
@@ -214,7 +215,7 @@ public class LeadService {
 				user.getEntityName().equals("TSR") || user.getEntityName().equals("RSM") ||  user.getEntityName().equals("Sales Executive")) {
 			escalationSql +=" and l.escalatedTo_id =  "+user.getEntityId();
 		}
-		return getLeadDetailVM(start, end, escalationSql, "0", "0", 0L, 0L);
+		return getLeadDetailVM(start, end, escalationSql, "0", "0", 0L, 0L, brand);
 	}
 
 	public List<LeadDetailsVM> getFollowUpLeads() {
@@ -223,27 +224,27 @@ public class LeadService {
 		String sql = "";
 		String userSql = "";
 
-		return getLeadDetailVM(null, null, " and l.followUpDate IS NOT NULL and u.id = l.user_id ", "0", "0", 0L, 0L);
+		return getLeadDetailVM(null, null, " and l.followUpDate IS NOT NULL and u.id = l.user_id ", "0", "0", 0L, 0L, "0");
 
 	}
 
-	public List<LeadDetailsVM> getOpenLeads(Date start, Date end, String zone, String state, Long product, Long dealer) {
-		return  getLeadDetailVM(start, end, " and l.status = 'Open' and u.id = l.user_id", zone, state, product, dealer);
+	public List<LeadDetailsVM> getOpenLeads(Date start, Date end, String zone, String state, Long product, Long dealer, String brand) {
+		return  getLeadDetailVM(start, end, " and l.status = 'Open' and u.id = l.user_id", zone, state, product, dealer, brand);
 	}
 
-	public List<LeadDetailsVM> getWonLeads(Date start, Date end, String zone, String state, Long product, Long dealer) {
-		return getLeadDetailVM(start, end, " and l.status = 'Won' and u.id = l.user_id", zone, state, product, dealer);
+	public List<LeadDetailsVM> getWonLeads(Date start, Date end, String zone, String state, Long product, Long dealer, String brand) {
+		return getLeadDetailVM(start, end, " and l.status = 'Won' and u.id = l.user_id", zone, state, product, dealer, brand);
 	}
 
-	public List<LeadDetailsVM> getLostLeads(Date start, Date end, String zone, String state, Long product, Long dealer) {
-		return getLeadDetailVM(start, end," and l.status = 'Lost' and u.id = l.user_id", zone, state, product, dealer);
+	public List<LeadDetailsVM> getLostLeads(Date start, Date end, String zone, String state, Long product, Long dealer, String brand) {
+		return getLeadDetailVM(start, end," and l.status = 'Lost' and u.id = l.user_id", zone, state, product, dealer, brand);
 	}
 	
-	public List<LeadDetailsVM> getOverviewLeads(Date start, Date end, String zone, String state, Long product, Long dealer) {
-		return getLeadDetailVM(start, end," and l.user_id is null ", zone, state, product, dealer);
+	public List<LeadDetailsVM> getOverviewLeads(Date start, Date end, String zone, String state, Long product, Long dealer, String brand) {
+		return getLeadDetailVM(start, end," and l.user_id is null ", zone, state, product, dealer, brand);
 	}
 	
-	private List<LeadDetailsVM> getLeadDetailVM(Date start, Date end, String query, String zone, String state, Long product, Long dealer ){
+	private List<LeadDetailsVM> getLeadDetailVM(Date start, Date end, String query, String zone, String state, Long product, Long dealer, String brand) {
 		List<LeadDetailsVM> vms = new ArrayList<>();
 		AuthUser user = Utils.getLoggedInUser();
 		String sql = "";
@@ -252,7 +253,7 @@ public class LeadService {
 		if(start != null)
 			date = " and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
 					+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"' ";
-		if(dealer != 0 || product != 0 || !zone.equals("0") || !state.equals("0")){
+		if(dealer != 0 || product != 0 || !zone.equals("0") || !state.equals("0") || !brand.equals("0")){
 			if(!zone.equals("0") && !state.equals("0")){
 				userQuery += " and l.zone = '"+zone+"' and ld.state = '"+state+"'";
 			} else if(!zone.equals("0")){
@@ -260,6 +261,9 @@ public class LeadService {
 			} else if(!state.equals("0")){
 				if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager"))
 				userQuery += " and ld.state = '"+state+"' and l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" )";
+			}
+			if(!brand.equals("0")){
+				query += " and ld.lms = '"+brand+"' ";
 			}
 			if(product != 0 ){
 				userQuery += " and ld.product_id ="+product;
@@ -294,12 +298,20 @@ public class LeadService {
 				query += " and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
 			}
 		}
-		sql = "Select ld.sr as srNo, ld.name as name, "
+		sql = "Select ld.sr as srNo, ld.name as name,  ld.lms as lms, "
 				+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
 				+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
-				+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date , u.name as dealerName"
-				+" FROM lead as l, leaddetails as ld, product as p,  user as u where p.id = ld.product_id"
+				+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date"
+				+" FROM lead as l, leaddetails as ld, product as p, user as u where p.id = ld.product_id"
 				+" and ld.id = l.leadDetails_id "+query+userQuery+date;
+		if(query.contains("l.user_id is null")){
+			sql = "Select ld.sr as srNo, ld.name as name,  ld.lms as lms, "
+					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
+					+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date"
+					+" FROM lead as l, leaddetails as ld, product as p where p.id = ld.product_id"
+					+" and ld.id = l.leadDetails_id "+query+userQuery+date;
+		}
 		System.out.println("SQL : " + sql);
 		
 		List<Map<String, Object>> rows = jt.queryForList(sql);

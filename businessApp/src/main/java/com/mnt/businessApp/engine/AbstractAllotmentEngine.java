@@ -128,6 +128,7 @@ public abstract class AbstractAllotmentEngine {
 		ageing.setLead_id(id);
 		ageing.setStatus(disposition1);
 		ageing.setAgeing(0L);
+		ageing.setIsCurrent(true);
 		session.save(ageing);
 		return ageing;
 	}

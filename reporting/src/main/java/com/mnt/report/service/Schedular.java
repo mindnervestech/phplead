@@ -34,10 +34,11 @@ public class Schedular {
 	@Autowired
 	JdbcTemplate jt;
 
-	@Scheduled(cron = "0 0 0 * * *")
+	//@Scheduled(cron = "0 0 0 * * *")
+	//@Scheduled(fixedRate = 5 * 60000)
 	public void onSchedule() {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-		System.out.println("The time is now " + dateFormat.format(new Date()));
+		System.out.println(" Email Send The time is now " + dateFormat.format(new Date()));
 		getSchedularData();
 		
 	}
