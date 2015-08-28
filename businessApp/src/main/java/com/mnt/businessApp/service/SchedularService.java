@@ -34,6 +34,7 @@ import com.mnt.entities.businessApp.Lead;
 import com.mnt.entities.businessApp.LeadAgeing;
 import com.mnt.entities.businessApp.LeadDetails;
 import com.mnt.entities.businessApp.Product;
+import com.mnt.entities.businessApp.ZipCode;
 
 @Service
 public class SchedularService {

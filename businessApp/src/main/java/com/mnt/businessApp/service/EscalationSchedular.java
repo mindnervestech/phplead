@@ -32,7 +32,7 @@ public class EscalationSchedular {
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 	
-	@Scheduled(fixedRate = 60000)
+	//@Scheduled(fixedRate = 5 * 60000)
 	@Transactional
 	public void onSchedule() {
 		
