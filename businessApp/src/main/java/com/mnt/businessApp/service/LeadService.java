@@ -403,6 +403,7 @@ public class LeadService {
 		details.setUploadDate(new Date());
 		details.setState(vm.getState());
 		details.setSr(vm.getLeadNumber());
+		details.setSrNo(vm.getLeadNumber());
 		details.setPinCode(vm.getPinCode());
 		details.setType(vm.getType());
 		session.save(details);
@@ -414,6 +415,7 @@ public class LeadService {
 		lead.setDisposition1("New");
 		lead.setLeadDetails(details);
 		lead.setOrigin("Walk-In");
+		lead.setStatus("Open");
 		lead.setLastDispo1ModifiedDate(new Date());
 		session.save(lead);
 
