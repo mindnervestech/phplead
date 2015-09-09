@@ -231,6 +231,12 @@ public class DealerService {
 		user.district = userVM.getDistrict();
 		user.setEntityName(role.getName());
 		user.setStatus(true);
+		List<ZipCode> codes = new ArrayList<>();
+		for(ZoneVM vm : userVM.getIds()){
+			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));
+		}
+		user.setZipCodes(codes);
+		
 		if(authUser1.getEntityName().equals("General Manager") || authUser1.getEntityName().equals("Sellout-Regional")){
 			System.out.println("User : " + Long.valueOf(userVM.user));
 			User dealer = (User) sessionFactory.getCurrentSession().get(User.class,Long.valueOf(userVM.user));
@@ -369,6 +375,16 @@ public class DealerService {
 						new Object[] {user.getId(), productVM.getId()});
 			}
 		}
+		
+		Query query = sessionFactory.getCurrentSession().createQuery("FROM AuthUser Where entityId = :id"); 
+		query.setParameter("id", userVM.getId());
+		List results = query.list();
+		AuthUser authUser = (AuthUser) results.get(0);
+		authUser.setEmail(userVM.getEmail());
+		authUser.setUsername(userVM.getEmail());
+		authUser.setName(userVM.getName());
+		sessionFactory.getCurrentSession().update(authUser);
+		
 		sessionFactory.getCurrentSession().update(user);
 		sessionFactory.getCurrentSession().flush();
 		/*Session session = sessionFactory.getCurrentSession();
@@ -433,6 +449,12 @@ public class DealerService {
 		user.district = userVM.getDistrict();
 		user.postCode = userVM.getPostCode();
 		user.setEntityName(role.getName());
+		List<ZipCode> codes = new ArrayList<>();
+		for(ZoneVM vm : userVM.getIds()){
+			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));
+		}
+		user.setZipCodes(codes);
+		
 		if(authUser1.getEntityName().equals("General Manager") || authUser1.getEntityName().equals("Sellout-Regional")){
 			System.out.println("User : " + Long.valueOf(userVM.user));
 			User dealer = (User) sessionFactory.getCurrentSession().get(User.class,Long.valueOf(userVM.user));
@@ -454,6 +476,9 @@ public class DealerService {
 		List<Role> roles = new ArrayList<>();
 		roles.add(role);
 		authUser.setRoles(roles);
+		authUser.setEmail(userVM.getEmail());
+		authUser.setUsername(userVM.getEmail());
+		authUser.setName(userVM.getName());
 		sessionFactory.getCurrentSession().update(authUser);
 		
 		sessionFactory.getCurrentSession().update(user);
@@ -563,6 +588,7 @@ public class DealerService {
 				products.add(pvm);
 			}
 			vm.products = products;
+			vm.setIds(getAllDealerConfig((Long) row.get("id")));
 			userList.add(vm);
 		}
 		return userList;

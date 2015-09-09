@@ -21,6 +21,7 @@ public class SaveUserVM {
 	public String city;
 	public Long dealer;
 	public String user;
+	public List<ZoneVM> ids;
 	
 	public String getName() {
 		return name;
@@ -112,4 +113,11 @@ public class SaveUserVM {
 	public void setUser(String user) {
 		this.user = user;
 	}
+	public List<ZoneVM> getIds() {
+		return ids;
+	}
+	public void setIds(List<ZoneVM> ids) {
+		this.ids = ids;
+	}
+	
 }
