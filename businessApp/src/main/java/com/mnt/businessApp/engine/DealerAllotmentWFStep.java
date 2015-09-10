@@ -18,10 +18,6 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 
 	@Override
 	protected void assignLeadIfMultipleUser() {
-		Long total = jt.queryForLong("SELECT COUNT(*) FROM lead as l, leaddetails where l.leadDetails_id = leaddetails.id "
-				+ " and l.status = 'Open' "
-				+ " and leaddetails.pinCode = '"+zip+"' and leaddetails.product_id = "+product);
-		
 		Math.random();
 		Long dealer =  userPresent.get((int)(Math.random()*userPresent.size()));
 		jt.update("UPDATE lead SET lead.user_id = "+dealer+" where lead.id = "+lead_id);

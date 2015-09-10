@@ -30,6 +30,7 @@ public class UserVM {
 	public String customerGroup;
 	private List<String> productlist;
 	public Long user;
+	public String brand;
 	
 	public UserVM(){}
 	
@@ -46,6 +47,7 @@ public class UserVM {
 		this.state = user.getState();
 		this.zone = user.getZone();
 		this.customerGroup = user.getCustomerGroup();
+		this.brand = user.getBrand();
 	}
 	public Long getId() {
 		return id;
@@ -182,5 +184,14 @@ public class UserVM {
 
 	public void setUser(Long user) {
 		this.user = user;
-	}	
+	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+	
 }

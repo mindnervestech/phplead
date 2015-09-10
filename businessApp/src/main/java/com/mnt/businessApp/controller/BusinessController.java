@@ -366,11 +366,13 @@ public class BusinessController {
 		Map<String, Map<String, Map<String, List<Long>>>> map = new HashMap<String, Map<String,Map<String,List<Long>>>>();
 		try{
 			AllotmentEngineCache allotmentEngineCache = AllotmentEngineCache.getInstance();
+			map.put("brand", allotmentEngineCache.brandCache);
 			map.put("product", allotmentEngineCache.productCache);
 			map.put("zipCode", allotmentEngineCache.zipCache);
+			
 		} catch (Exception e){
 			AllotmentEngineCache.invalidate();
-			AllotmentEngineCache.build(assignLeadsService.getZipCodeUserMapping(), assignLeadsService.getProductUserMapping());
+			AllotmentEngineCache.build(assignLeadsService.getZipCodeUserMapping(), assignLeadsService.getProductUserMapping(),assignLeadsService.getBrandUserMapping());
 		}
 		return map;
 	}

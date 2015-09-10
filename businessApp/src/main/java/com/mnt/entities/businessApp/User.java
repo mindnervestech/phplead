@@ -30,6 +30,7 @@ public class User {
 	public String state;
 	public String district;
 	public String customerGroup;
+	public String brand;
 	
 	@ManyToMany
 	public List<Product> products;
@@ -142,6 +143,13 @@ public class User {
 	}
 	public void setUser(User user) {
 		this.user = user;
+	}
+	
+	public String getBrand() {
+		return brand;
+	}
+	public void setBrand(String brand) {
+		this.brand = brand;
 	}
 	public void addZipCode(ZipCode zipCode) {
 		if(this.zipCodes == null){

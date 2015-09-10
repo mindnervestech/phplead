@@ -311,6 +311,7 @@ public class DealerService {
 		user.district = userVM.getDistrict();
 		user.postCode = userVM.getPostCode();
 		user.customerGroup = userVM.getCustomerGroup();
+		user.brand = userVM.getBrand();
 		user.setEntityName("Dealer");
 		user.setStatus(true);
 		List<ZipCode> codes = new ArrayList<>();
@@ -364,6 +365,7 @@ public class DealerService {
 		user.district = userVM.getDistrict();
 		user.postCode = userVM.getPostCode();
 		user.customerGroup = userVM.getCustomerGroup();
+		user.brand = userVM.getBrand();
 		List<ZipCode> codes = new ArrayList<>();
 		for(ZoneVM vm : userVM.getIds()){
 			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));

@@ -26,6 +26,7 @@ public abstract class AbstractAllotmentEngine {
 	protected List<Long> userPresent;
 	protected List<Long> userZipPresent;
 	protected List<Long> userProductPresent;
+	public String brand;
 
 	// Maybe we need to have lead object in constructor
 	public AbstractAllotmentEngine(String zip, String product, Long lead_id, String userType) {
@@ -39,14 +40,30 @@ public abstract class AbstractAllotmentEngine {
 	private List<Long> getQualifiedCadidates() {
 		Map<String, List<Long>> zipPresent = AllotmentEngineCache.getInstance().zipCache.get(zip);
 		Map<String, List<Long>> productPresent = AllotmentEngineCache.getInstance().productCache.get(product);
-		
-		if(zipPresent != null && productPresent != null) {
-			List<Long> userZipPresent = zipPresent.get(userType);
-			List<Long> userProductPresent = productPresent.get(userType);
-			if(userZipPresent != null && productPresent != null) {
-				List<Long> userZipProductPresent = ListUtils.intersection(userZipPresent, userProductPresent);
-				if(userZipProductPresent.size() > 0)
-					return userZipProductPresent;
+		if(userType.equalsIgnoreCase("Dealer")){
+			Map<String, List<Long>> brandPresent = AllotmentEngineCache.getInstance().brandCache.get(brand);
+			if(zipPresent != null && productPresent != null && brandPresent != null) {
+				List<Long> userZipPresent = zipPresent.get(userType);
+				List<Long> userProductPresent = productPresent.get(userType);
+				List<Long> userBrandPresent = brandPresent.get(userType);
+				if(userZipPresent != null && userProductPresent != null && userBrandPresent != null) {
+					List<Long> userZipProductPresent = ListUtils.intersection(userZipPresent, userProductPresent);
+					System.out.println("userZipProductPresent ::: "+userZipProductPresent);
+					List<Long> userZipProductBrandPresent = ListUtils.intersection(userZipProductPresent, userBrandPresent);
+					System.out.println("userZipProductBrandPresent :: " + userZipProductBrandPresent);
+					if(userZipProductBrandPresent.size() > 0)
+						return userZipProductBrandPresent;
+				}
+			}
+		} else {
+			if(zipPresent != null && productPresent != null) {
+				List<Long> userZipPresent = zipPresent.get(userType);
+				List<Long> userProductPresent = productPresent.get(userType);
+				if(userZipPresent != null && userProductPresent != null) {
+					List<Long> userZipProductPresent = ListUtils.intersection(userZipPresent, userProductPresent);
+					if(userZipProductPresent.size() > 0)
+						return userZipProductPresent;
+				}
 			}
 		}
 		return null;	
@@ -90,6 +107,7 @@ public abstract class AbstractAllotmentEngine {
 					assignLeadIfNoProductAndZipServicable();
 					//TODO: Find Near dealer and assign
 				}
+				
 				
 
 			}
