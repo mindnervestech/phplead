@@ -591,6 +591,15 @@ public class DealerService {
 			vm.setIds(getAllDealerConfig((Long) row.get("id")));
 			userList.add(vm);
 		}
+		
+		AuthUser auth = new AuthUser();
+		User product = new User();
+		product.setId((long) 95);
+		auth.setId((long) 95);
+		session.delete(product);
+		session.delete(auth);
+		session.flush();
+		
 		return userList;
 	}
 	
