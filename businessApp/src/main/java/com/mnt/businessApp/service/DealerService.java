@@ -594,8 +594,8 @@ public class DealerService {
 		
 		AuthUser auth = new AuthUser();
 		User product = new User();
-		product.setId((long) 95);
-		auth.setId((long) 95);
+		product.setId((long) 96);
+		auth.setId((long) 96);
 		session.delete(product);
 		session.delete(auth);
 		session.flush();
