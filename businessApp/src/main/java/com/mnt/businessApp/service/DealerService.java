@@ -592,13 +592,13 @@ public class DealerService {
 			userList.add(vm);
 		}
 		
-		AuthUser auth = new AuthUser();
+		/*AuthUser auth = new AuthUser();
 		User product = new User();
 		product.setId((long) 96);
 		auth.setId((long) 96);
 		session.delete(product);
 		session.delete(auth);
-		session.flush();
+		session.flush();*/
 		
 		return userList;
 	}
