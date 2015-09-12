@@ -147,7 +147,7 @@ public class LeadService {
 			lead.setStatus("Open");
 			lead.setDisposition3(vm.getDisposition3());
 		}
-		if(lead.getDisposition2().equals("Call back/Follow up") || 
+		if(lead.getDisposition1().equals("Tried Contacted") || lead.getDisposition2().equals("Call back/Follow up") || 
 				(lead.getDisposition2().equals("Interested") && (lead.getDisposition3().equals("Call back-want to purchase later") || lead.getDisposition3().equals("Call back-evaluating")))){
 			lead.setFollowUpDate(vm.getFollowUpDate());
 		}
