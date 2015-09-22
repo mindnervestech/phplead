@@ -53,15 +53,16 @@ public class MailService
 		             System.out.println("New");
 		             message.setFrom("admin@bsh-lms.com");
 		             message.setSubject(subject);
-		             Map velocityContext = new HashMap();
+		             /*Map velocityContext = new HashMap();
 		             velocityContext.put("firstName", "Yashwant");
 		             velocityContext.put("lastName", "Chavan");
 		             velocityContext.put("location", "Pune");
 		             velocityContext.put("message", "Message");
 		             String text = VelocityEngineUtils.mergeTemplateIntoString(
-		                     velocityEngine, "email-template.vm", "UTF-8", velocityContext);
-		             File file = getAttachement();
-		             message.addAttachment(file.getName(), file);
+		                     velocityEngine, "email-template.vm", "UTF-8", velocityContext);*/
+		             String text = "Hiii";
+		             //File file = getAttachement();
+		             //message.addAttachment(file.getName(), file);
 		             message.setText(text, true);
 		          }
 		       };

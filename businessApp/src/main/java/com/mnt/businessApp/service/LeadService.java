@@ -457,8 +457,9 @@ public class LeadService {
 				NamedParameterJdbcTemplate(jt.getDataSource());
 		
 		namedParameterJdbcTemplate.update(hql, param);
+		
+		mailService.sendMail(reassign.getEmail(), "SUBJECT", "BODY");
 		System.out.println(" Reassign Email : " + reassign.getEmail());
-		mailService.sendMail("ahadansari09@gmail.com", "SUBJECT", "BODY");
 	}
 
 	private Date getDate(Date end){

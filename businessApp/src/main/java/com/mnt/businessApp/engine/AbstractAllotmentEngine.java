@@ -9,18 +9,22 @@ import java.util.Map;
 import org.apache.commons.collections.ListUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.mnt.businessApp.service.MailService;
 import com.mnt.entities.businessApp.Lead;
 import com.mnt.entities.businessApp.LeadAgeing;
 
 public abstract class AbstractAllotmentEngine {
+	
 
 	String zip; String product; String userType;
 	public Long lead_id;
 	public JdbcTemplate jt;
 	public String status;
 	public Session session;
+	public MailService mailService;
 	
 	public Date configDate;
 	protected List<Long> userPresent;
@@ -80,6 +84,7 @@ public abstract class AbstractAllotmentEngine {
 					updateLeadAgeing();
 				}
 				if(userPresent.size() == 1) {
+					System.out.println("User Present :: " + userPresent.get(0).toString());
 					assignLeadIfSingleUser();
 				} else {
 					assignLeadIfMultipleUser();
