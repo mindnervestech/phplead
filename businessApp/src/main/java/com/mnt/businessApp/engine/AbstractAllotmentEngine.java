@@ -84,7 +84,6 @@ public abstract class AbstractAllotmentEngine {
 					updateLeadAgeing();
 				}
 				if(userPresent.size() == 1) {
-					System.out.println("User Present :: " + userPresent.get(0).toString());
 					assignLeadIfSingleUser();
 				} else {
 					assignLeadIfMultipleUser();
@@ -165,5 +164,22 @@ public abstract class AbstractAllotmentEngine {
 	protected abstract void assignLeadIfMultipleUser();
 
 	protected abstract void assignLeadIfSingleUser();
+
+	public void sendMail(Long id){
+		System.out.println("In Single User :: ");
+		String usersql = "";
+		usersql = "SELECT email FROM user as u where u.id ="+id;
+		List<Map<String, Object>> rows = jt.queryForList(usersql);
+		String email = "";
+		System.out.println("Email row : " + rows.get(0).toString());
+		for(Map map : rows) {
+			email = (String) map.get("email");
+			System.out.println("Email : " + email);
+		}
+		System.out.println("Email 1 :: " + email);
+		System.out.println("Mail Service :: " + mailService);
+		mailService.sendMail(email, "SUBJECT", "BODY");
+		System.out.println("After sending......");
+	}
 
 }
