@@ -50,7 +50,8 @@ public class MailService
 				public void prepare(MimeMessage mimeMessage) throws Exception {
 		             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true);
 		             message.setTo(to);
-		             message.setFrom("admin@bsh-lms.com");
+		             System.out.println("New");
+		             message.setFrom("support@checkinrooms.com");
 		             message.setSubject(subject);
 		             Map velocityContext = new HashMap();
 		             velocityContext.put("firstName", "Yashwant");
@@ -64,6 +65,7 @@ public class MailService
 		             message.setText(text, true);
 		          }
 		       };
+		       System.out.println("Send Email.........");
 		       mailSender.send(preparator);			
 	}
     
