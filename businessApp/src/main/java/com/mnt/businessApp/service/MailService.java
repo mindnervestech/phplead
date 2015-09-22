@@ -65,8 +65,9 @@ public class MailService
 		             message.setText(text, true);
 		          }
 		       };
-		       System.out.println("Send Email.........");
-		       mailSender.send(preparator);			
+		       
+		       mailSender.send(preparator);	
+		       System.out.println("Send Email 1.........");
 	}
     
     public File getAttachement(){
