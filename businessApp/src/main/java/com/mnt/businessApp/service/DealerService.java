@@ -318,6 +318,10 @@ public class DealerService {
 		for(ZoneVM vm : userVM.getIds()){
 			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));
 		}
+		
+		/*for(PinsVM vm : userVM.getPins()){
+			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getPin()));
+		}*/
 		user.setZipCodes(codes);
 		
 		sessionFactory.getCurrentSession().save(user);
@@ -370,6 +374,9 @@ public class DealerService {
 		for(ZoneVM vm : userVM.getIds()){
 			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));
 		}
+		/*for(PinsVM vm : userVM.getPins()){
+			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getPin()));
+		}*/
 		user.setZipCodes(codes);
 		for(ProductVM productVM : userVM.getProducts()) {
 			if(productVM.getSelected() == true){
@@ -780,6 +787,41 @@ public class DealerService {
 			return "Select DISTINCT(ld.state) as name from lead l, leaddetails ld where ld.id = l.leadDetails_id and l.zone = (select user.zone from user where user.id = "+authUser.getEntityId()+")";
 		}
 		return "Select DISTINCT(ld.state) as name from lead l, leaddetails ld where ld.id = l.leadDetails_id and l.zone ='"+zone+"'";
+	}
+	
+	
+	public List<ZoneVM> getZonesByState(String zone) {
+		List<Map<String, Object>> rows = jt.queryForList(getZonesByStateSql(zone));
+		List<ZoneVM> stateList = new ArrayList<ZoneVM>();
+		for(Map map : rows) {
+			ZoneVM vm = new ZoneVM();
+			vm.id = (Long) map.get("id");
+			vm.name = (String) map.get("name");
+			stateList.add(vm);
+		}
+		return stateList;
+	}
+	
+	public String getZonesByStateSql(String zone){
+		
+		return "Select DISTINCT(zipcode.state) as name from zipcode where zipcode.state IS NOT NULL and zipcode.zone='"+zone+"'";
+	}
+	
+	public List<ZoneVM> getDistrictByState(String state) {
+		List<Map<String, Object>> rows = jt.queryForList(getDistrictByStateSql(state));
+		List<ZoneVM> districtList = new ArrayList<ZoneVM>();
+		for(Map map : rows) {
+			ZoneVM vm = new ZoneVM();
+			vm.id = (Long) map.get("id");
+			vm.name = (String) map.get("name");
+			districtList.add(vm);
+		}
+		return districtList;
+	}
+	
+	public String getDistrictByStateSql(String state){
+		
+		return "Select DISTINCT(zipcode.district) as name ,zipcode.zone,zipcode.state from zipcode where zipcode.state IS NOT NULL and zipcode.state='"+state+"'";
 	}
 
 	

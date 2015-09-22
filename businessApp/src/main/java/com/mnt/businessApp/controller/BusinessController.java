@@ -211,6 +211,18 @@ public class BusinessController {
 		return dealerService.getZones();
 	}	
 	
+	@Transactional
+	@RequestMapping(value="/getZonesByState/{zone}",method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getZonesByState(@PathVariable("zone") String zone) {
+		return dealerService.getZonesByState(zone);
+	}
+	
+	@Transactional
+	@RequestMapping(value="/getDistrictByState/{state}",method = RequestMethod.GET)
+	public @ResponseBody List<ZoneVM> getDistrictByState(@PathVariable("state") String state) {
+		return dealerService.getDistrictByState(state);
+	}
+	
 	
 	@Transactional
 	@RequestMapping(value="/getPincodes", method = RequestMethod.GET)
@@ -338,7 +350,7 @@ public class BusinessController {
 	@Transactional
 	@RequestMapping(value="/sendMail", method = RequestMethod.GET)
 	public @ResponseBody void sendMail(){
-		mailService.sendMail("shwashank12@gmail.com", "SUBJECT", "BODY");
+		mailService.sendMail("ahadansari09@gmail.com", "SUBJECT", "BODY");
 	}
 	
 	@Transactional

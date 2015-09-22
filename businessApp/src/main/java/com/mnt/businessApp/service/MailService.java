@@ -50,7 +50,7 @@ public class MailService
 				public void prepare(MimeMessage mimeMessage) throws Exception {
 		             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true);
 		             message.setTo(to);
-		             message.setFrom("mindnervesdemo@gmail.com");
+		             message.setFrom("admin@bsh-lms.com");
 		             message.setSubject(subject);
 		             Map velocityContext = new HashMap();
 		             velocityContext.put("firstName", "Yashwant");
