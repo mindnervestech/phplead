@@ -40,6 +40,9 @@ public class LeadService {
 	private DealerService dealerService;
 
 	@Autowired
+	private MailService mailService;
+	
+	@Autowired
 	private JdbcTemplate jt;
 
 	public List<LeadDetailsVM> getAllLeadDetails() {
@@ -347,6 +350,7 @@ public class LeadService {
 			vm.setEntity(user.getEntityName());
 			vm.setId(user.getEntityId());
 			vm.setName(user.getEntityName());
+			vm.setEmail(user.getEmail());
 			dealerList.add(vm);
 			return dealerList;
 		} 
@@ -363,6 +367,7 @@ public class LeadService {
 				vm.name = (String) map.get("name") +" : (" + (String) map.get("entityName")+")";
 			}
 			vm.entity = (String) map.get("entityName");
+			vm.email = (String) map.get("email");
 			dealerList.add(vm);
 		}
 		return dealerList;
@@ -439,6 +444,7 @@ public class LeadService {
 
 
 	public void reassignDealers(ReassignUserVM reassign, List<Long> ids) {
+		System.out.println(" Reassign ID : " + reassign.getId());
 		String hql = "";
 		if(reassign.getEntity().equals("Sales Executive") || reassign.getEntity().equals("Sales Consultant") || reassign.getEntity().equals("Dealer") || reassign.getEntity().equals("RSM") || reassign.getEntity().equals("TSR")){
 			hql = "UPDATE lead SET lead.user_id = "+reassign.getId()+" where lead.id IN(:ids)";
@@ -449,7 +455,10 @@ public class LeadService {
 		Map<String, List<Long>> param = Collections.singletonMap("ids",ids); 
 		NamedParameterJdbcTemplate  namedParameterJdbcTemplate = new  
 				NamedParameterJdbcTemplate(jt.getDataSource());
+		
 		namedParameterJdbcTemplate.update(hql, param);
+		System.out.println(" Reassign Email : " + reassign.getEmail());
+		mailService.sendMail("ahadansari09@gmail.com", "SUBJECT", "BODY");
 	}
 
 	private Date getDate(Date end){

@@ -5,6 +5,7 @@ public class ReassignUserVM {
 	public Long id;
 	public String name;
 	public String entity;
+	public String email;
 	
 	public Long getId() {
 		return id;
@@ -23,6 +24,12 @@ public class ReassignUserVM {
 	}
 	public void setEntity(String entity) {
 		this.entity = entity;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	
 }
