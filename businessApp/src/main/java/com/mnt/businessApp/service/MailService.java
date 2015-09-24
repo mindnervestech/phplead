@@ -41,10 +41,47 @@ public class MailService
      
     public void sendMail(String to, String subject, String body)
     {
-    	sendSuggestPodcastNotification(to,subject);
+    	sendSuggestPodcastNotification(to,subject,body);
     }
     
-    public void sendSuggestPodcastNotification(final String to, final String subject) {
+    public void sendReassignMail(String email,Map map){
+    	 Map velocityContext = new HashMap();
+    	 
+    	 velocityContext.put("Name", (String) map.get("name") == null ? "" : (String) map.get("name"));
+    	 velocityContext.put("Number", (Long) map.get("number") == null ? "" : (Long) map.get("number"));
+    	 velocityContext.put("Brand", (String) map.get("brand") == null ? "" : (String) map.get("brand"));
+    	 velocityContext.put("Product", (String) map.get("productName") == null ? "" : (String) map.get("productName"));
+    	 
+         String text = VelocityEngineUtils.mergeTemplateIntoString(
+                 velocityEngine, "reassignemail-template.vm", "UTF-8", velocityContext); //src/main/resources/template.email
+    	sendMail(email, "SuBject", text);
+    	
+    }
+    
+    public void sendReassignData(String email,Map<String, Map<String,String>> statemap){
+    	 Map velocityContext = new HashMap();
+    	 
+    	 velocityContext.put("statemap", statemap);
+    	 
+    	 for(String map : statemap.keySet()){
+    		 System.out.println("State : " + map);
+    		 Map<String, String> statusmap = statemap.get(map);
+    		 
+    		 for(String s : statusmap.keySet()){
+    			 System.out.println("Status : " + s);
+    			 System.out.println("Count: "+statusmap.get(s));
+    		 }
+    		 
+    	 }
+    	
+    	 String text = VelocityEngineUtils.mergeTemplateIntoString(
+                 velocityEngine, "email-template.vm", "UTF-8", velocityContext); //src/main/resources/template.email
+    	sendMail(email, "SuBject", text);
+    	
+    }
+    
+    
+    public void sendSuggestPodcastNotification(final String to, final String subject,final String body) {
 	      MimeMessagePreparator preparator = new MimeMessagePreparator() {
 		        @SuppressWarnings({ "rawtypes", "unchecked" })
 				public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -53,17 +90,18 @@ public class MailService
 		             System.out.println("New");
 		             message.setFrom("admin@bsh-lms.com");
 		             message.setSubject(subject);
-		             /*Map velocityContext = new HashMap();
-		             velocityContext.put("firstName", "Yashwant");
+		             Map velocityContext = new HashMap();
+		             /*velocityContext.put("firstName", "Yashwant");
 		             velocityContext.put("lastName", "Chavan");
 		             velocityContext.put("location", "Pune");
 		             velocityContext.put("message", "Message");
 		             String text = VelocityEngineUtils.mergeTemplateIntoString(
-		                     velocityEngine, "email-template.vm", "UTF-8", velocityContext);*/
-		             String text = "Hiii";
+		                     velocityEngine, "email-template.vm", "UTF-8", velocityContext); //src/main/resources/template.email
+		             //String text = "Hiii";
 		             //File file = getAttachement();
 		             //message.addAttachment(file.getName(), file);
-		             message.setText(text, true);
+*/		             
+		             message.setText(body, true);
 		          }
 		       };
 		       

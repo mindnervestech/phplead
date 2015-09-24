@@ -1,21 +1,29 @@
+
 <html>
 	<body>
-		<h3>Hi Adrian, you have a new suggested podcast!</h3>
-		<p>
-			From - ${firstName} / ${lastName} 
-		</p>
-		<h3>
-			Podcast metadataline 
-		</h3>
-		<p>
-			${location}
-		</p>
-		<h3>
-			With the message
-		</h3>
-		<p>
-			${message}
-		</p>
+		
+		<table class="gridtable" style="margin-top: 100px;margin-left: 50px;font-family: verdana, arial, sans-serif;font-size: 11px;color: #333333;border-width: 1px;border-color: #666666;border-collapse: collapse;">
+				<tr style="font-size: 20px;">
+					<th style="border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;">State</th>
+					<th style="border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;">Open</th>
+					<th style="border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;">Lost</th>
+					<th style="border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;">Won</th>					
+				</tr>
+				
+				
+				#foreach ($map in $statemap.keySet())
+				<tr style="font-size: 20px;">
+					<td style="border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;">$map</td>
+					 	
+						#foreach ($m in $statemap.get($map).keySet())
+							<td style="border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;">$statemap.get($map).get($m)</td>
+						#end
+					
+					
+				</tr>
+				#end
+			</table>
+		
 	</body>
  
 </html>

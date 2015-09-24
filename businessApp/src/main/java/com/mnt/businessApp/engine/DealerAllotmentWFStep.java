@@ -31,8 +31,11 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 		Math.random();
 		Long dealer =  userPresent.get((int)(Math.random()*userPresent.size()));
 		System.out.println("Lead.User_id = " + dealer );
-		jt.update("UPDATE lead SET lead.user_id = "+dealer+", lead.assignLeadDate = ? where lead.id = "+lead_id+" and lead.user_id is null ", new Date());
-		//sendMail(dealer);
+		int count = jt.update("UPDATE lead SET lead.user_id = "+dealer+", lead.assignLeadDate = ? where lead.id = "+lead_id+" and lead.user_id is null ", new Date());
+		if(count == 1){
+			sendMail(dealer);
+		}
+		
 	/*	for(Long dealer : userPresent){
 			Long count = jt.queryForLong("SELECT COUNT(*) FROM lead as l, leaddetails, user where l.leadDetails_id = leaddetails.id"
 					+ " and l.status = 'Open' "
@@ -54,8 +57,10 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 
 	@Override
 	protected void assignLeadIfSingleUser() {
-		jt.update("UPDATE lead SET lead.user_id = "+userPresent.get(0)+", lead.assignLeadDate = ? where lead.id = "+lead_id+" and lead.user_id is null ", new Date());
-		//sendMail(userPresent.get(0));
+		int count = jt.update("UPDATE lead SET lead.user_id = "+userPresent.get(0)+", lead.assignLeadDate = ? where lead.id = "+lead_id+" and lead.user_id is null ", new Date());
+		if(count == 1){
+			sendMail(userPresent.get(0));
+		}
 	}
 
 	@Override
@@ -65,7 +70,6 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 		allotmentWFStep.mailService = mailService;
 		allotmentWFStep.status = status;
 		allotmentWFStep.startAssignment();
-		
 	}
 
 	@Override
@@ -75,7 +79,6 @@ public class DealerAllotmentWFStep extends AbstractAllotmentEngine {
 		allotmentWFStep.status = status;
 		allotmentWFStep.mailService = mailService;
 		allotmentWFStep.startAssignment();
-		
 	}
 
 }

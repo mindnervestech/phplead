@@ -458,7 +458,86 @@ public class LeadService {
 		
 		namedParameterJdbcTemplate.update(hql, param);
 		
-		mailService.sendMail(reassign.getEmail(), "SUBJECT", "BODY");
+		
+		/*Query query = sessionFactory.getCurrentSession().createQuery("FROM Lead where id IN (:ids)");
+		query.setParameterList("ids", ids);
+		List<Lead> lead = query.list();
+		for(Lead l : lead){
+			mailService.sendReassignMail(reassign.getEmail(),l);
+		}*/
+		String str = "";
+		for(Long lg : ids){
+			if(str.isEmpty()){
+				str = lg.toString();
+			}
+			else{
+				str+= ","+lg.toString();
+			}
+		}
+		//List<Map<String, Object>> rows = jt.queryForList("select ld.id,ld.name,ld.city from lead as l,leaddetails as ld where l.leadDetails_id=ld.id and l.id IN("+ str +")");
+		List<Map<String, Object>> rows = jt.queryForList("select ld.name,ld.contactNo as number,ld.lms as brand,p.name as productName from lead as l,leaddetails as ld,product as p where ld.product_id = p.id and l.leadDetails_id=ld.id and l.id IN("+ str +")");
+		for(Map map : rows){
+			mailService.sendReassignMail(reassign.getEmail(),map);
+		}
+		
+		
+		
+		
+		/*System.out.println("IDS : " + str);
+		List<LeadDetails> productList = new ArrayList<LeadDetails>();
+		String lms = "Bosch";
+		String productName = "Washing Machine";
+		String roleName = "ZSM";
+		String sql = "SELECT " +
+		"L.`status` as 'Status', " +
+		"LD.state as 'State', " +
+		"count(*) AS 'Count' " +
+		"FROM lead L,leaddetails LD , product P, roles R, userrole UR, user_zipcode UZ " +
+		"WHERE L.leadDetails_id=LD.id AND P.id = LD.product_id AND " +
+		//"L.lastDispo1ModifiedDate >= ? AND " +
+		//"L.lastDispo1ModifiedDate <= ? AND " +
+		"LD.lms = '" + lms + "' AND " +
+		"P.name = '" + productName + "' AND " +
+		"R.name = '" + roleName + "' AND " +
+		"LD.pinCode = UZ.zipCodes_id AND " +
+		"UZ.User_id = UR.user_id AND " +
+		"UR.role_id = R.role_id " +
+		"group by status, state " +
+		"order by state";
+		
+		
+		List<Map<String, Object>> rows = jt.queryForList(sql);
+		Map<String, Map<String,String>> stateMap = new HashMap<String, Map<String,String>>();
+		for(Map map : rows){
+			String state = map.get("State").toString();
+			System.out.println("State : " + state);
+			Map<String,String> metric = stateMap.get(state);
+			if(metric == null) {
+				metric = new HashMap<String,String>();
+				System.out.println("Status : " + map.get("Status").toString());
+				System.out.println("Count : " + map.get("Count").toString());
+				if (map.get("Count").toString().equals(""))
+					{
+					metric.put(map.get("Status").toString(), "0");
+				} else{
+				metric.put(map.get("Status").toString(), map.get("Count").toString());
+				}
+			} else {
+				System.out.println("Status 1 : " + map.get("Status").toString());
+				System.out.println("Count 1 : " + map.get("Count").toString());
+				if (map.get("Count").toString().equals(""))
+				{
+				metric.put(map.get("Status").toString(), "0");
+				} else{
+					metric.put(map.get("Status").toString(), map.get("Count").toString());
+				}
+				//metric.put(map.get("Status").toString(), map.get("Count").toString());
+			}
+			stateMap.put(state, metric);
+		}
+		mailService.sendReassignData(reassign.getEmail(), stateMap);*/
+		
+		
 		System.out.println(" Reassign Email : " + reassign.getEmail());
 	}
 

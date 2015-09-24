@@ -1,0 +1,21 @@
+
+<html>
+	<body>
+
+		<h3>Hello,</h3>
+		<h3>Congratulations! You have received a new query.</h3>
+		<h3>Customer details are as follows</h3>
+		<p>Name: ${Name}</p>
+		<p>Contact number: ${Number}</p> 
+		<p>Product interested: ${Product}</p>  
+		<p>Call now!</p>
+		<p>Login to add feedback.</p> 
+		<p>Happy selling!</p> 
+		
+		<h3>With regards,</h3>
+		<h3>BSH Home Appliances</h3>
+		
+		
+	</body>
+ 
+</html>
