@@ -1,6 +1,5 @@
 package com.mnt.report.service;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.sql.Connection;
@@ -16,11 +15,11 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xwpf.usermodel.Document;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -47,9 +46,9 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;*/
 
-
 import com.mnt.businessApp.service.Utils;
 import com.mnt.entities.authentication.AuthUser;
+import com.mnt.entities.businessApp.User;
 
 @Controller
 @RequestMapping(value="/api/report")
@@ -58,6 +57,9 @@ public class ReportMDService {
 	@Autowired
 	private JdbcTemplate jt;
 
+	@Autowired
+	private SessionFactory sessionFactory;
+	
 	@Autowired
 	NamedParameterJdbcTemplate namedJdbcTemplate;
 
@@ -178,6 +180,7 @@ public class ReportMDService {
 	@RequestMapping(value="/run",method=RequestMethod.GET)
 	@ResponseBody
 	public JSONObject runReports(@RequestParam String filter) {
+		AuthUser user = Utils.getLoggedInUser();
 		JSONObject resp = new JSONObject();
 		try {
 			JSONObject jsonObject = (JSONObject)new JSONParser().parse(filter);
@@ -203,7 +206,7 @@ public class ReportMDService {
 					if(!value.equals(""))
 						parameters.put(key.toString(), value);
 				}
-
+				
 				if (value instanceof JSONArray) {
 					JSONArray jsonArray = (JSONArray) value;
 					int len = jsonArray.size();
@@ -224,6 +227,13 @@ public class ReportMDService {
 					    
 					}
 				}
+			}
+			if(user.getEntityName().equalsIgnoreCase("ZSM") || user.getEntityName().equalsIgnoreCase("Sellout Manager")){
+				Session session =  sessionFactory.openSession();
+				User localUser = (User) session.get(User.class, user.entityId);
+				parameters.put("ZONE_PT"+"in", localUser.getZone());
+				parameters.put("ZONE_PT", "");
+				session.close();
 			}
 			List<Map<String, Object>> rs = namedJdbcTemplate.queryForList(mdResult.get("query").toString(),parameters);
 
