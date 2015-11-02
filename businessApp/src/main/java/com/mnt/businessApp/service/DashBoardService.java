@@ -161,27 +161,27 @@ public class DashBoardService {
 		}
 
 		List<Map> list = new ArrayList<>();
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id  and l.user_id is not null "
+		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id  and l.user_id is not null and l.origin != 'Built-In' "
 				+ sqlDate + proZone;
 		System.out.println("total :: " + sql);
 		int total = jt.queryForObject(sql, Integer.class);
 		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id"
-				+ " and l.status = 'Escalated'  and l.user_id is not null "
+				+ " and l.status = 'Escalated'  and l.user_id is not null and l.origin != 'Built-In' "
 				+ escalatationlevel + proZone + sqlDate;
 		System.out.println("esc :: " + sql);
 		list.add(getLeadProgressBarVM(sql, "Escalated", "icon fa fa-suitcase",
 				"warning", total));
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id  and l.user_id is not null "
+		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id  and l.user_id is not null and l.origin != 'Built-In' "
 				+ " and l.status = 'Open' " + proZone + sqlDate;
 		System.out.println("open :: " + sql);
 		list.add(getLeadProgressBarVM(sql, "Open", "icon fa fa-folder-open",
 				"warning", total));
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and l.status = 'Won'  and l.user_id is not null "
+		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and l.status = 'Won'  and l.user_id is not null and l.origin != 'Built-In' "
 				+ proZone + sqlDate;
 		System.out.println("won :: " + sql);
 		list.add(getLeadProgressBarVM(sql, "Won", "icon fa fa-thumbs-up",
 				"success", total));
-		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and l.status = 'Lost' and l.user_id is not null  "
+		sql = "SELECT COUNT(*) FROM lead l, leadDetails ld  where ld.id = l.leadDetails_id and l.status = 'Lost' and l.user_id is not null and l.origin != 'Built-In' "
 				+ proZone + sqlDate;
 		System.out.println("lost :: " + sql);
 		list.add(getLeadProgressBarVM(sql, "Lost", "icon fa fa-thumbs-down",
@@ -260,18 +260,16 @@ public class DashBoardService {
 		}
 
 		if (!zone.equals("0") && !state.equals("0")) {
-			zoneState = "and l.zone = '" + zone + "' and ld.state = '" + state
-					+ "'";
+			zoneState = "and l.zone = '" + zone + "' and UPPER(ld.state) = UPPER('" + state + "')";
 			select = "SELECT COUNT(*) as count, ld.state as name ";
 			gropBy = " GROUP BY ld.state ORDER BY ld.state asc";
-			all = "Select DISTINCT(leaddetails.state) as name from leaddetails where leaddetails.state = '"
-					+ state + "'";
+			all = "Select DISTINCT(leaddetails.state) as name from leaddetails where UPPER(leaddetails.state) = UPPER('" + state + "')";
 		} else if (!state.equals("0")) {
-			zoneState = " and ld.state = '" + state + "'";
+			zoneState = " and UPPER(ld.state) = UPPER('" + state + "')";
 			select = "SELECT COUNT(*) as count, ld.state as name ";
 			gropBy = " GROUP BY ld.state ORDER BY ld.state asc";
-			all = "Select DISTINCT(leaddetails.state) as name from leaddetails where leaddetails.state = '"
-					+ state + "'";
+			all = "Select DISTINCT(leaddetails.state) as name from leaddetails where UPPER(leaddetails.state) = UPPER('"
+					+ state + "')";
 		} else if (!zone.equals("0")) {
 			zoneState = " and l.zone = '" + zone + "'";
 			select = "SELECT COUNT(*) as count, ld.state as name ";
@@ -288,9 +286,20 @@ public class DashBoardService {
 				+ new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))
 				+ "' " + " and ld.product_id = p.id and ld.product_id IN ("
 				+ productSql
-				+ ") and ld.id = l.leadDetails_id  and l.user_id is not null  "
+				+ ") and ld.id = l.leadDetails_id and l.zone is not null and l.user_id is not null  "
 				+ zoneState + query + gropBy);
-
+		
+		System.out.println("ZONE :: " + select
+				+ " from lead as l, leaddetails as ld, product as p "
+				+ " where l.lastDispo1ModifiedDate > '"
+				+ new SimpleDateFormat("yyyy-MM-dd").format(start) + "' "
+				+ " and  l.lastDispo1ModifiedDate < '"
+				+ new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))
+				+ "' " + " and ld.product_id = p.id and ld.product_id IN ("
+				+ productSql
+				+ ") and ld.id = l.leadDetails_id and l.zone is not null and l.user_id is not null  "
+				+ zoneState + query + gropBy);
+		
 		List<Map<String, Object>> allProducts = jt.queryForList(all);
 		List<ZoneVM> productList = new ArrayList<ZoneVM>();
 		int i = 0;
@@ -539,7 +548,7 @@ public class DashBoardService {
 				+ " and  l.lastDispo1ModifiedDate < '"
 				+ new SimpleDateFormat("yyyy-MM-dd").format(endDate)
 				+ "' "
-				+ " and  l.leadDetails_id = ld.id  and l.user_id is not null  "
+				+ " and  l.leadDetails_id = ld.id  and l.user_id is not null and l.origin != 'Built-In'  "
 				+ query
 				+ " GROUP BY CAST(l.lastDispo1ModifiedDate  AS DATE) "
 				+ " ORDER BY CAST(l.lastDispo1ModifiedDate  AS DATE) asc";

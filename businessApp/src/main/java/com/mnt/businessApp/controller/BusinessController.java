@@ -32,6 +32,9 @@ import com.mnt.businessApp.service.LeadService;
 import com.mnt.businessApp.service.MailService;
 import com.mnt.businessApp.service.ReadExcelService;
 import com.mnt.businessApp.service.SchedularService;
+import com.mnt.businessApp.service.SmsSender;
+import com.mnt.businessApp.viewmodel.BuildinLeadDetailsVM;
+import com.mnt.businessApp.viewmodel.BuildinLeadVM;
 import com.mnt.businessApp.viewmodel.DealerConfigurationVM;
 import com.mnt.businessApp.viewmodel.GeneralConfigVM;
 import com.mnt.businessApp.viewmodel.LeadDetailsVM;
@@ -95,6 +98,11 @@ public class BusinessController {
 	public @ResponseBody List<LeadDetailsVM> getLeads() {
 		return leadService.getAllLeadDetails();
 	}
+	@Transactional
+	@RequestMapping(value="/getBuildinLeads",method=RequestMethod.GET)
+	public @ResponseBody List<BuildinLeadDetailsVM> getBuildinLeads() {
+		return leadService.getAllBuildinLeadDetails();
+	}
 	
 	@Transactional
 	@RequestMapping(value="/getEscalatedLeads",method=RequestMethod.GET)
@@ -144,11 +152,22 @@ public class BusinessController {
 		return leadService.getFollowUpLeads();
 	}
 	
+	@Transactional
+	@RequestMapping(value="/getBuiltinFollowUpLeads",method=RequestMethod.GET)
+	public @ResponseBody List<BuildinLeadDetailsVM> getBuiltinFollowUpLeads() {
+		return leadService.getBuiltinFollowUpLeads();
+	}
 	
 	@Transactional
 	@RequestMapping(value="/lead/{id}",method=RequestMethod.GET)
 	public @ResponseBody LeadVM getLeadInfoById(@PathVariable("id") Long id) {
 		return leadService.getLeadVMById(id);
+	}
+	
+	@Transactional
+	@RequestMapping(value="/buildinlead/{id}",method=RequestMethod.GET)
+	public @ResponseBody BuildinLeadVM getBuildinLeadInfoById(@PathVariable("id") Long id) {
+		return leadService.getBuildinLeadVMById(id);
 	}
 	
 	@Transactional
@@ -158,9 +177,21 @@ public class BusinessController {
 	}
 	
 	@Transactional
+	@RequestMapping(value="/updateBuildinLead",method=RequestMethod.POST)
+	public @ResponseBody void updateBuildinLead(@RequestBody BuildinLeadVM vm) {
+		leadService.updateBuildinLead(vm);
+	}
+	
+	@Transactional
 	@RequestMapping(value="/createLead",method=RequestMethod.POST)
 	public @ResponseBody void createLead(@RequestBody LeadVM vm) {
 		leadService.createLead(vm);
+	}
+	
+	@Transactional
+	@RequestMapping(value="/createBuildinLead",method=RequestMethod.POST)
+	public @ResponseBody void createBuildinLead(@RequestBody LeadVM vm) {
+		leadService.createBuildinLead(vm);
 	}
 
 	@Transactional
@@ -209,7 +240,7 @@ public class BusinessController {
 	@RequestMapping(value="/getZones", method = RequestMethod.GET)
 	public @ResponseBody Map getZones(ModelMap model,HttpServletRequest request){
 		return dealerService.getZones();
-	}	
+	}
 	
 	@Transactional
 	@RequestMapping(value="/getZonesByState/{zone}",method = RequestMethod.GET)
@@ -222,7 +253,6 @@ public class BusinessController {
 	public @ResponseBody List<ZoneVM> getDistrictByState(@PathVariable("state") String state) {
 		return dealerService.getDistrictByState(state);
 	}
-	
 	
 	@Transactional
 	@RequestMapping(value="/getPincodes", method = RequestMethod.GET)

@@ -120,7 +120,22 @@ public class LoginController {
 		  } 
 	  }
 	  privResourceMap.put("role",u.getRoles().get(0).getId());
+	  int type = 0;
+	  if(u.getType() != null)
+	  {
+		  if(u.getType().equals("Built-In") || u.getType().equals("Both")){
+			  type = 1;
+			  privResourceMap.put("type", type);
+		  }
+		  else{
+			  privResourceMap.put("type", type);
+		  }
+	  }
+	  else{
+		  privResourceMap.put("type", type);
+	  }
 	  u.privResourceMap = privResourceMap;
+	  System.out.println("u.privResourceMap :: " + u.privResourceMap);
 	  
 	  /*"select * from permissionmatrix pm
 	  where 

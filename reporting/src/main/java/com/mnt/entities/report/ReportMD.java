@@ -43,6 +43,8 @@ public class ReportMD {
 	
 	private String userName;
 	
+	private Long userId;
+	
 	private String userEmail;
 
 	public String getUserName() {
@@ -147,6 +149,14 @@ public class ReportMD {
 
 	public void setColumns(String columns) {
 		this.columns = columns;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 	
 	

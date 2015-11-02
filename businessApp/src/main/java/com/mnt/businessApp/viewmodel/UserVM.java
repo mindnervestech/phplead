@@ -31,6 +31,7 @@ public class UserVM {
 	private List<String> productlist;
 	public Long user;
 	public String brand;
+	public String type;
 	
 	public UserVM(){}
 	
@@ -48,6 +49,7 @@ public class UserVM {
 		this.zone = user.getZone();
 		this.customerGroup = user.getCustomerGroup();
 		this.brand = user.getBrand();
+		this.type = user.getType();
 	}
 	public Long getId() {
 		return id;
@@ -192,6 +194,12 @@ public class UserVM {
 
 	public void setBrand(String brand) {
 		this.brand = brand;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 }

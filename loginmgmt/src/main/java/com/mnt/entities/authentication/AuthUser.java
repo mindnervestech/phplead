@@ -35,6 +35,7 @@ public class AuthUser implements UserDetails {
     public String entityName;
     public Long entityId;
     public String name;
+    public String type;
     
     
     public List<Role> roles = new ArrayList<Role>();
@@ -162,5 +163,12 @@ public class AuthUser implements UserDetails {
 		this.name = name;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 	
 }

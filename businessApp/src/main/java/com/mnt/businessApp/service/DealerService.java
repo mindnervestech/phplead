@@ -29,6 +29,7 @@ import com.mnt.businessApp.viewmodel.ZoneVM;
 import com.mnt.entities.authentication.AuthUser;
 import com.mnt.entities.authentication.Role;
 import com.mnt.entities.businessApp.GeneralConfig;
+import com.mnt.entities.businessApp.Lead;
 import com.mnt.entities.businessApp.User;
 import com.mnt.entities.businessApp.ZipCode;
 
@@ -179,7 +180,7 @@ public class DealerService {
 		return dataList;
 	}
 
-	private List<ZoneVM> getRoles() {
+	public List<ZoneVM> getRoles() {
 		String sql = "select * from roles";
 		List<Map<String, Object>> rows = jt.queryForList(sql);
 		List<ZoneVM> roleList = new ArrayList<ZoneVM>();
@@ -194,8 +195,16 @@ public class DealerService {
 
 
 	public List<ZoneVM> getPinCodes(String query) {
-
-		String sql = "select * from zipcode WHERE id LIKE '"+query+"%' or town LIKE '%"+query+"%'";
+		AuthUser authUser1 = Utils.getLoggedInUser();
+		String sql = "";
+		if(authUser1.getEntityName().equals("RSM") || authUser1.getEntityName().equals("ZSM") || authUser1.getEntityName().equals("Sellout Manager")){
+			User user2 = (User) sessionFactory.getCurrentSession().get(User.class, authUser1.getEntityId());
+			System.out.println("ZONE : " + user2.getZone());
+			sql = "select * from zipcode WHERE id LIKE '"+query+"%' or town LIKE '%"+query+"%' and zone = '"+user2.getZone()+"'";
+		}
+		else{
+			sql = "select * from zipcode WHERE id LIKE '"+query+"%' or town LIKE '%"+query+"%'";
+		}
 
 		List<Map<String, Object>> rows = jt.queryForList(sql);
 		List<ZoneVM> pinsList = new ArrayList<ZoneVM>();
@@ -231,6 +240,7 @@ public class DealerService {
 		user.district = userVM.getDistrict();
 		user.setEntityName(role.getName());
 		user.setStatus(true);
+		user.type = userVM.getType();
 		List<ZipCode> codes = new ArrayList<>();
 		for(ZoneVM vm : userVM.getIds()){
 			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));
@@ -258,6 +268,7 @@ public class DealerService {
 		authUser.setUsername(userVM.getEmail());
 		authUser.setEntityName(role.getName());
 		authUser.setName(user.getName());
+		authUser.setType(user.getType());
 		List<Role> roles = new ArrayList<>();
 		roles.add(role);
 		authUser.setRoles(roles);
@@ -318,10 +329,6 @@ public class DealerService {
 		for(ZoneVM vm : userVM.getIds()){
 			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));
 		}
-		
-		/*for(PinsVM vm : userVM.getPins()){
-			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getPin()));
-		}*/
 		user.setZipCodes(codes);
 		
 		sessionFactory.getCurrentSession().save(user);
@@ -374,9 +381,6 @@ public class DealerService {
 		for(ZoneVM vm : userVM.getIds()){
 			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getId()));
 		}
-		/*for(PinsVM vm : userVM.getPins()){
-			codes.add((ZipCode) sessionFactory.getCurrentSession().get(ZipCode.class, vm.getPin()));
-		}*/
 		user.setZipCodes(codes);
 		for(ProductVM productVM : userVM.getProducts()) {
 			if(productVM.getSelected() == true){
@@ -457,6 +461,7 @@ public class DealerService {
 		user.state = userVM.getState();
 		user.district = userVM.getDistrict();
 		user.postCode = userVM.getPostCode();
+		user.type = userVM.getType();
 		user.setEntityName(role.getName());
 		List<ZipCode> codes = new ArrayList<>();
 		for(ZoneVM vm : userVM.getIds()){
@@ -488,6 +493,7 @@ public class DealerService {
 		authUser.setEmail(userVM.getEmail());
 		authUser.setUsername(userVM.getEmail());
 		authUser.setName(userVM.getName());
+		authUser.setType(userVM.getType());
 		sessionFactory.getCurrentSession().update(authUser);
 		
 		sessionFactory.getCurrentSession().update(user);
@@ -575,6 +581,7 @@ public class DealerService {
 			vm.state =  (String) row.get("state");
 			vm.district =  (String) row.get("district");
 			vm.user = (Long) row.get("user_id");
+			vm.type = (String) row.get("type");
 			sql = "Select * from userrole as ur,  roles as r where r.role_id = ur.role_id and ur.user_id = (Select au.auth_id from authusers as au where au.entityId = "+(Long) row.get("id")+")";
 			List<Map<String, Object>> roles=  jt.queryForList(sql);
 			if(roles.size() != 0){

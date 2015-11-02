@@ -17,6 +17,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.mnt.businessApp.viewmodel.BuildinLeadDetailsVM;
+import com.mnt.businessApp.viewmodel.BuildinLeadVM;
 import com.mnt.businessApp.viewmodel.LeadDetailsVM;
 import com.mnt.businessApp.viewmodel.LeadHistoryVM;
 import com.mnt.businessApp.viewmodel.LeadVM;
@@ -43,15 +45,41 @@ public class LeadService {
 	private MailService mailService;
 	
 	@Autowired
+	private SmsSender smsSender;
+	
+	@Autowired
 	private JdbcTemplate jt;
 
 	public List<LeadDetailsVM> getAllLeadDetails() {
 		return getLeadDetailVM(null, null, " and u.id = l.user_id ", "0", "0", 0L, 0L, "0");
 	}
+	public List<BuildinLeadDetailsVM> getAllBuildinLeadDetails() {
+		return getBuildinLeadDetailVM(null, null, " and l.origin = 'Built-In' ", "0", "0", 0L, 0L, "0");
+	}
 	
 	public LeadVM getLeadVMById(Long id) {
 		Lead lead = getLeadById(id);
-		LeadVM leadVM = new LeadVM(lead); 
+		LeadVM leadVM = new LeadVM(lead);
+		//BuildinLeadVM leadVM = new BuildinLeadVM(lead);
+		int i = 0;
+		Map map = jt.queryForList("select * from generalconfig").get(0);
+		int followUpReminderCount =  Integer.parseInt((String)map.get("followUpReminderCount"));
+		for (ActivityStream activityStream : lead.getActivityStream()){
+			if(activityStream.newDisposition2.equals("Not Contacted")){
+				i++;
+				if(i>followUpReminderCount){
+					leadVM.isLost = true;
+					break;
+				}
+			}
+		}
+		return leadVM;
+	}
+	
+	public BuildinLeadVM getBuildinLeadVMById(Long id) {
+		Lead lead = getLeadById(id);
+		//LeadVM leadVM = new LeadVM(lead);
+		BuildinLeadVM leadVM = new BuildinLeadVM(lead);
 		int i = 0;
 		Map map = jt.queryForList("select * from generalconfig").get(0);
 		int followUpReminderCount =  Integer.parseInt((String)map.get("followUpReminderCount"));
@@ -91,6 +119,7 @@ public class LeadService {
 			activityStream.setNewDisposition2("Lost");
 			vm.setDisposition2("Lost");
 			vm.setBrand("");
+			sendTriedContactedSms(vm,lead.getLeadDetails().getLms());
 		}
 		activityStream.setLead(lead);
 		activityStream.setReason(vm.getReason());
@@ -100,7 +129,7 @@ public class LeadService {
 			LeadAgeing ageing;
 			long secs ;
 			Integer hours;
-			if(vm.getDisposition2().equals("Already Purchased") || vm.getDisposition2().equals("Lost")){
+			if(vm.getDisposition2().equals("Purchased") || vm.getDisposition2().equals("Lost")){
 				if(vm.getBrand().equals("Bosch") || vm.getBrand().equals("Siemens")){
 					ageing = getLeadAgeing(lead.getId(),"Won");
 				} else {
@@ -132,7 +161,7 @@ public class LeadService {
 		lead.setReason(vm.getReason());
 		lead.addActivityStream(activityStream);
 		switch(vm.getDisposition2()){
-		case "Already Purchased":
+		case "Purchased":
 			if(vm.getBrand().equals("Bosch") || vm.getBrand().equals("Siemens")){
 				lead.setStatus("Won");
 			} else {
@@ -144,6 +173,162 @@ public class LeadService {
 		case "Lost":
 			lead.setStatus("Lost");
 		case "Not Interested":
+			System.out.println("Dispostion2 : " + vm.getDisposition2());
+			System.out.println("Status : " + vm.getStatus());
+			lead.setStatus("Lost");
+			lead.setDisposition3(vm.getDisposition3());
+			break;
+		default:
+			lead.setStatus("Open");
+			lead.setDisposition3(vm.getDisposition3());
+		}
+		if(lead.getDisposition1().equals("Tried Contacted") || lead.getDisposition2().equals("Call back/Follow up") || 
+				(lead.getDisposition2().equals("Interested") && (lead.getDisposition3().equals("Call back-want to purchase later") || lead.getDisposition3().equals("Call back-evaluating")))){
+			lead.setFollowUpDate(vm.getFollowUpDate());
+		}
+		lead.setLastDispo1ModifiedDate(new Date());
+		sessionFactory.getCurrentSession().update(lead);
+		if(vm.getDisposition2().equals("Interested")){
+			sendInterestedSms(vm,lead.getLeadDetails().getLms());
+		}
+		if(vm.getDisposition3() != null){
+			if(vm.getDisposition3().equals("Call back-evaluating") || vm.getDisposition3().equals("Call back-want to purchase later")){
+				
+				sendCallbackSms(vm,lead.getLeadDetails().getLms());
+			}
+		}
+		
+	}
+	
+	
+
+	private void sendTriedContactedSms(LeadVM vm,String brand) {
+		String phone = vm.getContactNo().toString();
+		String message = "";
+		message = "Dear Customer, we missed you. If you wish to get more information about " + brand + " " + vm.getProduct() + ", please call back on <9899989889>. Thank you." + brand + " Home Appliances";
+		smsSender.sendSms(phone,message);
+		
+	}
+
+	private void sendCallbackSms(LeadVM vm,String brand) {
+		String phone = vm.getContactNo().toString();
+		String message = "";
+		message = "Dear Customer, we missed you. To get more information about " + brand + " " + vm.getProduct() + ", please call back on <9899989889>. Thank you." + brand + " Home Appliances";
+		System.out.println("Message :: " + message);
+		smsSender.sendSms(phone,message);
+		
+	}
+
+	private void sendInterestedSms(LeadVM vm,String brand) {
+		System.out.println("In Interested Sms");
+		String phone = vm.getContactNo().toString();
+		String message = "";
+		message = "Dear Customer, Thank You for showing interest in " + brand + " " + vm.getProduct() + ". For any further information, please call on <9899989889>. Thank you " + brand + " Home Appliances";
+		smsSender.sendSms(phone,message);
+	}
+	
+	public void updateBuildinLead(BuildinLeadVM vm) {
+		AuthUser authUser = Utils.getLoggedInUser();
+		Lead lead = getLeadById(vm.getId());
+		
+		Session session = sessionFactory.getCurrentSession();
+		LeadDetails details = (LeadDetails) sessionFactory.getCurrentSession().get(LeadDetails.class, lead.getLeadDetails().getId());
+		
+		
+		
+		details.setId(lead.getLeadDetails().getId());
+		details.setCity(vm.getCity());
+		details.setContactNo(vm.getContactNo());
+		details.setEmail(vm.getEmail());
+		details.setName(vm.getName());
+		
+		
+		Product product = (Product)session.get(Product.class, Long.parseLong(vm.getProductId()));
+		details.setProduct(product);
+		
+		details.setUploadDate(new Date());
+		details.setState(vm.getState());
+		details.setSr(vm.getLeadNumber());
+		details.setSrNo(vm.getLeadNumber());
+		details.setArea(vm.getArea());
+		details.setKitchenmake(vm.getKitchenmake());
+		details.setSource(vm.getSource());
+		details.setBudget(vm.getBudget());
+		details.setPurchase(vm.getPurchase());
+		details.setLms(vm.getLms());
+		session.update(details);
+		
+		lead.setFollowUpDate(null);
+		lead.setBrand(null);
+		lead.setModalNo(null);
+		lead.setDisposition3(null);
+		lead.setOrigin("Built-In");
+		ActivityStream activityStream = new ActivityStream();
+		activityStream.setNewDisposition1(vm.getDisposition1());
+		activityStream.setNewDisposition2(vm.getDisposition2());
+		activityStream.setNewDisposition3(vm.getDisposition3());
+		activityStream.setOldDisposition1(lead.getDisposition1());
+		activityStream.setOldDisposition2(lead.getDisposition2());
+		activityStream.setOldDisposition3(lead.getDisposition3());
+		Integer notInterestedCount = jt.queryForObject("Select count(*) from activitystream where activitystream.newDisposition1 = 'Tried Contacted' and activitystream.lead_id = "+lead.getId(),Integer.class);
+		if(notInterestedCount >= 5){
+			activityStream.setNewDisposition2("Lost");
+			vm.setDisposition2("Lost");
+			vm.setBrand("");
+		}
+		activityStream.setLead(lead);
+		activityStream.setReason(vm.getReason());
+		activityStream.setCreatedDate(new Date());
+		sessionFactory.getCurrentSession().save(activityStream);
+		if(lead.getDisposition2() == null || (!lead.getDisposition2().equals("Won") && !lead.getDisposition2().equals("Lost"))){
+			LeadAgeing ageing;
+			long secs ;
+			Integer hours;
+			if(vm.getDisposition2().equals("Purchased") || vm.getDisposition2().equals("Lost")){
+				if(vm.getBrand().equals("Bosch") || vm.getBrand().equals("Siemens")){
+					ageing = getLeadAgeing(lead.getId(),"Won");
+				} else {
+					ageing = getLeadAgeing(lead.getId(),"Lost");
+				}
+				secs = (new Date().getTime() - lead.getUploadDate().getTime() ) / 1000;
+				hours = (int) (secs / 3600);
+				ageing.setIsCurrent(false);
+			} else {
+				ageing = getLeadAgeing(lead.getId(), lead.getDisposition1());
+				secs = (new Date().getTime() - lead.getLastDispo1ModifiedDate().getTime()) / 1000;
+				hours =  (int) ((secs / 3600)+ageing.getAgeing()) ;
+				LeadAgeing currentAgeing = getLeadAgeing(lead.getId(), vm.getDisposition1());
+				currentAgeing.setAgeing(0L);
+				currentAgeing.setProduct(lead.getLeadDetails().getProduct().getName());
+				currentAgeing.setIsCurrent(true);
+				sessionFactory.getCurrentSession().update(currentAgeing);
+				if(ageing.getStatus() != currentAgeing.getStatus()){
+					ageing.setIsCurrent(false);
+				}
+			}
+			ageing.setAgeing(Long.valueOf(hours));
+			ageing.setProduct(lead.getLeadDetails().getProduct().getName());
+			sessionFactory.getCurrentSession().update(ageing);
+		}
+		sessionFactory.getCurrentSession().flush();
+		lead.setDisposition1(vm.getDisposition1());
+		lead.setDisposition2(vm.getDisposition2());
+		lead.setReason(vm.getReason());
+		lead.addActivityStream(activityStream);
+		switch(vm.getDisposition2()){
+		case "Purchased":
+			if(vm.getBrand().equals("Bosch") || vm.getBrand().equals("Siemens")){
+				lead.setStatus("Won");
+			} else {
+				lead.setStatus("Lost");
+			}
+			lead.setBrand(vm.getBrand());
+			lead.setModalNo(vm.getModalNo());
+			break;
+		case "Lost":
+			lead.setStatus("Lost");
+		case "Not Interested":
+			lead.setStatus("Lost");
 			lead.setDisposition3(vm.getDisposition3());
 			break;
 		default:
@@ -230,6 +415,16 @@ public class LeadService {
 		return getLeadDetailVM(null, null, " and l.followUpDate IS NOT NULL and u.id = l.user_id ", "0", "0", 0L, 0L, "0");
 
 	}
+	
+	public List<BuildinLeadDetailsVM> getBuiltinFollowUpLeads() {
+		AuthUser user = Utils.getLoggedInUser();
+		List<BuildinLeadDetailsVM> vms = new ArrayList<BuildinLeadDetailsVM>();
+		String sql = "";
+		String userSql = "";
+
+		return getBuildinLeadDetailVM(null, null, " and l.followUpDate IS NOT NULL and l.origin = 'Built-In' ", "0", "0", 0L, 0L, "0");
+
+	}
 
 	public List<LeadDetailsVM> getOpenLeads(Date start, Date end, String zone, String state, Long product, Long dealer, String brand) {
 		return  getLeadDetailVM(start, end, " and l.status = 'Open' and u.id = l.user_id", zone, state, product, dealer, brand);
@@ -304,22 +499,132 @@ public class LeadService {
 		sql = "Select ld.sr as srNo, ld.name as name,  ld.lms as lms, "
 				+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
 				+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
-				+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date"
+				+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date,l.assignLeadDate as assignDate"
 				+" FROM lead as l, leaddetails as ld, product as p, user as u where p.id = ld.product_id"
-				+" and ld.id = l.leadDetails_id "+query+userQuery+date;
+				+" and ld.id = l.leadDetails_id and l.origin != 'Built-In' "+query+userQuery+date;
 		if(query.contains("l.user_id is null")){
 			sql = "Select ld.sr as srNo, ld.name as name,  ld.lms as lms, "
 					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
 					+" ld.pinCode as pincode,p.name as product,ld.state as state,l.disposition1 as dispo1,"
-					+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date"
+					+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date,l.assignLeadDate as assignDate"
 					+" FROM lead as l, leaddetails as ld, product as p where p.id = ld.product_id"
-					+" and ld.id = l.leadDetails_id "+query+userQuery+date;
+					+" and ld.id = l.leadDetails_id and l.origin != 'Built-In' "+query+userQuery+date;
 		}
 		System.out.println("SQL : " + sql);
 		
 		List<Map<String, Object>> rows = jt.queryForList(sql);
 		for(Map map : rows) {
 			vms.add(new LeadDetailsVM(map));
+		}
+		return vms;
+	}
+	
+	private List<BuildinLeadDetailsVM> getBuildinLeadDetailVM(Date start, Date end, String query, String zone, String state, Long product, Long dealer, String brand) {
+		List<BuildinLeadDetailsVM> vms = new ArrayList<>();
+		AuthUser user = Utils.getLoggedInUser();
+		String sql = "";
+		String date = "";
+		String userQuery = "";
+		String select = "";
+		String from = "";
+		if(start != null)
+			date = " and l.lastDispo1ModifiedDate > '"+new SimpleDateFormat("yyyy-MM-dd").format(start)+"' "
+					+ " and  l.lastDispo1ModifiedDate < '"+new SimpleDateFormat("yyyy-MM-dd").format(getDate(end))+"' ";
+		if(dealer != 0 || product != 0 || !zone.equals("0") || !state.equals("0") || !brand.equals("0")){
+			if(!zone.equals("0") && !state.equals("0")){
+				userQuery += " and l.zone = '"+zone+"' and ld.state = '"+state+"'";
+			} else if(!zone.equals("0")){
+				userQuery += " and l.zone = '"+zone+"'";
+			} else if(!state.equals("0")){
+				if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager"))
+				userQuery += " and ld.state = '"+state+"' and l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" )";
+			}
+			if(!brand.equals("0")){
+				query += " and ld.lms = '"+brand+"' ";
+			}
+			if(product != 0 ){
+				userQuery += " and ld.product_id ="+product;
+			} else {
+				if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+					sql = "select product.id from product where product.id IN (SELECT user_product.products_id from user_product WHERE user_product.User_id = "+user.getEntityId()+") ";
+					userQuery += " and ld.product_id IN ("+sql+")";
+				}
+			}
+			if(dealer != 0){
+				userQuery += " and l.user_id = "+dealer;
+				if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")|| user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
+					userQuery += " and ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) ";
+				} 
+			} 
+			if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR")|| user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
+				userQuery += " and (l.user_id = "+user.getEntityId()+"  or ld.pinCode IN (Select uz.zipcodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) ) ";
+			} 
+		} else if(user.getEntityName().equals("Dealer") ){
+			select = "u.name as userName,";
+			from = ", user as u";
+			userQuery = " and l.user_id = "+user.getEntityId()+"";
+			query += " and u.id = l.user_id and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
+		} else if(user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant") || user.getEntityName().equals("Sales Executive")){
+			select = " u.name as userName,";
+			from = ", user as u";
+			query += " and u.id = l.user_id and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
+			userQuery = "and (l.user_id = "+user.getEntityId()+"";
+			userQuery += " or ld.pinCode IN (Select uz.zipCodes_id from user_zipcode uz where uz.user_id = "+user.getEntityId()+" ) )";
+		} else if(user.getEntityName().equals("ZSM") || user.getEntityName().equals("Sellout Manager")){
+			select = " u.name as userName,";
+			from = ", user as u";
+			query += " and u.id = l.user_id";
+			userQuery = " and l.user_id = "+user.getEntityId()+"";
+			//userQuery += " or l.zone = (Select user.zone from user where user.id = "+user.getEntityId()+" ) )";
+		} else {
+			userQuery = "";
+			if(user.getEntityName().equals("Category Manager") || user.getEntityName().equals("Sellout-Regional")){
+				select = " u.name as userName,";
+				from = ", user as u";
+				query += " and u.id = l.user_id and ld.product_id IN ( select products_id  from user_product  where User_id = "+user.getEntityId()+" )";
+			}
+		}
+		
+		sql = "Select ld.sr as srNo, ld.name as name,  ld.lms as lms,"+select
+				+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
+				+" p.name as product,p.id as productId,ld.state as state,l.disposition1 as dispo1,"
+				+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date,"
+				+" ld.city as city,ld.area as area "
+				+" FROM lead as l, leaddetails as ld, product as p "+from+" where p.id = ld.product_id"
+				+" and ld.id = l.leadDetails_id "+query+userQuery+date;
+		if(query.contains("l.user_id is null")){
+			sql = "Select ld.sr as srNo, ld.name as name,  ld.lms as lms,"+select
+					+" l.id as id,ld.email as email, ld.contactNo as contactNo,"
+					+" p.name as product,p.id as productId,ld.state as state,l.disposition1 as dispo1,"
+					+" l.disposition2 as dispo2,l.disposition3 as dispo3,l.status as status,l.followUpDate as date,"
+					+" ld.city as city,ld.area as area "
+					+" FROM lead as l, leaddetails as ld, product as p "+from+" where p.id = ld.product_id"
+					+" and ld.id = l.leadDetails_id "+query+userQuery+date;
+		
+		}
+		System.out.println("SQL : " + sql);
+		
+		List<Map<String, Object>> rows = jt.queryForList(sql);
+		for(Map map : rows) {
+			//vms.add(new LeadDetailsVM(map));
+			BuildinLeadDetailsVM leadVM = new BuildinLeadDetailsVM();
+			leadVM.id = (Long) map.get("id");
+			leadVM.leadNumber =  (Long) map.get("srNo");
+			leadVM.contactNumber = (Long) map.get("contactNo");
+			leadVM.contactName = (String) map.get("name");
+			leadVM.email = (String) map.get("email");
+			leadVM.product = (String) map.get("product");
+			leadVM.productId = ((Long) map.get("productId")).toString();
+			leadVM.state = (String) map.get("state");
+			leadVM.disposition1 = (String) map.get("dispo1");
+			leadVM.disposition2 = (String) map.get("dispo2");
+			leadVM.disposition3 = (String) map.get("dispo3");
+			leadVM.status = (String) map.get("status");
+			leadVM.followUpDate = (Date) map.get("date");
+			leadVM.lms = (String) map.get("lms");
+			leadVM.userName = (String) map.get("userName");
+			
+			vms.add(leadVM);
 		}
 		return vms;
 	}
@@ -339,7 +644,7 @@ public class LeadService {
 		AuthUser user = Utils.getLoggedInUser();
 		List<ReassignUserVM> dealerList = new ArrayList<ReassignUserVM>();
 		String usersql = "";
-		if(user.getEntityName().equals("Sellout Manager") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sales Consultant")){
+		if(user.getEntityName().equals("Sellout Manager") || user.getEntityName().equals("RSM") || user.getEntityName().equals("TSR") || user.getEntityName().equals("Sellout-Regional")){
 			usersql = "Select * from user where( user.id In (Select DISTINCT(a.User_id) from user_zipcode as a, user_zipcode as b where"
 					+" a.zipCodes_id = b.zipCodes_id and b.User_id = "+user.getEntityId()+")" 
 					+" and user.entityName In ('RSM', 'TSR', 'Dealer', 'Sales Consultant', 'Sales Executive'))"
@@ -355,14 +660,20 @@ public class LeadService {
 			return dealerList;
 		} 
 		System.out.println("Ress : " + usersql);
+		String address = "";
 		List<Map<String, Object>> rows = jt.queryForList(usersql);
 		for(Map map : rows) {
 			ReassignUserVM vm = new ReassignUserVM();
 			vm.id = (Long) map.get("id");
 			if(((String) map.get("entityName")).equals("Dealer")){
-				String address = (String) map.get("address");
-				address = address.length() > 25 ? address.substring(0,25) : address;
-				vm.name = (String) map.get("name") +" : " +  address;
+				address = (String) map.get("address");
+				if(address != null){
+					address = address.length() > 25 ? address.substring(0,25) : address;
+					vm.name = (String) map.get("name") +" : " +  address;
+				}else{
+					address = "";
+					vm.name = (String) map.get("name") +" : " +  address;
+				}
 			} else {
 				vm.name = (String) map.get("name") +" : (" + (String) map.get("entityName")+")";
 			}
@@ -422,6 +733,66 @@ public class LeadService {
 		lead.setOrigin("Walk-In");
 		lead.setStatus("Open");
 		lead.setLastDispo1ModifiedDate(new Date());
+		lead.setUploadDate(new Date());
+		session.save(lead);
+
+		ActivityStream activityStream = new ActivityStream();
+		activityStream.setNewDisposition1("New");
+		activityStream.setLead(lead);
+		activityStream.setCreatedDate(new Date());
+		session.save(activityStream);
+		session.flush();
+
+		LeadAgeing ageing = new LeadAgeing();
+		ageing.setAgeing(0L);
+		ageing.setStatus("New");
+		//ageing.setZone(lead.getZone());
+		ageing.setProduct(product.getName());
+		//ageing.setDealer_id(lead.getId());
+		ageing.setLead_id(lead.getId());
+		session.save(ageing);
+	}
+	
+	
+	public void createBuildinLead(LeadVM vm) {
+		System.out.println("LEAD NAME"+vm.name);
+		AuthUser authUser = Utils.getLoggedInUser();
+		Session session = sessionFactory.getCurrentSession();
+		LeadDetails details = new LeadDetails();
+		
+		
+		details.setCity(vm.getCity());
+		details.setContactNo(vm.getContactNo());
+		details.setEmail(vm.getEmail());
+		details.setName(vm.getName());
+		
+		Product product = (Product)session.get(Product.class, Long.parseLong(vm.getProduct()));
+		details.setProduct(product);
+		
+		details.setUploadDate(new Date());
+		details.setState(vm.getState());
+		details.setSr(vm.getLeadNumber());
+		details.setSrNo(vm.getLeadNumber());
+		details.setArea(vm.getArea());
+		details.setKitchenmake(vm.getKitchenmake());
+		details.setSource(vm.getSource());
+		details.setBudget(vm.getBudget());
+		details.setPurchase(vm.getPurchase());
+		details.setLms(vm.getLms());
+		session.save(details);
+
+		Lead lead = new Lead();
+		System.out.println("EntityID :: " + authUser.getEntityId());
+		User user = (User) session.get(User.class, authUser.getEntityId());
+		lead.setUser(user);
+		lead.setZone(user.getZone());
+		
+		lead.setDisposition1("New");
+		lead.setLeadDetails(details);
+		lead.setOrigin("Built-In");
+		lead.setStatus("Open");
+		lead.setLastDispo1ModifiedDate(new Date());
+		lead.setUploadDate(new Date());
 		session.save(lead);
 
 		ActivityStream activityStream = new ActivityStream();

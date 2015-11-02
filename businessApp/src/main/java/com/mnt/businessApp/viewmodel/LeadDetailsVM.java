@@ -22,6 +22,7 @@ public class LeadDetailsVM {
 	public String esacaletedTo;
 	public Date followUpDate;
 	public String lms;
+	public Date assignDate;
 	private String dealerName;
 	public LeadDetailsVM() {
 	}
@@ -43,6 +44,8 @@ public class LeadDetailsVM {
 		this.followUpDate = (Date) map.get("date");
 		this.dealerName = (String) map.get("dealerName");
 		this.lms = (String) map.get("lms");
+		this.assignDate = (Date) map.get("assignDate");
+		
 	}
 
 	public LeadDetailsVM(Lead lead) {
@@ -187,6 +190,16 @@ public class LeadDetailsVM {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+
+	public Date getAssignDate() {
+		return assignDate;
+	}
+
+
+	public void setAssignDate(Date assignDate) {
+		this.assignDate = assignDate;
 	}
 	
 

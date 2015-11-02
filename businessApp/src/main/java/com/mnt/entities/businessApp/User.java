@@ -31,6 +31,7 @@ public class User {
 	public String district;
 	public String customerGroup;
 	public String brand;
+	public String type;
 	
 	@ManyToMany
 	public List<Product> products;
@@ -151,6 +152,13 @@ public class User {
 	public void setBrand(String brand) {
 		this.brand = brand;
 	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	
 	public void addZipCode(ZipCode zipCode) {
 		if(this.zipCodes == null){
 			this.zipCodes = new ArrayList<>();

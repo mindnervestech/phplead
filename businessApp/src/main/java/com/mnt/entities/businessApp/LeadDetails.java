@@ -55,6 +55,16 @@ public class LeadDetails {
 	public String	remarks1;
 	public String	remarks2;
 	
+	public String area;
+	
+	public String kitchenmake;
+	
+	public String source;
+	
+	public Long budget;
+	
+	public String purchase;
+	
 	public Long getSrNo() {
 		return srNo;
 	}
@@ -247,4 +257,35 @@ public class LeadDetails {
 	public void setProduct(Product product) {
 		this.product = product;
 	}
+	public String getArea() {
+		return area;
+	}
+	public void setArea(String area) {
+		this.area = area;
+	}
+	public String getKitchenmake() {
+		return kitchenmake;
+	}
+	public void setKitchenmake(String kitchenmake) {
+		this.kitchenmake = kitchenmake;
+	}
+	public String getSource() {
+		return source;
+	}
+	public void setSource(String source) {
+		this.source = source;
+	}
+	public Long getBudget() {
+		return budget;
+	}
+	public void setBudget(Long budget) {
+		this.budget = budget;
+	}
+	public String getPurchase() {
+		return purchase;
+	}
+	public void setPurchase(String purchase) {
+		this.purchase = purchase;
+	}
+	
 }

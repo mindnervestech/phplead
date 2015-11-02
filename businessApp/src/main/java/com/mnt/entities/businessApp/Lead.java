@@ -37,6 +37,8 @@ public class Lead {
 	
 	public Date	uploadDate;
 	
+	public Date assignLeadDate;
+	
 	public Date	lastDispo1ModifiedDate;
 	
 	public Integer escalatedLevel = 0;
@@ -229,6 +231,14 @@ public class Lead {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public Date getAssignLeadDate() {
+		return assignLeadDate;
+	}
+
+	public void setAssignLeadDate(Date assignLeadDate) {
+		this.assignLeadDate = assignLeadDate;
 	}
 	
 	

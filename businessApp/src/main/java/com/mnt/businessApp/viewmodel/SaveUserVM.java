@@ -22,6 +22,7 @@ public class SaveUserVM {
 	public Long dealer;
 	public String user;
 	public List<ZoneVM> ids;
+	public String type;
 	
 	public String getName() {
 		return name;
@@ -118,6 +119,12 @@ public class SaveUserVM {
 	}
 	public void setIds(List<ZoneVM> ids) {
 		this.ids = ids;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 }

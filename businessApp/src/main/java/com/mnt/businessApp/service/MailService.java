@@ -88,7 +88,7 @@ public class MailService
 		             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true);
 		             message.setTo(to);
 		             System.out.println("New");
-		             message.setFrom("admin@bsh-lms.com");
+		             message.setFrom("support@bsh-lms.com");
 		             message.setSubject(subject);
 		             Map velocityContext = new HashMap();
 		             /*velocityContext.put("firstName", "Yashwant");

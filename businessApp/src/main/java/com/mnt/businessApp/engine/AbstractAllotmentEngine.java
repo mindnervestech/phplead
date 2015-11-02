@@ -84,6 +84,7 @@ public abstract class AbstractAllotmentEngine {
 					updateLeadAgeing();
 				}
 				if(userPresent.size() == 1) {
+					System.out.println("User Present :: " + userPresent.get(0).toString());
 					assignLeadIfSingleUser();
 				} else {
 					assignLeadIfMultipleUser();

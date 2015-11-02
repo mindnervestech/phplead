@@ -7,8 +7,11 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import com.mnt.entities.businessApp.Lead;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LeadVM {
+public class BuildinLeadVM extends LeadVM {
 
+	
+	
+	
 	public Long id;
 	public Long leadNumber;
 	public String disposition1;
@@ -43,11 +46,11 @@ public class LeadVM {
 	public String source;
 	public Long budget;
 	public String purchase;
-	public Date assignDate;
+	public String productId;
 	
-	public LeadVM() {}
+	public BuildinLeadVM() {}
 	
-	public LeadVM(Lead lead) {
+	public BuildinLeadVM(Lead lead) {
 		this.id = lead.getId();
 		this.disposition1 = lead.getDisposition1();
 		this.disposition2 = lead.getDisposition2();
@@ -60,6 +63,7 @@ public class LeadVM {
 		this.state = lead.getLeadDetails().getState();
 		this.pinCode = lead.getLeadDetails().getPinCode();
 		this.product = lead.getLeadDetails().getProduct().getName();
+		this.productId = lead.getLeadDetails().getProduct().getId().toString();
 		this.type = lead.getLeadDetails().getType();
 		this.campaignName = lead.getLeadDetails().getCampaignName();
 		this.categorization = lead.getLeadDetails().getCategorization();
@@ -68,7 +72,6 @@ public class LeadVM {
 		this.lms = lead.getLeadDetails().getLms();
 		this.remarks1 = lead.getLeadDetails().getRemarks1();
 		this.followUpDate = lead.getFollowUpDate();
-		this.assignDate = lead.getAssignLeadDate(); 
 		this.status = lead.getStatus();
 		this.brand = lead.getBrand();
 		this.modalNo = lead.getModalNo();
@@ -353,13 +356,19 @@ public class LeadVM {
 	public void setPurchase(String purchase) {
 		this.purchase = purchase;
 	}
+	
 
-	public Date getAssignDate() {
-		return assignDate;
+
+	public String getProductId() {
+		return productId;
 	}
 
-	public void setAssignDate(Date assignDate) {
-		this.assignDate = assignDate;
+
+	public void setProductId(String productId) {
+		this.productId = productId;
 	}
+
+	
+
 	
 }

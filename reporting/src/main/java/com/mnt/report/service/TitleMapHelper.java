@@ -62,6 +62,7 @@ public class TitleMapHelper {
 			JSONObject nameValue = new JSONObject();
 			nameValue.put("name", rs.getObject("name").toString());
 			nameValue.put("value",  rs.getObject("value").toString());
+			nameValue.put("checked",  true);
 			return nameValue;
 		}
 		
